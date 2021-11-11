@@ -1,0 +1,4 @@
+user_id,id_type,name,id,dob,gender,address,city,state,country,phone,telephone,remarks
+221,ic_number,Raghav,843986868963,1990-01-01,male,hdsh,hdh,hdhq,hdh,988989898,,
+221,ic_number,Raghav1,8437986868963,1990-01-01,male,hdsh,hdh,hdhq,hdh,988989898,,
+221,passport,Raghav2,843986868963,1990-01-01,male,hdsh,hdh,hdhq,hdh,988989898,,
