@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
+class OrderTransaction extends Model
 {
     public $timestamps = true;
     protected $fillable = [
@@ -22,31 +22,16 @@ class Order extends Model
 	    'created_at',
 	    'updated_at',
     ]; 
-	public $sortable = [
-		'id',
-		'amount',
-		'status',
-	 	'created_at',
-		'updated_at',
-    ];
 	public function user()
 	{
 	   return $this->belongsTo(User::class);
 	}
-    public function ordered_product()
+	public function order()
 	{
-		return $this->hasOne(OrderedProduct::class);
+	   return $this->belongsTo(Order::class);
 	}
 	public function currency()
 	{
 	   return $this->belongsTo(Currency::class);
-	}
-    public function user_server()
-	{
-		return $this->hasOne(UserServer::class);
-	}
-    public function order_transaction()
-	{
-		return $this->hasMany(OrderTransaction::class);
 	}
 }

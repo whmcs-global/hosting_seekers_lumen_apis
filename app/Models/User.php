@@ -127,4 +127,8 @@ class User extends Model implements Authenticatable
 	{
 	   return $this->hasMany(ReviewComplaint::class, 'company_id', 'id');
 	}
+    public function order_transaction()
+	{
+		return $this->hasMany(OrderTransaction::class);
+	}
 }

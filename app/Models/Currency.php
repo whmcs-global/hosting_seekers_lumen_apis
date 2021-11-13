@@ -52,4 +52,8 @@ class Currency extends Model
 	{
 	   return $this->hasMany(CompanyServerProductPrice::class);
 	}
+    public function order_transaction()
+	{
+		return $this->hasMany(OrderTransaction::class);
+	}
 }
