@@ -6,8 +6,43 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    public $timestamps = false;
+    public $timestamps = true;
     protected $fillable = [
-        'user_id', 'plan_id','price','transaction_id','payment_by','status'
+        'id',
+		'order_id',
+        'user_id',
+		'ipn_id',
+        'currency_id',
+		'amount',
+		'payable_amount',
+		'trans_id',
+		'trans_details',
+        'trans_status',
+		'status',
+	    'created_at',
+	    'updated_at',
+    ]; 
+	public $sortable = [
+		'id',
+		'amount',
+		'status',
+	 	'created_at',
+		'updated_at',
     ];
+	public function user()
+	{
+	   return $this->belongsTo(User::class);
+	}
+    public function ordered_product()
+	{
+		return $this->hasOne(OrderedProduct::class);
+	}
+	public function currency()
+	{
+	   return $this->belongsTo(Currency::class);
+	}
+    public function user_server()
+	{
+		return $this->hasOne(UserServer::class);
+	}
 }

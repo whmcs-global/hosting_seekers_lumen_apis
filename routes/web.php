@@ -42,6 +42,8 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->post('update/detail', 'UserController@updateDetails');
         $router->post('update/address', 'UserController@updateAddress');
         $router->get('get/rating', 'ReviewController@getRatings');
+        $router->get('get/orders-history', 'OrderController@ordersHistory');
+        $router->get('get/orders-transaction', 'OrderController@ordersTransactions');
         $router->post('update/review', 'ReviewController@companyReview');
         $router->get('get/review/{id}', 'ReviewController@getRating');
         $router->get('get/criteria', 'ReviewController@getReviewCriteria');

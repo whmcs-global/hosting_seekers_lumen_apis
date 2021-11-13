@@ -7,11 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
-use App\Traits\AutoResponderTrait;
-use App\Traits\SendResponseTrait;
+use App\Traits\{AutoResponderTrait, SendResponseTrait, GetDataTrait};
 use hisorange\BrowserDetect\Parser;
 use App\Models\{User, Company_review, ReviewCriteria, Company_reply, Company_detail};
-use App\Traits\GetDataTrait;
 
 class ReviewController extends Controller
 {
