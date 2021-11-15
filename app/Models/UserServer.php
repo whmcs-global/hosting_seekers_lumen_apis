@@ -23,6 +23,6 @@ class UserServer extends Model
 	}
 	public function company_server_package()
 	{
-	   return $this->belongsTo(CompanyServerProduct::class);
+	   return $this->belongsTo(CompanyServerPackage::class);
 	}
 }

@@ -36,17 +36,18 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
     
 	// $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('update/password', 'UserController@updatePassword');
-        $router->get('get/detail', 'UserController@getDetails');
-        $router->get('get/countries[/{id}]', 'UserController@getCountries');
-        $router->get('get/states/{countryId}[/{id}]', 'UserController@getStates');
+        $router->get('detail', 'UserController@getDetails');
+        $router->get('countries[/{id}]', 'UserController@getCountries');
+        $router->get('states/{countryId}[/{id}]', 'UserController@getStates');
         $router->post('update/detail', 'UserController@updateDetails');
         $router->post('update/address', 'UserController@updateAddress');
-        $router->get('get/rating', 'ReviewController@getRatings');
-        $router->get('get/orders-history', 'OrderController@ordersHistory');
-        $router->get('get/orders-transaction', 'OrderController@ordersTransactions');
+        $router->get('rating', 'ReviewController@getRatings');
+        $router->get('orders-history', 'OrderController@ordersHistory');
+        $router->get('orders-transaction', 'OrderController@ordersTransactions');
+        $router->get('user/servers', 'CpanelController@orderedServers');
         $router->post('update/review', 'ReviewController@companyReview');
-        $router->get('get/review/{id}', 'ReviewController@getRating');
-        $router->get('get/criteria', 'ReviewController@getReviewCriteria');
+        $router->get('review/{id}', 'ReviewController@getRating');
+        $router->get('criteria', 'ReviewController@getReviewCriteria');
         $router->get('logout', 'UserController@logout');
         $router->get('logout-all', 'UserController@logoutAll');
     // });

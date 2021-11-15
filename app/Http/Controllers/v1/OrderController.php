@@ -50,7 +50,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->updated_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'invoice_url' => 'http://192.168.0.129:8000/invoice/'.$order->order_id, 'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->updated_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = ['refinedData' => $ordersData];
