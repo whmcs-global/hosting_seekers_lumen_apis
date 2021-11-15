@@ -4,12 +4,13 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Order, OrderTransaction};
-use App\Traits\{AutoResponderTrait, SendResponseTrait, GetDataTrait};
+use App\Models\{Order, OrderTransaction, CompanyServerPackage, UserServer};
+use Illuminate\Support\Facades\{DB, Config, Validator};
+use App\Traits\{CpanelTrait, SendResponseTrait};
 
 class CpanelController extends Controller
 {
-    use SendResponseTrait, AutoResponderTrait, GetDataTrait;
+    use CpanelTrait, SendResponseTrait;
     public function orderedServers(Request $request){
         
         try {
@@ -77,8 +78,69 @@ class CpanelController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            dd($e);
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+        }
+    }
+    
+    public function addDomain(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'account_name' => 'required',
+            'server_location' => 'required',
+            'domain_name' => 'required'
+        ]);
+        if($validator->fails()){
+            if($request->ajax()){
+                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            }
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->server_location);
+            $orderId = jsdecode_userdata($request->order_id);
+            $serverPackage = CompanyServerPackage::findOrFail($serverId);
+            
+            $accountCreate = [
+                'user_id' => $request->userid,
+                'order_id' => $orderId,
+                'company_id' =>  $serverPackage->user_id,
+                'company_server_package_id' => $serverPackage->id,
+            ];
+            $packageName = $serverPackage->package;
+            $packageList = $this->testServerConnection($serverPackage->company_server_id)->getOriginalContent();
+            if('success' == $packageList['api_response'] && $packageName){
+                $domainName = $this->getDomain($request->domain_name);
+                $cpanel = $packageList['cpanel'];
+                $accountCreate['name'] = $request->account_name;
+                $accountCreate['domain'] = $domainName;
+                $accountCreate['password'] = 'G@ur@v123';
+                $accCreated = $cpanel->createAccount($domainName, $request->account_name, 'G@ur@v123', $packageName);
+                if(!is_array($accCreated)){
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+                }
+                
+                if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
+                    $error = $accCreated["result"][0]['statusmsg'];
+                    $error = substr($error, strpos($error, ")")+1);
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                }
+                try{
+                $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
+                } catch(\Exception $ex){
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+                }
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Account creation ok', 'message' => 'Account has been successfully created']);
+            }
+            // dd($packageList, $serverId);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
         }
     }
 }

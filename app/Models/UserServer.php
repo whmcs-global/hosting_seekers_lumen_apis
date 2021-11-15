@@ -9,6 +9,8 @@ class UserServer extends Model
     public $timestamps = true;
     protected $fillable = [
         'id',
+		'user_id',
+		'company_id',
 		'order_id',
         'company_server_package_id',
 		'name',
@@ -17,6 +19,14 @@ class UserServer extends Model
 	    'created_at',
 	    'updated_at',
     ]; 
+    public function user()
+	{
+		return $this->belongsTo(User::class, 'user_id', 'id');
+	}
+    public function company()
+	{
+		return $this->belongsTo(User::class, 'company_id', 'id');
+	}
 	public function order()
 	{
 	   return $this->belongsTo(Order::class);

@@ -32,6 +32,8 @@ class OrderController extends Controller
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
+            })->when(($request->has('status') && $request->status != ''), function($q) use($request){
+                $q->where('trans_status', $request->status);
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
@@ -50,7 +52,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'invoice_url' => 'http://192.168.0.129:8000/invoice/'.$order->order_id, 'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->updated_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'invoice_url' => 'http://192.168.0.129:8000/invoice/'.$order->order_id, 'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = ['refinedData' => $ordersData];
@@ -84,6 +86,8 @@ class OrderController extends Controller
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
+            })->when(($request->has('status') && $request->status != ''), function($q) use($request){
+                $q->where('trans_status', $request->status);
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
