@@ -32,7 +32,11 @@ class CpanelController extends Controller
             $orders = Order::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
-                $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
+                $q->where(function ($quer) use ($request) {
+                    $quer->whereHas('user_server', function( $qu ) use($request){
+                        $qu->where('name', 'LIKE', '%'.$request->search_keyword.'%')->orWhere('domain', 'LIKE', '%'.$request->search_keyword.'%');
+                    });
+                });
             })->where(['user_id' => $request->userid, 'trans_status' => 'approved'])->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
