@@ -67,7 +67,7 @@ class CpanelController extends Controller
                             array_push($packageArray, ['id' => jsencode_userdata($package->id), 'server_name' => $package->company_server->name, 'server_location' => $package->company_server->state->name.', '.$package->company_server->country->name]);
                         }
                     }
-                    $orderDataArray = ['id'=> jsencode_userdata($order->id), 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->updated_at), 'servers' => $packageArray];
+                    $orderDataArray = ['id'=> jsencode_userdata($order->id), 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->updated_at), 'expiry' => change_date_format($order->updated_at), 'servers' => $packageArray];
                     $cpanelAccount = null;
                     if(!is_null($order->user_server)){
                         if(!is_null($order->user_server->company_server_package))

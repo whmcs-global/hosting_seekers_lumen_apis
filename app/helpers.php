@@ -50,7 +50,8 @@ if (!function_exists('jsencode_userdata')) {
         $secret = config('constants.secrect');
         try {
             $iv = substr($secret, 0, 16);
-            return base64_encode(openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
+            $jsencodeUserdata = str_replace('/', '!', openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
+            return $jsencodeUserdata;
         } catch (\Exception $e) {
             abort('403');
         }
@@ -63,9 +64,37 @@ if (!function_exists('jsdecode_userdata')) {
         $secret = config('constants.secrect');
         try {
             $iv = substr($secret, 0, 16);
-            return openssl_decrypt(base64_decode($data), $encryptionMethod, $secret, 0, $iv);
+            $data = str_replace('!', '/', $data);
+            $jsencodeUserdata = openssl_decrypt($data, $encryptionMethod, $secret, 0, $iv);
+            return $jsencodeUserdata;
         } catch (\Exception $e) {
             abort('403');
         }
     }
-} 
+}
+// if (!function_exists('jsencode_userdata')) {
+//     function jsencode_userdata(string $data, string $encryptionMethod = null, string $secret = null)
+//     {
+//         $encryptionMethod = config('constants.encryptionMethod');
+//         $secret = config('constants.secrect');
+//         try {
+//             $iv = substr($secret, 0, 16);
+//             return base64_encode(openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
+//         } catch (\Exception $e) {
+//             abort('403');
+//         }
+//     }
+// }
+// if (!function_exists('jsdecode_userdata')) {
+//     function jsdecode_userdata(string $data, string $encryptionMethod = null, string $secret = null)
+//     {
+//         $encryptionMethod = config('constants.encryptionMethod');
+//         $secret = config('constants.secrect');
+//         try {
+//             $iv = substr($secret, 0, 16);
+//             return openssl_decrypt(base64_decode($data), $encryptionMethod, $secret, 0, $iv);
+//         } catch (\Exception $e) {
+//             abort('403');
+//         }
+//     }
+// } 

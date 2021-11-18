@@ -33,6 +33,10 @@ class Order extends Model
 	{
 	   return $this->belongsTo(User::class);
 	}
+    public function invoice()
+	{
+		return $this->hasMany(Invoice::class);
+	}
     public function ordered_product()
 	{
 		return $this->hasOne(OrderedProduct::class);

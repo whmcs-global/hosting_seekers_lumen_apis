@@ -25,4 +25,8 @@ trait CommonTrait {
             ->update(['last_login' =>  date('Y-m-d H:i:s'), 'last_login_data' => $lastLoginData]);
         }
     }
+    public function billingCycleName($id) {
+        $billingCycle =  ['Monthly', 'Quarterly', 'Halfyearly', 'Annually', 'Onetime', 'Trial'];
+ 		return $billingCycle[$id];
+    }
 }

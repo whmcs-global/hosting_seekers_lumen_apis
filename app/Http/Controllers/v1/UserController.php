@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Traits\AutoResponderTrait;
 use App\Traits\SendResponseTrait;
 use hisorange\BrowserDetect\Parser;
-use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State};
+use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order};
 use App\Traits\GetDataTrait;
 
 class UserController extends Controller
@@ -110,6 +110,8 @@ class UserController extends Controller
         }
         $ratingCount = Company_review::where('user_id', $request->userid)->count();
         $userArray['total_reviews'] = $ratingCount;
+        $orderCount = Order::where('user_id', $request->userid)->count();
+        $userArray['total_orders'] = $orderCount;
         $dataArray = ['refinedData' => $userArray];
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }
