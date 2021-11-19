@@ -93,29 +93,29 @@ if (!function_exists('jsdecode_userdata')) {
         }
     }
 }
-// if (!function_exists('jsencode_userdata')) {
-//     function jsencode_userdata(string $data, string $encryptionMethod = null, string $secret = null)
-//     {
-//         $encryptionMethod = config('constants.encryptionMethod');
-//         $secret = config('constants.secrect');
-//         try {
-//             $iv = substr($secret, 0, 16);
-//             return base64_encode(openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
-//         } catch (\Exception $e) {
-//             abort('403');
-//         }
-//     }
-// }
-// if (!function_exists('jsdecode_userdata')) {
-//     function jsdecode_userdata(string $data, string $encryptionMethod = null, string $secret = null)
-//     {
-//         $encryptionMethod = config('constants.encryptionMethod');
-//         $secret = config('constants.secrect');
-//         try {
-//             $iv = substr($secret, 0, 16);
-//             return openssl_decrypt(base64_decode($data), $encryptionMethod, $secret, 0, $iv);
-//         } catch (\Exception $e) {
-//             abort('403');
-//         }
-//     }
-// } 
+if (!function_exists('jsencode_api')) {
+    function jsencode_api(string $data, string $encryptionMethod = null, string $secret = null)
+    {
+        $encryptionMethod = config('constants.encryptionMethod');
+        $secret = config('constants.secrect');
+        try {
+            $iv = substr($secret, 0, 16);
+            return base64_encode(openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
+        } catch (\Exception $e) {
+            abort('403');
+        }
+    }
+}
+if (!function_exists('jsdecode_api')) {
+    function jsdecode_api(string $data, string $encryptionMethod = null, string $secret = null)
+    {
+        $encryptionMethod = config('constants.encryptionMethod');
+        $secret = config('constants.secrect');
+        try {
+            $iv = substr($secret, 0, 16);
+            return openssl_decrypt(base64_decode($data), $encryptionMethod, $secret, 0, $iv);
+        } catch (\Exception $e) {
+            abort('403');
+        }
+    }
+}

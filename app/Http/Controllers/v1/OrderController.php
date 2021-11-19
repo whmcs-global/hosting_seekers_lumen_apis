@@ -178,6 +178,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
+            dd($e);
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }
     }

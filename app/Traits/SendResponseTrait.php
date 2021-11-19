@@ -28,15 +28,16 @@ trait SendResponseTrait {
         $browse_detail = $this->getUserBrowseDetail();
 
         $token_value = $browse_detail['ip'].'#'.$browse_detail['browser'].'#'.$browse_detail['os'].'#'.time();
-        return jsencode_userdata($token_value);
+        return jsencode_api($token_value);
     }
 
     public function validateToken($token = NULL){
         if(!$token)
             return FALSE;
         
+            // dd($token);
         $browse_detail = $this->getUserBrowseDetail();
-        $dectypy_token = jsdecode_userdata($token);
+        $dectypy_token = jsdecode_api($token);
         $token_array = explode('#', $dectypy_token);
         if($browse_detail['ip'] == $token_array[0] && $browse_detail['os'] == $token_array[2] && $browse_detail['browser'] == $token_array[1])
         return TRUE;
