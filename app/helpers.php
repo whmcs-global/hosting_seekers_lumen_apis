@@ -13,6 +13,27 @@ if (!function_exists('public_path')) {
     }
 }
 
+if (!function_exists('add_days_to_date')) {
+    function add_days_to_date(string $date, string $days)
+    {
+        if($days =='Monthly'){
+            $no_of_days = 30;
+        }
+        elseif($days =='Quaterly'){
+            $no_of_days = 91;
+        }
+        elseif($days =='HalfYearly'){
+            $no_of_days = 182;
+        }
+        elseif($days =='Annually'){
+            $no_of_days = 365;
+        }
+        $expiry_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $date);
+        $expiry_date = $expiry_date->addDays($no_of_days);
+        $expiry_date = \Carbon\Carbon::parse($expiry_date)->format('Y-m-d');
+        return $expiry_date;
+    }
+}
 if (!function_exists('change_date_format')) {
     function change_date_format(string $date, string $format = 'd F Y')
     {
