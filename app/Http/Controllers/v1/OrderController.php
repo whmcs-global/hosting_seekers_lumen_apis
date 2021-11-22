@@ -57,7 +57,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => 'https://dev.hostingseekers.com/invoice/'.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => 'http://192.168.0.129:8000/invoice/'.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = ['refinedData' => $ordersData];
@@ -178,7 +178,6 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            dd($e);
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }
     }

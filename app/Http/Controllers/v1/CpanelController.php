@@ -71,7 +71,7 @@ class CpanelController extends Controller
                     $cpanelAccount = null;
                     if(!is_null($order->user_server)){
                         if(!is_null($order->user_server->company_server_package))
-                        $cpanelAccount = ['name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
+                        $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
                     }
                     $orderDataArray['cpanelAccount'] = $cpanelAccount;
                     array_push($orderData, $orderDataArray);
@@ -137,6 +137,76 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    public function getEmailAccount(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $packageList = $this->testServerConnection($serverPackage->company_server_package->company_server_id)->getOriginalContent();
+            if('success' == $packageList['api_response']){
+                $cpanel = $packageList['cpanel'];
+                $cpanel->listEmailAccounts('sajal');
+                $accCreated = $cpanel->addEmailAccount('shiv', 'gauravch@shiv.com', 'pass@gaurav');
+                dd($accCreated);
+                if(!is_array($accCreated)){
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+                }
+                
+                if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
+                    $error = $accCreated["result"][0]['statusmsg'];
+                    $error = substr($error, strpos($error, ")")+1);
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                }
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Account creation ok', 'message' => 'Account has been successfully created']);
+            }
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    public function getUserInfo(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $packageList = $this->testServerConnection($serverPackage->company_server_package->company_server_id)->getOriginalContent();
+            if('success' == $packageList['api_response']){
+                $cpanel = $packageList['cpanel'];
+                $accCreated = $cpanel->getDomainInfo();
+                $ftpCreated = $cpanel->getDbUsers();
+                dd($accCreated, $ftpCreated);
+                if(!is_array($accCreated)){
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+                }
+                
+                if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
+                    $error = $accCreated["result"][0]['statusmsg'];
+                    $error = substr($error, strpos($error, ")")+1);
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                }
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Account creation ok', 'message' => 'Account has been successfully created']);
+            }
+            dd($packageList);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(Exception $ex){
+            dd($e);
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){

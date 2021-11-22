@@ -47,6 +47,8 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->get('invoices[/{id}]', 'OrderController@invoiceList');
         $router->get('user/servers', 'CpanelController@orderedServers');
         $router->post('add/domain', 'CpanelController@addDomain');
+        $router->get('email-accounts/{id}', 'CpanelController@getEmailAccount');
+        $router->get('domain-info/{id}', 'CpanelController@getUserInfo');
         $router->post('update/review', 'ReviewController@companyReview');
         $router->get('review/{id}', 'ReviewController@getRating');
         $router->get('criteria', 'ReviewController@getReviewCriteria');
