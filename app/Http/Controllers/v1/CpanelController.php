@@ -110,31 +110,26 @@ class CpanelController extends Controller
                 'company_server_package_id' => $serverPackage->id,
             ];
             $packageName = $serverPackage->package;
-            $packageList = $this->testServerConnection($serverPackage->company_server_id)->getOriginalContent();
-            if('success' == $packageList['api_response'] && $packageName){
-                $domainName = $this->getDomain($request->domain_name);
-                $cpanel = $packageList['cpanel'];
-                $accountCreate['name'] = $request->account_name;
-                $accountCreate['domain'] = $domainName;
-                $accountCreate['password'] = 'G@ur@v123';
-                $accCreated = $cpanel->createAccount($domainName, $request->account_name, 'G@ur@v123', $packageName);
-                if(!is_array($accCreated)){
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-                }
-                
-                if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
-                    $error = $accCreated["result"][0]['statusmsg'];
-                    $error = substr($error, strpos($error, ")")+1);
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
-                }
-                try{
-                $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
-                } catch(\Exception $ex){
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-                }
-                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Account creation ok', 'message' => 'Account has been successfully created']);
+            $domainName = $this->getDomain($request->domain_name);
+            $accountCreate['name'] = $request->account_name;
+            $accountCreate['domain'] = $domainName;
+            $accountCreate['password'] = 'G@ur@v123';
+            $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            
+            if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
+                $error = $accCreated["result"][0]['statusmsg'];
+                $error = substr($error, strpos($error, ")")+1);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            try{
+            $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
+            } catch(\Exception $ex){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['cpanel_server_id' => jsencode_userdata($userAccount->id), 'name' => $userAccount->name, 'domain' => $userAccount->domain], 'message' => 'Account has been successfully created']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -151,24 +146,217 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
-            $packageList = $this->testServerConnection($serverPackage->company_server_package->company_server_id)->getOriginalContent();
-            if('success' == $packageList['api_response']){
-                $cpanel = $packageList['cpanel'];
-                $cpanel->listEmailAccounts('sajal');
-                $accCreated = $cpanel->addEmailAccount('shiv', 'gauravch@shiv.com', 'pass@gaurav');
-                dd($accCreated);
-                if(!is_array($accCreated)){
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-                }
-                
-                if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
-                    $error = $accCreated["result"][0]['statusmsg'];
-                    $error = substr($error, strpos($error, ")")+1);
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
-                }
-                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Account creation ok', 'message' => 'Account has been successfully created']);
+            $accCreated = $this->listEmailAccounts($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            // $accCreated = $cpanel->addEmailAccount('shiv', 'gauravch@shiv.com', 'pass@gaurav');
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']["data"], 'message' => 'Account has been successfully created']);
+        }
+        catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
+    public function addEmailAccount(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+        if($validator->fails()){
+            if($request->ajax()){
+                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            }
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->createEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email,  $request->password);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+
+            $emails = $this->getEmailAccount($request, $request->cpanel_server)->getOriginalContent();
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Account has been successfully created']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
+    public function updateEmailAccount(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+        if($validator->fails()){
+            if($request->ajax()){
+                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            }
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email,  $request->password);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account done', 'message' => 'Account password has been successfully update']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
+    public function getFtpAccount(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->listFtpAccounts($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            // $accCreated = $cpanel->addFtpAccount('shiv', 'gauravch@shiv.com', 'pass@gaurav');
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']["data"], 'message' => 'Account has been successfully created']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
+    public function addFtpAccount(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'username' => 'required',
+            'password' => 'required',
+            'quota' => 'required|numeric'
+        ]);
+        if($validator->fails()){
+            if($request->ajax()){
+                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            }
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->createFtpAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+
+            $emails = $this->getFtpAccount($request, $request->cpanel_server)->getOriginalContent();
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Account has been successfully created']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
+    public function updateFtpAccount(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'username' => 'required',
+            'password' => 'required',
+            'quota' => 'required|numeric'
+        ]);
+        if($validator->fails()){
+            if($request->ajax()){
+                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            }
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->changeFtpPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'FTP Account done', 'message' => 'Account password has been successfully update']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -185,28 +373,26 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
-            $packageList = $this->testServerConnection($serverPackage->company_server_package->company_server_id)->getOriginalContent();
-            if('success' == $packageList['api_response']){
-                $cpanel = $packageList['cpanel'];
-                $accCreated = $cpanel->getDomainInfo();
-                $ftpCreated = $cpanel->getDbUsers();
-                dd($accCreated, $ftpCreated);
-                if(!is_array($accCreated)){
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-                }
-                
-                if (array_key_exists("result", $accCreated) && $accCreated["result"][0]['status'] == "0") {
-                    $error = $accCreated["result"][0]['statusmsg'];
-                    $error = substr($error, strpos($error, ")")+1);
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
-                }
-                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Account creation ok', 'message' => 'Account has been successfully created']);
+            $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
-            dd($packageList);
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            
+            if (array_key_exists("metadata", $accCreated) && $accCreated["metadata"]['result'] == "0") {
+                $error = $accCreated["metadata"]['reason'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            $domainInfo = [
+                "user" => $accCreated["data"]['userdata']["user"],
+                "servername" => $accCreated["data"]['userdata']['servername'],
+                "documentroot" => $accCreated["data"]['userdata']['documentroot'],
+                "homedir" => $accCreated["data"]['userdata']['homedir'],
+                "ip" => $accCreated["data"]['userdata']['ip'],
+                "port" => $accCreated["data"]['userdata']['port'],
+            ];
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            dd($e);
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
