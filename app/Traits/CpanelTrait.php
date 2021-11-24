@@ -91,7 +91,7 @@ trait CpanelTrait {
         return $this->runQuery($id, $action, $params);
     }
     
-    public function createEmailAccount($id, $username, $email, $password)
+    public function createEmailAccount($id, $username, $email, $password, $quota)
     {
         list($account, $domain) = explode('@', $email);
 
@@ -104,6 +104,7 @@ trait CpanelTrait {
             'domain' => $domain,
             'email' => $account,
             'password' => $password,
+            'quota' => $quota,
         ];
         return $this->runQuery($id, $action, $params);
     }
@@ -124,6 +125,33 @@ trait CpanelTrait {
         ];
         return $this->runQuery($id, $action, $params);
     }
+    
+    public function deleteEmailsAccount($id, $username, $user)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_version' => 3,
+            'cpanel_jsonapi_module' => 'Email',
+            'cpanel_jsonapi_func' => 'deletepop',
+            'cpanel_jsonapi_user' => $username,
+            "user" => $user
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    
+    public function changeEmailQuota($id, $username, $user, $quota)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_version' => 3,
+            'cpanel_jsonapi_module' => 'Email',
+            'cpanel_jsonapi_func' => 'editquotapop',
+            'cpanel_jsonapi_user' => $username,
+            "user" => $user,
+            "quota" => $quota,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
 
     public function listFtpAccounts($id, $username)
     {
@@ -131,7 +159,7 @@ trait CpanelTrait {
         $params = [
             'cpanel_jsonapi_version' => 3,
             'cpanel_jsonapi_module' => 'Ftp',
-            'cpanel_jsonapi_func' => 'list_ftp',
+            'cpanel_jsonapi_func' => 'listftp',
             'cpanel_jsonapi_user' => $username,
             'include_acct_types' => 'main|sub'
         ];
@@ -140,13 +168,11 @@ trait CpanelTrait {
     
     public function createFtpAccount($id, $username, $user, $password, $quota)
     {
-        list($account, $domain) = explode('@', $email);
-
         $action = 'cpanel';
         $params = [
             'cpanel_jsonapi_version' => 3,
             'cpanel_jsonapi_module' => 'Ftp',
-            'cpanel_jsonapi_func' => 'addpop',
+            'cpanel_jsonapi_func' => 'addftp',
             'cpanel_jsonapi_user' => $username,
             "user" => $user,
             "pass" => $password,
@@ -156,17 +182,30 @@ trait CpanelTrait {
         return $this->runQuery($id, $action, $params);
     }
     
-    public function changeFtpPassword($id, $username, $user, $password, $quota)
+    public function changeFtpQuota($id, $username, $user, $quota)
     {
         $action = 'cpanel';
         $params = [
             'cpanel_jsonapi_version' => 3,
             'cpanel_jsonapi_module' => 'Ftp',
-            'cpanel_jsonapi_func' => 'passwdpop',
+            'cpanel_jsonapi_func' => 'setquota',
+            'cpanel_jsonapi_user' => $username,
+            "user" => $user,
+            "quota" => $quota,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    
+    public function changeFtpPassword($id, $username, $user, $password)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_version' => 3,
+            'cpanel_jsonapi_module' => 'Ftp',
+            'cpanel_jsonapi_func' => 'passwd',
             'cpanel_jsonapi_user' => $username,
             "user" => $user,
             "pass" => $password,
-            "quota" => $quota,
             "homedir" => "public_html"
         ];
         return $this->runQuery($id, $action, $params);

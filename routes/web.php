@@ -49,7 +49,9 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->post('add/domain', 'CpanelController@addDomain');
         $router->get('email-accounts/{id}', 'CpanelController@getEmailAccount');
         $router->post('create-email-accounts', 'CpanelController@addEmailAccount');
+        $router->post('update-email-accounts-password', 'CpanelController@updateEmailPasswrod');
         $router->post('update-email-accounts', 'CpanelController@updateEmailAccount');
+        $router->post('delete-email-accounts', 'CpanelController@deleteEmailAccount');
         $router->get('ftp-accounts/{id}', 'CpanelController@getFtpAccount');
         $router->post('create-ftp-accounts', 'CpanelController@addFtpAccount');
         $router->post('update-ftp-accounts', 'CpanelController@updateFtpAccount');

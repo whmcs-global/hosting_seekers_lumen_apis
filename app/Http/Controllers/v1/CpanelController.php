@@ -93,9 +93,7 @@ class CpanelController extends Controller
             'domain_name' => 'required'
         ]);
         if($validator->fails()){
-            if($request->ajax()){
-                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-            }
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try
         {
@@ -147,7 +145,6 @@ class CpanelController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->listEmailAccounts($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            // $accCreated = $cpanel->addEmailAccount('shiv', 'gauravch@shiv.com', 'pass@gaurav');
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -176,18 +173,17 @@ class CpanelController extends Controller
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
             'email' => 'required',
-            'password' => 'required'
+            'password' => 'required',
+            'quota' => 'required|numeric'
         ]);
         if($validator->fails()){
-            if($request->ajax()){
-                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-            }
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->createEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email,  $request->password);
+            $accCreated = $this->createEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password,  $request->quota);
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -213,23 +209,20 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
         }
     }
-    
-    public function updateEmailAccount(Request $request) {
+    public function updateEmailPasswrod(Request $request) {
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
             'email' => 'required',
             'password' => 'required'
         ]);
         if($validator->fails()){
-            if($request->ajax()){
-                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-            }
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email,  $request->password);
+            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password);
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -254,13 +247,87 @@ class CpanelController extends Controller
         }
     }
     
+    public function updateEmailAccount(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'email' => 'required',
+            'quota' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->changeEmailQuota($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email,  $request->quota);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account done', 'message' => 'Account quota has been successfully update']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
+    public function deleteEmailAccount(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'email' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->deleteEmailsAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
+            if(!is_array($accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if(!array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("error", $accCreated['cpanelresult'])) {
+                $error = $accCreated['cpanelresult']["error"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account done', 'message' => 'Account quota has been successfully update']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
     public function getFtpAccount(Request $request, $id) {
         try
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->listFtpAccounts($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            // $accCreated = $cpanel->addFtpAccount('shiv', 'gauravch@shiv.com', 'pass@gaurav');
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -293,15 +360,13 @@ class CpanelController extends Controller
             'quota' => 'required|numeric'
         ]);
         if($validator->fails()){
-            if($request->ajax()){
-                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-            }
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->createFtpAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
+            $accCreated = $this->createFtpAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password,  $request->quota);
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -333,18 +398,15 @@ class CpanelController extends Controller
             'cpanel_server' => 'required',
             'username' => 'required',
             'password' => 'required',
-            'quota' => 'required|numeric'
         ]);
         if($validator->fails()){
-            if($request->ajax()){
-                return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-            }
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->changeFtpPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
+            $accCreated = $this->changeFtpPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password,  $request->quota);
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
