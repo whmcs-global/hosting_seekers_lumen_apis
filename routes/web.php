@@ -47,14 +47,32 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->get('invoices[/{id}]', 'OrderController@invoiceList');
         $router->get('user/servers', 'CpanelController@orderedServers');
         $router->post('add/domain', 'CpanelController@addDomain');
-        $router->get('email-accounts/{id}', 'CpanelController@getEmailAccount');
-        $router->post('create-email-accounts', 'CpanelController@addEmailAccount');
-        $router->post('update-email-accounts-password', 'CpanelController@updateEmailPasswrod');
-        $router->post('update-email-accounts', 'CpanelController@updateEmailAccount');
-        $router->post('delete-email-accounts', 'CpanelController@deleteEmailAccount');
-        $router->get('ftp-accounts/{id}', 'CpanelController@getFtpAccount');
-        $router->post('create-ftp-accounts', 'CpanelController@addFtpAccount');
-        $router->post('update-ftp-accounts', 'CpanelController@updateFtpAccount');
+        //Email Account Routes
+        $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
+        $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
+        $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
+        $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
+        //FTP Account Routes
+        $router->get('ftp-accounts/{id}', 'FtpAccountController@getFtpAccount');
+        $router->post('create-ftp-accounts', 'FtpAccountController@addFtpAccount');
+        $router->post('update-ftp-accounts', 'FtpAccountController@updateFtpAccount');
+        $router->post('delete-ftp-accounts', 'FtpAccountController@deleteFtpAccount');
+        //MySql User RoutesRestrictions
+        $router->get('mysql-users/{id}', 'MySqlController@getUsers');
+        $router->get('mysql-name-restrictions/{id}', 'MySqlController@getUsersRestrictions');
+        $router->get('mysql-privileges', 'MySqlController@getPrivileges');
+        $router->post('create-mysql-user', 'MySqlController@addUser');
+        $router->post('update-mysql-user', 'MySqlController@updateUser');
+        $router->post('update-mysql-user-password', 'MySqlController@updateUserPassword');
+        $router->post('delete-mysql-user', 'MySqlController@deleteUser');
+        //MySql Databases Routes
+        $router->get('mysql-databases/{id}', 'MySqlDbController@getDatabases');
+        $router->post('create-mysql-database', 'MySqlDbController@addDatabase');
+        $router->post('update-mysql-database', 'MySqlDbController@updateDatabase');
+        $router->post('delete-mysql-database', 'MySqlDbController@deleteDatabase');
+        $router->post('remove-mysql-privileges', 'MySqlDbController@removePrivileges');
+        $router->post('update-mysql-privileges', 'MySqlDbController@updatePrivileges');
+        //Get Domain Info Route
         $router->get('domain-info/{id}', 'CpanelController@getUserInfo');
         $router->post('update/review', 'ReviewController@companyReview');
         $router->get('review/{id}', 'ReviewController@getRating');
