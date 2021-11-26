@@ -210,14 +210,14 @@ trait CpanelTrait {
             'cpanel_jsonapi_module' => 'Mysql',
             'cpanel_jsonapi_func' => 'set_privileges_on_database',
             'cpanel_jsonapi_user' => $username,
-            'name' => $dbName,
+            'database' => $dbName,
             'user' => $userName,
             'privileges' => $privileges
         ];
         return $this->runQuery($id, $action, $params);
     }
 
-    public function removeMySqlDbPrivileges($id, $username, $dbName, $userName, $privileges)
+    public function removeMySqlDbPrivileges($id, $username, $dbName, $userName)
     {
         $action = 'cpanel';
         $params = [
@@ -225,7 +225,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_module' => 'Mysql',
             'cpanel_jsonapi_func' => 'revoke_access_to_database',
             'cpanel_jsonapi_user' => $username,
-            'name' => $dbName,
+            'database' => $dbName,
             'user' => $userName,
         ];
         return $this->runQuery($id, $action, $params);

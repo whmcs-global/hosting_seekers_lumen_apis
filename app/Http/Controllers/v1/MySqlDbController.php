@@ -160,7 +160,8 @@ class MySqlDbController extends Controller
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->updateMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->newname,  $request->oldname);
+            $accCreated = $this->removeMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username);
+            dd($accCreated);
             if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database updation error', 'message' => $error]);
@@ -196,7 +197,7 @@ class MySqlDbController extends Controller
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->updateMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->newname,  $request->oldname);
+            $accCreated = $this->updateMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username,  $request->privileges);
             if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database updation error', 'message' => $error]);
