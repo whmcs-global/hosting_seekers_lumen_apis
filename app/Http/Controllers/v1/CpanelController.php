@@ -144,6 +144,9 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
+            $phpVersions = $this->phpVersions($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
+            $serverInfo = $this->getServerInfo($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            $phpCurrentVersion = $this->phpCurrentVersion($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             if(!is_array($accCreated) || !is_array($nameCreated) ){
@@ -154,6 +157,16 @@ class CpanelController extends Controller
                 $error = $accCreated["metadata"]['reason'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
+            if ((array_key_exists("result", $serverInfo) && $serverInfo["result"]['status'] == "0")) {
+                $error = $accCreated["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            $serverInfoArray = [];
+            foreach( $serverInfo['result']['data'] as $serverinfo){
+                if('device' == $serverinfo['type']){
+                    array_push($serverInfoArray, $serverinfo);
+                }
+            }
             $domainInfo = [
                 "user" => $accCreated["data"]['userdata']["user"],
                 "servername" => $accCreated["data"]['userdata']['servername'],
@@ -162,6 +175,8 @@ class CpanelController extends Controller
                 "ip" => $accCreated["data"]['userdata']['ip'],
                 "port" => $accCreated["data"]['userdata']['port'],
                 "nameservers" => $nameCreated['data']['nameservers'],
+                "phpVersions" => ['versions' => $phpVersions['data']['versions'], "current" => $phpCurrentVersion['data']['version']],
+                "serverInfo" => $serverInfoArray
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }

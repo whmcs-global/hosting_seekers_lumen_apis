@@ -143,6 +143,41 @@ class MySqlDbController extends Controller
         }
     }
     
+    public function getPrivileges(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'name' => 'required',
+            'username' => 'required'
+        ]);
+        if($validator->fails() ){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Validation error', 'errors' =>$validator->getMessageBag()->toArray()], 400);
+        }
+        if(!$this->checkName($request->cpanel_server, $request->name, 'db'))
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Validation error', 'errors' => ['Provide a valid name']], 400);
+        if(!$this->checkName($request->cpanel_server, $request->username, 'user'))
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Validation error', 'errors' => ['Provide a valid username']], 400);
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $accCreated = $this->getMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username);
+            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+                $error = $accCreated['result']["errors"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql privileges fetching error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'MySql Database privileges has been successfully fetched']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    
     public function removePrivileges(Request $request) {
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
@@ -218,7 +253,7 @@ class MySqlDbController extends Controller
     public function deleteDatabase(Request $request) {
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
-            'user' => 'required'
+            'database' => 'required'
         ]);
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
@@ -227,7 +262,7 @@ class MySqlDbController extends Controller
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->deleteMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->user);
+            $accCreated = $this->deleteMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->database);
             if(!is_array($accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }

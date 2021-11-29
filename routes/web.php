@@ -50,8 +50,17 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         //Email Account Routes
         $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
         $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
+        $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
         $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
         $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
+        $router->post('suspend-email-account-login', 'EmailAccountController@suspendLogin');
+        $router->post('unsuspend-email-account-login', 'EmailAccountController@unsuspendLogin');
+        $router->post('unsuspend-email-account-incoming', 'EmailAccountController@unsuspendIncoming');
+        $router->post('suspend-email-account-incoming', 'EmailAccountController@suspendIncoming');
+        //PHP ini Routes
+        $router->post('php-ini-content', 'PhpIniController@getPhpIni');
+        $router->post('update-php-ini-content', 'PhpIniController@updatePhpIni');
+        $router->post('update-php-version', 'PhpIniController@updateVersion');
         //FTP Account Routes
         $router->get('ftp-accounts/{id}', 'FtpAccountController@getFtpAccount');
         $router->post('create-ftp-accounts', 'FtpAccountController@addFtpAccount');
@@ -71,6 +80,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->post('update-mysql-database', 'MySqlDbController@updateDatabase');
         $router->post('delete-mysql-database', 'MySqlDbController@deleteDatabase');
         $router->post('remove-mysql-privileges', 'MySqlDbController@removePrivileges');
+        $router->post('get-mysql-privileges', 'MySqlDbController@getPrivileges');
         $router->post('update-mysql-privileges', 'MySqlDbController@updatePrivileges');
         //Get Domain Info Route
         $router->get('domain-info/{id}', 'CpanelController@getUserInfo');
