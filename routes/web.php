@@ -60,6 +60,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         //PHP ini Routes
         $router->post('php-ini-content', 'PhpIniController@getPhpIni');
         $router->post('update-php-ini-content', 'PhpIniController@updatePhpIni');
+        $router->get('get-php-versions/{id}', 'PhpIniController@getVersion');
         $router->post('update-php-version', 'PhpIniController@updateVersion');
         //FTP Account Routes
         $router->get('ftp-accounts/{id}', 'FtpAccountController@getFtpAccount');

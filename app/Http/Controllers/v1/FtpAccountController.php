@@ -47,10 +47,24 @@ class FtpAccountController extends Controller
             'cpanel_server' => 'required',
             'username' => 'required',
             'password' => 'required',
-            'quota' => 'required|numeric'
+            'quota' => 'required|numeric',
+            'quotasize' => 'required'
         ]);
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        $quota = 0;
+        if('MB' == $request->quotasize){
+            $quota = $request->quota;
+        } elseif('GB' == $request->quotasize){
+            $quota = $request->quota*1024;
+        } elseif('TB' == $request->quotasize){
+            $quota = $request->quota*1024*1024;
+        } elseif('PB' == $request->quotasize){
+            $quota = $request->quota*1024*1024*1024;
+        }
+        if($quota > '4294967296'){
+            return response()->json(["success"=>false, "errors"=>'Quotas cannot exceed 4 PB.'],400);
         }
         try
         {

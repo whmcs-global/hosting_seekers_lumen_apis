@@ -144,9 +144,7 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
-            $phpVersions = $this->phpVersions($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $serverInfo = $this->getServerInfo($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            $phpCurrentVersion = $this->phpCurrentVersion($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             if(!is_array($accCreated) || !is_array($nameCreated) ){
@@ -175,7 +173,6 @@ class CpanelController extends Controller
                 "ip" => $accCreated["data"]['userdata']['ip'],
                 "port" => $accCreated["data"]['userdata']['port'],
                 "nameservers" => $nameCreated['data']['nameservers'],
-                "phpVersions" => ['versions' => $phpVersions['data']['versions'], "current" => $phpCurrentVersion['data']['version']],
                 "serverInfo" => $serverInfoArray
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
