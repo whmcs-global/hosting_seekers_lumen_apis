@@ -196,12 +196,12 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->removeMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username);
-            dd($accCreated);
+            
             if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database updation error', 'message' => $error]);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database has been successfully updated']);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database privileges has been successfully revoked']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);

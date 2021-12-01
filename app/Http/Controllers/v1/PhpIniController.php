@@ -93,12 +93,12 @@ class PhpIniController extends Controller
             $serverPackage = UserServer::findOrFail($serverId);
             $phpVersions = $this->phpVersions($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $phpCurrentVersion = $this->phpCurrentVersion($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
-            if(!is_array($phpVersions) || !is_array($phpCurrentVersion) ){
+            if(!is_array($phpVersions) || !is_array($phpCurrentVersion)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
             if ((array_key_exists("metadata", $phpVersions) && $phpVersions["metadata"]['result'] == "0")) {
-                $error = $accCreated["metadata"]['reason'];
+                $error = $phpVersions["metadata"]['reason'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
             
@@ -111,6 +111,75 @@ class PhpIniController extends Controller
                 "current" => $phpCurrentVersion['data']['version'],
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'PHP versions has been fetched']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+
+    public function getDirectives(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'version' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $phpGetDirectives = $this->phpIniGetDirectives($serverPackage->company_server_package->company_server_id, $serverPackage->domain, $request->version);
+            if(!is_array($phpGetDirectives)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ((array_key_exists("metadata", $phpGetDirectives) && $phpGetDirectives["metadata"]['result'] == "0")) {
+                $error = $phpGetDirectives["metadata"]['reason'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $phpGetDirectives['data']['directives'], 'message' => 'PHP versions has been fetched']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+
+    public function updateDirectives(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'version' => 'required',
+            'directive' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $phpGetDirectives = $this->phpIniUpdateDirectives($serverPackage->company_server_package->company_server_id, $serverPackage->domain, $request->version, $request->directive);
+            if(!is_array($phpGetDirectives)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ((array_key_exists("metadata", $phpGetDirectives) && $phpGetDirectives["metadata"]['result'] == "0")) {
+                $error = $phpGetDirectives["metadata"]['reason'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'PHP Directive update', 'message' => 'PHP Directive has been successfully updated']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);

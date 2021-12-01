@@ -79,6 +79,19 @@ trait CpanelTrait {
     /* End Method addDevice */ 
     
     /*
+    API Method Name:    loginCpanelAccount
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new email account
+    */
+    public function loginCpanelAccount($id, $username)
+    {
+        
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld']);
+    }
+    /* End Method loginCpanelAccount */ 
+    
+    /*
     API Method Name:    createAccount
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
@@ -130,6 +143,31 @@ trait CpanelTrait {
         return $this->runQuery($id, 'php_get_system_default_version', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method phpCurrentVersion */ 
+    
+    /*
+    API Method Name:    phpIniGetDirectives
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get current version
+    */
+    public function phpIniGetDirectives($id, $domain_name, $version)
+    {
+        return $this->runQuery($id, 'php_ini_get_directives', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version]);
+    }
+    /* End Method phpIniGetDirectives */ 
+    
+    /*
+    API Method Name:    phpIniUpdateDirectives
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get current version
+    */
+    public function phpIniUpdateDirectives($id, $domain_name, $version, $directive)
+    {
+        return $this->runQuery($id, 'php_ini_set_directives', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version, 'directive' => $directive]);
+    }
+    /* End Method phpIniUpdateDirectives */ 
+    
     
     /*
     API Method Name:    getPhpIniFile
@@ -676,12 +714,70 @@ trait CpanelTrait {
     /* End Method listFtpAccounts */ 
     
     /*
+    API Method Name:    checkFtpAccount
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To check ftp account exist
+    */
+    public function checkFtpAccount($id, $username, $user)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Ftp',
+            'cpanel_jsonapi_func' => 'ftp_exists',
+            'cpanel_jsonapi_user' => $username,
+            "user" => $user
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method checkFtpAccount */ 
+    
+    /*
+    API Method Name:    getFtpConfiguration
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new ftp account
+    */
+    public function getFtpConfiguration($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Ftp',
+            'cpanel_jsonapi_func' => 'get_ftp_daemon_info',
+            'cpanel_jsonapi_user' => $username
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getFtpConfiguration */ 
+    
+    /*
+    API Method Name:    getFtpPort
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new ftp account
+    */
+    public function getFtpPort($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Ftp',
+            'cpanel_jsonapi_func' => 'get_port',
+            'cpanel_jsonapi_user' => $username
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getFtpPort */ 
+    
+    /*
     API Method Name:    createFtpAccount
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
     Purpose:            To create new ftp account
     */
-    public function createFtpAccount($id, $username, $user, $password, $quota)
+    public function createFtpAccount($id, $username, $user, $password, $quota, $homedir = null)
     {
         $action = 'cpanel';
         $params = [
@@ -692,7 +788,7 @@ trait CpanelTrait {
             "user" => $user,
             "pass" => $password,
             "quota" => $quota,
-            "homedir" => "public_html"
+            "homedir" => "public_html/".$homedir
         ];
         return $this->runQuery($id, $action, $params);
     }

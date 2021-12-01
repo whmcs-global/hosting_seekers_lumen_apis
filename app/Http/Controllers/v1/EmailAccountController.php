@@ -126,10 +126,11 @@ class EmailAccountController extends Controller
                 $hostUrl = null;
                 $linkserver = $serverPackage->company_server_package->company_server->link_server ? unserialize($serverPackage->company_server_package->company_server->link_server) : 'N/A';
                 if('N/A' != $linkserver){
-                    $hostUrl = 'https://'.$serverPackage->company_server_package->company_server->ip_address.':'.$linkserver['port'];
+                    $hostUrl = 'https://'.$serverPackage->company_server_package->company_server->ip_address.':2096';
                 }
                 $accCreated['result']['data']['hostname'] = $hostUrl;
             }
+            $accCreated['result']['data']['loginurl'] = $accCreated['result']['data']['hostname'].$accCreated['result']['data']['token'].'/login?session='.$accCreated['result']['data']['session'];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'Account is ready for login']);
         }
         catch(Exception $ex){

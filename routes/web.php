@@ -47,6 +47,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->get('invoices[/{id}]', 'OrderController@invoiceList');
         $router->get('user/servers', 'CpanelController@orderedServers');
         $router->post('add/domain', 'CpanelController@addDomain');
+        $router->get('login-cpanel/{id}', 'CpanelController@loginAccount');
         //Email Account Routes
         $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
         $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
@@ -62,8 +63,11 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->post('update-php-ini-content', 'PhpIniController@updatePhpIni');
         $router->get('get-php-versions/{id}', 'PhpIniController@getVersion');
         $router->post('update-php-version', 'PhpIniController@updateVersion');
+        $router->post('get-php-directives', 'PhpIniController@getDirectives');
+        $router->post('update-php-directive', 'PhpIniController@updateDirectives');
         //FTP Account Routes
         $router->get('ftp-accounts/{id}', 'FtpAccountController@getFtpAccount');
+        $router->post('ftp-server', 'FtpAccountController@getFtpServerInfo');
         $router->post('create-ftp-accounts', 'FtpAccountController@addFtpAccount');
         $router->post('update-ftp-accounts', 'FtpAccountController@updateFtpAccount');
         $router->post('delete-ftp-accounts', 'FtpAccountController@deleteFtpAccount');
