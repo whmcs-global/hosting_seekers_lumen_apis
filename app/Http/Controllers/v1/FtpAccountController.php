@@ -60,9 +60,9 @@ class FtpAccountController extends Controller
                 $email = $request->user.'@'.$serverPackage->domain;
             }
             $ftpDetails = [
-                'FTP_Username' =>  $email,
-                'FTP_server' =>  'ftp.'.$serverPackage->domain,
-                'FTP_port' =>   $ftpPort['result']["data"]["port"]
+                'Username' =>  $email,
+                'servername' =>  'ftp.'.$serverPackage->domain,
+                'Port' =>   $ftpPort['result']["data"]["port"]
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ftpDetails, 'message' => 'FTP Server Information has been successfully fetched']);
         }
