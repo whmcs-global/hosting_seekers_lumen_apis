@@ -26,9 +26,10 @@ class FtpAccountController extends Controller
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->checkFtpAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->user);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
-            if (array_key_exists("errors", $accCreated['result']) && '' != $accCreated['result']["errors"]) {
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'FTP Server Information error', 'message' => $error]);
             }
@@ -83,18 +84,15 @@ class FtpAccountController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->listFtpAccounts($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if(!array_key_exists("cpanelresult", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if (array_key_exists("error", $accCreated['cpanelresult'])) {
-                $error = $accCreated['cpanelresult']["error"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $error]);
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']["data"], 'message' => 'Account has been successfully fetched']);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']["data"], 'message' => 'Account has been successfully fetched']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -136,15 +134,12 @@ class FtpAccountController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->createFtpAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password,  $request->quota,  $request->homedir);
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if(!array_key_exists("cpanelresult", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if (array_key_exists("error", $accCreated['cpanelresult'])) {
-                $error = $accCreated['cpanelresult']["error"];
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
             }
 
@@ -182,15 +177,12 @@ class FtpAccountController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->changeFtpPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password,  $request->quota);
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if(!array_key_exists("cpanelresult", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if (array_key_exists("error", $accCreated['cpanelresult'])) {
-                $error = $accCreated['cpanelresult']["error"];
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account updation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'FTP Account password updated', 'message' => 'Account password has been successfully updated']);
@@ -219,7 +211,11 @@ class FtpAccountController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->deleteFtpUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->user);
-            if(!is_array($accCreated)){
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             

@@ -11,7 +11,50 @@ use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
 class MySqlController extends Controller
 {
     use CpanelTrait, CommonTrait, SendResponseTrait;
-    
+
+    public function getListing(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::findOrFail($serverId);
+            $userList = $this->getMySqlUsers($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($userList) || !array_key_exists("result", $userList)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if (0 == $userList['result']['status'] ) {
+                $error = $userList['result']['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql User and databases fetching error', 'message' => $error]);
+            }
+            $dbList = $this->getMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($dbList) || !array_key_exists("result", $dbList)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if (0 == $dbList['result']['status'] ) {
+                $error = $dbList['result']['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql User and databases fetching error', 'message' => $error]);
+            }
+            $userArray = $dbArray = [];
+            foreach($userList['result']['data'] as $user){
+                array_push($userArray, $user['user']);
+            }
+            foreach($dbList['result']['data'] as $db){
+                array_push($dbArray, $db['database']);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['users' => $userArray, 'databases' => $dbArray], 'message' => 'MySql User and databases has been successfully fetched']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+
     public function checkName($id, $name, $type) {
         try
         {
@@ -49,12 +92,12 @@ class MySqlController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if (array_key_exists("error", $accCreated) || !array_key_exists("result", $accCreated) ) {
-                $error = $accCreated['error'];
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Name Restrictions fetching error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'MySql Name Restrictions has been successfully fetched']);
@@ -76,12 +119,12 @@ class MySqlController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->getMySqlUsers($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if (array_key_exists("error", $accCreated) || !array_key_exists("result", $accCreated) ) {
-                $error = $accCreated['error'];
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Users fetching error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'MySql Users has been successfully fetched']);
@@ -113,7 +156,11 @@ class MySqlController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->createMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
@@ -121,11 +168,9 @@ class MySqlController extends Controller
             $emails = $this->getUsers($request, $request->cpanel_server)->getOriginalContent();
             if(!is_array($emails)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if (array_key_exists("error", $emails)) {
-                $error = $emails['error'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Users fetching error', 'message' => $error]);
+            }          
+            if ($emails['api_response'] == 'error') {
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $emails['message']]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'MySql user has been successfully created']);
         }
@@ -156,9 +201,13 @@ class MySqlController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->updateMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->newname,  $request->oldname);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql User updation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql user updated', 'message' => 'MySql user has been successfully updated']);
         }
@@ -189,7 +238,11 @@ class MySqlController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->updateMySqlUserPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
@@ -219,16 +272,13 @@ class MySqlController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->deleteMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->user);
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if(!array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if (array_key_exists("errors", $accCreated['result']) && $accCreated['result']["errors"]) {
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user deleting error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql user delete', 'message' => 'MySql user has been successfully deleted']);
         }

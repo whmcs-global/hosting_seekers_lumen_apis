@@ -511,9 +511,9 @@ trait CpanelTrait {
     {
         $action = 'cpanel';
         $params = [
-            'cpanel_jsonapi_version' => 2,
+            'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Email',
-            'cpanel_jsonapi_func' => 'listpops',
+            'cpanel_jsonapi_func' => 'list_pops',
             'cpanel_jsonapi_user' => $username,
             "skip_main" => 1
         ];
@@ -556,9 +556,9 @@ trait CpanelTrait {
 
         $action = 'cpanel';
         $params = [
-            'cpanel_jsonapi_version' => 2,
+            'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Email',
-            'cpanel_jsonapi_func' => 'addpop',
+            'cpanel_jsonapi_func' => 'add_pop',
             'cpanel_jsonapi_user' => $username,
             'domain' => $domain,
             'email' => $account,
@@ -581,7 +581,7 @@ trait CpanelTrait {
 
         $action = 'cpanel';
         $params = [
-            'cpanel_jsonapi_version' => 2,
+            'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Email',
             'cpanel_jsonapi_func' => 'passwdpop',
             'cpanel_jsonapi_user' => $username,
@@ -703,9 +703,9 @@ trait CpanelTrait {
     {
         $action = 'cpanel';
         $params = [
-            'cpanel_jsonapi_version' => 3,
+            'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Ftp',
-            'cpanel_jsonapi_func' => 'listftp',
+            'cpanel_jsonapi_func' => 'list_ftp',
             'cpanel_jsonapi_user' => $username,
             'include_acct_types' => 'sub'
         ];
@@ -781,9 +781,9 @@ trait CpanelTrait {
     {
         $action = 'cpanel';
         $params = [
-            'cpanel_jsonapi_version' => 3,
+            'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Ftp',
-            'cpanel_jsonapi_func' => 'addftp',
+            'cpanel_jsonapi_func' => 'add_ftp',
             'cpanel_jsonapi_user' => $username,
             "user" => $user,
             "pass" => $password,
@@ -846,7 +846,7 @@ trait CpanelTrait {
     {
         $action = 'cpanel';
         $params = [
-            'cpanel_jsonapi_version' => 3,
+            'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Ftp',
             'cpanel_jsonapi_func' => 'passwd',
             'cpanel_jsonapi_user' => $username,

@@ -46,16 +46,15 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->getMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if (array_key_exists("error", $accCreated) || !array_key_exists("result", $accCreated) ) {
-                $error = $accCreated['error'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Databases fetching error', 'message' => $error]);
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'MySql Databases has been successfully fetched']);
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["data"], 'message' => 'MySql Databases has been successfully fetched']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -82,20 +81,22 @@ class MySqlDbController extends Controller
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
-            $accCreated = $this->createMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            $accCreated = $this->createMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
 
             $emails = $this->getDatabases($request, $request->cpanel_server)->getOriginalContent();
             if(!is_array($emails)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if (array_key_exists("error", $emails)) {
-                $error = $emails['error'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database fetching error', 'message' => $error]);
+            }          
+            if ($emails['api_response'] == 'error') {
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $emails['message']]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'MySql Database has been successfully created']);
         }
@@ -126,9 +127,13 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->updateMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->newname,  $request->oldname);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database updation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database has been successfully updated']);
         }
@@ -161,9 +166,13 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->getMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql privileges fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'MySql Database privileges has been successfully fetched']);
         }
@@ -196,10 +205,13 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->removeMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
             
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database updation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database privileges has been successfully revoked']);
         }
@@ -233,9 +245,13 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->updateMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->name,  $request->username,  $request->privileges);
-            if(is_array($accCreated) && array_key_exists("result", $accCreated) && $accCreated['result']['status'] == 0) {
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Database updation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database has been successfully updated']);
         }
@@ -263,16 +279,13 @@ class MySqlDbController extends Controller
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::findOrFail($serverId);
             $accCreated = $this->deleteMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->database);
-            if(!is_array($accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            if(!array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if (array_key_exists("errors", $accCreated['result']) && $accCreated['result']["errors"]) {
+            if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user deleting error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql user delete', 'message' => 'MySql user has been successfully deleted']);
         }

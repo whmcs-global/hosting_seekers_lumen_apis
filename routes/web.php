@@ -72,6 +72,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->post('update-ftp-accounts', 'FtpAccountController@updateFtpAccount');
         $router->post('delete-ftp-accounts', 'FtpAccountController@deleteFtpAccount');
         //MySql User RoutesRestrictions
+        $router->get('mysql-listing/{id}', 'MySqlController@getListing');
         $router->get('mysql-users/{id}', 'MySqlController@getUsers');
         $router->get('mysql-name-restrictions/{id}', 'MySqlController@getUsersRestrictions');
         $router->get('mysql-privileges', 'MySqlController@getPrivileges');
