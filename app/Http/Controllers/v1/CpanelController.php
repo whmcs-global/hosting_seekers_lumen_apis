@@ -171,9 +171,10 @@ class CpanelController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::findOrFail($serverId);
             $serverInfo = $this->getServerInfo($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
-            if(!is_array($accCreated) || !is_array($nameCreated) ){
+            if(!is_array($accCreated) || !is_array($nameCreated) || !is_array($serverInfo) || !is_array($cpanelStats) ){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
@@ -189,11 +190,24 @@ class CpanelController extends Controller
                 $error = $serverInfo["result"]['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
+            if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
+                $error = $cpanelStats["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
             $serverInfoArray = [];
             foreach( $serverInfo['result']['data'] as $serverinfo){
                 if('device' == $serverinfo['type']){
                     array_push($serverInfoArray, $serverinfo);
                 }
+            }
+            $cpanelStatArray = [];
+            foreach( $cpanelStats['result']['data'] as $cpanelStat){
+                    $value = $units = null;
+                    if(array_key_exists("units", $cpanelStat))
+                    $units = $cpanelStat['units'];
+                    if(array_key_exists("value", $cpanelStat))
+                    $value = $cpanelStat['value'];
+                    array_push($cpanelStatArray, ['item' => $cpanelStat['item'], 'name' => $cpanelStat['name'], 'count' => $cpanelStat['count'], 'max' => $cpanelStat['max'], 'percent' => $cpanelStat['percent'], 'value' => $value, 'units' => $units]);
             }
             $domainInfo = [
                 "user" => $accCreated["data"]['userdata']["user"],
@@ -203,7 +217,8 @@ class CpanelController extends Controller
                 "ip" => $accCreated["data"]['userdata']['ip'],
                 "port" => $accCreated["data"]['userdata']['port'],
                 "nameservers" => $nameCreated['data']['nameservers'],
-                "serverInfo" => $serverInfoArray
+                "serverInfo" => $serverInfoArray,
+                "accountStats" => $cpanelStatArray
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }

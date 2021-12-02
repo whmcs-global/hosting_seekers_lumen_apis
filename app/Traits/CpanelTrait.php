@@ -79,6 +79,18 @@ trait CpanelTrait {
     /* End Method addDevice */ 
     
     /*
+    API Method Name:    loginPhpMyAdminAccount
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new email account
+    */
+    public function loginPhpMyAdminAccount($id, $username)
+    {
+        
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'phpMyAdmin']);
+    }
+    /* End Method loginPhpMyAdminAccount */ 
+    /*
     API Method Name:    loginCpanelAccount
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
@@ -217,6 +229,27 @@ trait CpanelTrait {
     }
     /* End Method domainNameServersInfo */ 
     
+    /*
+    API Method Name:    getCpanelStats
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of all mysql users
+    */
+    public function getCpanelStats($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'StatsBar',
+            'cpanel_jsonapi_func' => 'get_stats',
+            'cpanel_jsonapi_user' => $username,
+            'display' => 'addondomains|bandwidthusage|cpanelversion|dedicatedip||diskusage|emailaccounts|ftpaccounts|hostname|mysqldatabases|mysqldiskusage|mysqlversion|subdomains'
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getCpanelStats */ 
+
+
     /*
     API Method Name:    getServerInfo
     Developer:          Shine Dezign
