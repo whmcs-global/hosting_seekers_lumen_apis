@@ -87,7 +87,7 @@ trait CpanelTrait {
     public function loginPhpMyAdminAccount($id, $username)
     {
         
-        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'phpMyAdmin']);
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Database_phpMyAdmin']);
     }
     /* End Method loginPhpMyAdminAccount */ 
     /*
@@ -112,6 +112,7 @@ trait CpanelTrait {
     public function createAccount($id, $domain_name, $username, $password, $plan)
     {
         return $this->runQuery($id, 'createacct', [
+            'api.version' => '1', 
             'username' => $username,
             'domain' => $domain_name,
             'password' => $password,
@@ -616,7 +617,7 @@ trait CpanelTrait {
         $params = [
             'cpanel_jsonapi_apiversion' => 3,
             'cpanel_jsonapi_module' => 'Email',
-            'cpanel_jsonapi_func' => 'passwdpop',
+            'cpanel_jsonapi_func' => 'passwd_pop',
             'cpanel_jsonapi_user' => $username,
             'domain' => $domain,
             'email' => $account,
