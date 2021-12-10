@@ -76,7 +76,7 @@ class AuthController extends Controller
             $user_details = User_detail::where('user_id',$user_id)->first();
 
             $user_data = array(
-                'user_id' => $user_id,
+                'user_id' => jsencode_userdata($user_id),
                 'email'=> $user_email,
                 'mobile' => $user_details->mobile,
                 'first_name' => $user->first_name,
@@ -88,7 +88,6 @@ class AuthController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
         }
         catch(\Exception $e){
-            dd($e);
             DB::rollback();
             return $this->apiResponse('error', '404', 'Not Found!');
         }
