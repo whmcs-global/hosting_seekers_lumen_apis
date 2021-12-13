@@ -99,6 +99,8 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         //Get Delegate Account Permissions
         $router->get('delegate-permissions', 'DelegateAccountController@permissionList');
         $router->get('delegate-accounts', 'DelegateAccountController@accountList');
+        $router->get('domain-list', 'DelegateAccountController@domainList');
+        $router->get('delete-delegate-account/{id}', 'DelegateAccountController@deleteAccount');
         $router->post('create-delegate-account', 'DelegateAccountController@createAccount');
     // });
     

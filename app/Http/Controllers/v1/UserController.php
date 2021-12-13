@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Traits\AutoResponderTrait;
 use App\Traits\SendResponseTrait;
 use hisorange\BrowserDetect\Parser;
-use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order};
+use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order, DelegateAccount};
 use App\Traits\GetDataTrait;
 
 class UserController extends Controller
@@ -101,9 +101,13 @@ class UserController extends Controller
         $user_data = $this->getUserDetail($request->userid);
         $userArray = [];
         foreach($user_data[0] as $key => $user){
+
             if('last_login_data' == $key){
+                $userArray['last_login_ip'] = null;
+                if($user){
                 $lastLoginData = unserialize($user);
                 $userArray['last_login_ip'] = $lastLoginData['ip_address'];
+                }
             }else{
                 $userArray[$key] = $user;
             }
@@ -112,6 +116,12 @@ class UserController extends Controller
         $userArray['total_reviews'] = $ratingCount;
         $orderCount = Order::where('user_id', $request->userid)->count();
         $userArray['total_orders'] = $orderCount;
+        $delegateUsers = DelegateAccount::where('delegate_user_id', $request->userid)->get();
+        $delegateUserArray = [];
+        foreach($delegateUsers as $user){
+            array_push($delegateUserArray, ['id' => jsencode_userdata($user->id), 'name' => $user->user->first_name.' '.$user->user->last_name]);
+        }
+        $userArray['delegateUsers'] = $delegateUserArray;
         $dataArray = ['refinedData' => $userArray];
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }

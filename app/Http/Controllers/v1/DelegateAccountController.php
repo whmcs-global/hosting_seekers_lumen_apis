@@ -41,6 +41,33 @@ class DelegateAccountController extends Controller
     /* End Method permissionList */
 
     /*
+    API Method Name:    domainList
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of domains of a user
+    */
+    public function domainList(Request $request)
+    {
+        try{
+            $records = UserServer::where(['user_id' => $request->userid])->get();
+            $ratingArray = [];
+            if($records->isNotEmpty()){ 
+                $permissionData = [];
+                foreach($records as $row){
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'domain' => $row->domain]);
+                }
+                
+                $rating['data'] = $permissionData;
+                $ratingArray = ['refinedData' => $rating];
+            }
+            return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
+        }  catch(\Exception $e){
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+        }
+    }
+    /* End Method domainList */
+
+    /*
     API Method Name:    accountList
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
@@ -49,6 +76,42 @@ class DelegateAccountController extends Controller
     public function accountList(Request $request)
     {
         try{
+            $records = DelegateAccount::where(['status' => 1, 'user_id' => $request->userid])->get();
+            $ratingArray = [];
+            if($records->isNotEmpty()){ 
+                $permissionData = [];
+                foreach($records as $row){
+                    $domainArray = [];
+                    foreach($row->delegate_domain_access as $domain){
+                        $permissions = [];
+                        foreach($domain->delegate_domain_access as $permission){
+                            array_push($permissions, ['id'=> jsencode_userdata($permission->delegate_permission->id), 'name' => $permission->delegate_permission->name, 'slug' => $permission->delegate_permission->slug]);
+                        }
+                        array_push($domainArray, ['id'=> jsencode_userdata($domain->id), 'name' => $domain->user_server->name, 'domain' => $domain->user_server->domain, 'permissions' => $permissions]);
+                    }
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'first_name' => $row->delegate_user->first_name, 'last_name' => $row->delegate_user->last_name, 'domains' => $domainArray]);
+                }
+                
+                $rating['data'] = $permissionData;
+                $ratingArray = ['refinedData' => $rating];
+            }
+            return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
+        }  catch(\Exception $e){
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+        }
+    }
+    /* End Method accountList */
+
+    /*
+    API Method Name:    deleteAccount
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of delegate acconts of a user
+    */
+    public function deleteAccount(Request $request, $id)
+    {
+        try{
+            DelegateAccount::where(['id' => jsdecode_userdata($id), 'user_id' => $request->userid])->delete();
             $records = DelegateAccount::where(['status' => 1, 'user_id' => $request->userid])->get();
             $ratingArray = [];
             if($records->isNotEmpty()){ 
@@ -65,7 +128,7 @@ class DelegateAccountController extends Controller
             return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
-    /* End Method accountList */
+    /* End Method deleteAccount */
 
     /*
     API Method Name:    createAccount
@@ -75,10 +138,15 @@ class DelegateAccountController extends Controller
     */
     public function createAccount(Request $request)
     {
-		$validator = Validator::make($request->all(),[
+        $validateData = [
             'user_id' => 'required|string',
             'access_type' => 'required|string'
-        ]);
+        ];
+        if('custom' == $request->access_type){
+            $validateData['domains'] = 'required|array';
+            $validateData['permissions'] = 'required|array';
+        }
+		$validator = Validator::make($request->all(), $validateData);
         if($validator->fails()){
             return $this->apiResponse('error', '422', $validator->errors()->all());
         }
@@ -104,9 +172,21 @@ class DelegateAccountController extends Controller
                     }
                 }
             } elseif('custom' == $request->access_type){
-                foreach($request->servers as $server){
-                    $delegateDomain = DelegateDomainAccess::updateOrCreate(['delegate_account_id' => $delegateAccount->id, 'user_server_id' => jsdecode_userdata($server->domain)]);
-                    foreach($server->permissions as $permission){
+                foreach($request->domains as $server){
+                    $servers = UserServer::where(['id' => jsdecode_userdata($server), 'user_id' => $request->userid])->first(); 
+                    if(!$servers)
+                    {
+                        DB::rollBack();
+                        return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+                    } 
+                    $delegateDomain = DelegateDomainAccess::updateOrCreate(['delegate_account_id' => $delegateAccount->id, 'user_server_id' => jsdecode_userdata($server)]);
+                    foreach($request->permissions as $permission){
+                        $servers = DelegatePermission::where(['id' => jsdecode_userdata($permission)])->first(); 
+                        if(!$servers)
+                        {
+                            DB::rollBack();
+                            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+                        } 
                         DelegateDomainAccessPermission::updateOrCreate(['delegate_domain_access_id' => $delegateDomain->id, 'delegate_permission_id' => jsdecode_userdata($permission)]);
                     }
                 }
@@ -118,7 +198,6 @@ class DelegateAccountController extends Controller
             return $this->apiResponse('success', '200', 'Delegate account has been created successfully.');
         }  catch(\Exception $e){
             DB::rollBack();
-            dd($e);
             return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
