@@ -96,6 +96,14 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->get('criteria', 'ReviewController@getReviewCriteria');
         $router->get('logout', 'UserController@logout');
         $router->get('logout-all', 'UserController@logoutAll');
+        //Get Delegate Account Permissions
+        $router->get('delegate-permissions', 'DelegateAccountController@permissionList');
+        $router->get('delegate-accounts', 'DelegateAccountController@accountList');
+        $router->post('create-delegate-account', 'DelegateAccountController@createAccount');
     // });
+    
+	$router->group(['prefix' => 'delegate/account'], function () use ($router) {
+        
+    });
 });
 

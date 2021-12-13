@@ -35,4 +35,8 @@ class UserServer extends Model
 	{
 	   return $this->belongsTo(CompanyServerPackage::class);
 	}
+	public function delegate_domain_access()
+	{
+	   return $this->hasOne(DelegateDomainAccess::class, 'user_server_id', 'id');
+	}
 }
