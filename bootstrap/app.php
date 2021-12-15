@@ -81,6 +81,15 @@ $app->configure('constants');
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
     'checktoken' => App\Http\Middleware\CheckTokenMiddleware::class,
+    'delegateAccess' => App\Http\Middleware\DelegateMiddleware::class,
+    'emailAccess' => App\Http\Middleware\EmailAccessMiddleware::class,
+    'cpanelAccess' => App\Http\Middleware\CpanelAccessMiddleware::class,
+    'databaseAccess' => App\Http\Middleware\DatabaseAccessMiddleware::class,
+    'ftpAccess' => App\Http\Middleware\FtpAccessMiddleware::class,
+    'infoAccess' => App\Http\Middleware\InfoAccessMiddleware::class,
+    'ipAccess' => App\Http\Middleware\IpAccessMiddleware::class,
+    'mysqlAccess' => App\Http\Middleware\MysqlAccessMiddleware::class,
+    'phpversionsAccess' => App\Http\Middleware\PhpVersionsAccessMiddleware::class,
 ]);
 $app->middleware([
     App\Http\Middleware\CorsMiddleware::class

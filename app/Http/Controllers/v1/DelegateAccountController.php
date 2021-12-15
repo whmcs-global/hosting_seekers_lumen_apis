@@ -49,16 +49,22 @@ class DelegateAccountController extends Controller
     public function domainList(Request $request)
     {
         try{
+            $ratingArray = ['domains' => '', 'permissions' => ''];
+            $permissionRecords = DelegatePermission::where('status', 1)->get();
+            if($permissionRecords->isNotEmpty()){                
+                $permissionData = [];
+                foreach($permissionRecords as $row){
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'slug' => $row->slug]);
+                }
+                $ratingArray['permissions'] = $permissionData;
+            }
             $records = UserServer::where(['user_id' => $request->userid])->get();
-            $ratingArray = [];
             if($records->isNotEmpty()){ 
                 $permissionData = [];
                 foreach($records as $row){
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'domain' => $row->domain]);
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'domain' => $row->domain, 'server_location' => $row->company_server_package->company_server->state->name.', '.$row->company_server_package->company_server->country->name]);
                 }
-                
-                $rating['data'] = $permissionData;
-                $ratingArray = ['refinedData' => $rating];
+                $ratingArray['domains'] = $permissionData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         }  catch(\Exception $e){
@@ -91,7 +97,7 @@ class DelegateAccountController extends Controller
                         }
                         array_push($domainArray, ['id'=> jsencode_userdata($domain->id), 'name' => $domain->user_server->name, 'domain' => $domain->user_server->domain, 'permissions' => $permissions]);
                     }
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'first_name' => $row->delegate_user->first_name, 'last_name' => $row->delegate_user->last_name, 'domains' => $domainArray]);
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'first_name' => $row->delegate_user->first_name, 'last_name' => $row->delegate_user->last_name, 'domains' => $domainArray, 'created_at' => $row->updated_at]);
                 }
                 
                 $rating['data'] = $permissionData;

@@ -32,7 +32,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1'], function () use ($ro
     $router->post('reset/password', 'AuthController@update_new_password');
 });
 
-$router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['checktoken', 'auth']], function () use ($router) {
+$router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['checktoken', 'auth']], function () use ($router) {
     
 	// $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('update/password', 'UserController@updatePassword');
@@ -109,8 +109,72 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->post('unblock-ip', 'BlockedIpController@deleteIpAddress');
     // });
     
-	$router->group(['prefix' => 'delegate/account'], function () use ($router) {
-        
+	$router->group(['prefix' => 'delegate-access', 'namespace' => 'delegate', 'middleware'=> ['delegateAccess']], function () use ($router) {
+        //Email Account Routes emailAccess
+        $router->group(['middleware'=> ['cpanelAccess']], function () use ($router) {
+            $router->get('login-cpanel/{id}', 'CpanelController@loginAccount'); 
+            $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
+        });
+        $router->group(['middleware'=> ['emailAccess']], function () use ($router) {
+            $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
+            $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
+            $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
+            $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
+            $router->post('suspend-email-account-login', 'EmailAccountController@suspendLogin');
+            $router->post('unsuspend-email-account-login', 'EmailAccountController@unsuspendLogin');
+            $router->post('unsuspend-email-account-incoming', 'EmailAccountController@unsuspendIncoming');
+            $router->post('suspend-email-account-incoming', 'EmailAccountController@suspendIncoming');
+        });
+        //PHP ini Routes
+        $router->group(['middleware'=> ['phpversionsAccess']], function () use ($router) {
+            $router->post('php-ini-content', 'PhpIniController@getPhpIni');
+            $router->post('update-php-ini-content', 'PhpIniController@updatePhpIni');
+            $router->get('get-php-versions/{id}', 'PhpIniController@getVersion');
+            $router->post('update-php-version', 'PhpIniController@updateVersion');
+            $router->post('get-php-directives', 'PhpIniController@getDirectives');
+            $router->post('update-php-directive', 'PhpIniController@updateDirectives');
+        });
+        //FTP Account Routes
+        $router->group(['middleware'=> ['ftpAccess']], function () use ($router) {
+            $router->get('ftp-accounts/{id}', 'FtpAccountController@getFtpAccount');
+            $router->post('ftp-server', 'FtpAccountController@getFtpServerInfo');
+            $router->post('create-ftp-accounts', 'FtpAccountController@addFtpAccount');
+            $router->post('update-ftp-accounts', 'FtpAccountController@updateFtpAccount');
+            $router->post('delete-ftp-accounts', 'FtpAccountController@deleteFtpAccount');
+        });
+        //MySql User RoutesRestrictions
+        $router->group(['middleware'=> ['mysqlAccess']], function () use ($router) {
+            $router->get('login-phpmyadmin/{id}', 'MySqlController@loginPHPMYADMIN');
+            $router->get('mysql-listing/{id}', 'MySqlController@getListing');
+            $router->get('mysql-users/{id}', 'MySqlController@getUsers');
+            $router->get('mysql-name-restrictions/{id}', 'MySqlController@getUsersRestrictions');
+            $router->post('create-mysql-user', 'MySqlController@addUser');
+            $router->post('update-mysql-user', 'MySqlController@updateUser');
+            $router->post('update-mysql-user-password', 'MySqlController@updateUserPassword');
+            $router->post('delete-mysql-user', 'MySqlController@deleteUser');
+        });
+        //MySql Databases Routes
+        $router->group(['middleware'=> ['databaseAccess']], function () use ($router) {
+            $router->get('mysql-databases/{id}', 'MySqlDbController@getDatabases');
+            $router->post('create-mysql-database', 'MySqlDbController@addDatabase');
+            $router->post('update-mysql-database', 'MySqlDbController@updateDatabase');
+            $router->post('delete-mysql-database', 'MySqlDbController@deleteDatabase');
+            $router->post('remove-mysql-privileges', 'MySqlDbController@removePrivileges');
+            $router->post('get-mysql-privileges', 'MySqlDbController@getPrivileges');
+            $router->post('update-mysql-privileges', 'MySqlDbController@updatePrivileges');
+        });
+        //Get Domain Info Route
+        $router->group(['middleware'=> ['infoAccess']], function () use ($router) {
+            $router->get('domain-info/{id}', 'CpanelController@getUserInfo');  
+        }); 
+        //Blocked Ip Routes
+        $router->group(['middleware'=> ['ipAccess']], function () use ($router) {
+            $router->get('blocked-ips/{id}', 'BlockedIpController@getIps');
+            $router->post('block-ip', 'BlockedIpController@blockIpAddress');
+            $router->post('unblock-ip', 'BlockedIpController@deleteIpAddress'); 
+        });
+        $router->get('mysql-privileges', 'MySqlController@getPrivileges');
+        $router->get('user/servers', 'CpanelController@orderedServers'); 
     });
 });
 
