@@ -114,6 +114,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->group(['middleware'=> ['cpanelAccess']], function () use ($router) {
             $router->get('login-cpanel/{id}', 'CpanelController@loginAccount'); 
             $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
+            $router->get('login-phpmyadmin/{id}', 'MySqlController@loginPHPMYADMIN');
         });
         $router->group(['middleware'=> ['emailAccess']], function () use ($router) {
             $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
@@ -144,7 +145,6 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         });
         //MySql User RoutesRestrictions
         $router->group(['middleware'=> ['mysqlAccess']], function () use ($router) {
-            $router->get('login-phpmyadmin/{id}', 'MySqlController@loginPHPMYADMIN');
             $router->get('mysql-listing/{id}', 'MySqlController@getListing');
             $router->get('mysql-users/{id}', 'MySqlController@getUsers');
             $router->get('mysql-name-restrictions/{id}', 'MySqlController@getUsersRestrictions');
