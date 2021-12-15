@@ -22,7 +22,9 @@ class PhpIniController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->getPhpIniFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->version);
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -56,7 +58,9 @@ class PhpIniController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->updatePhpIniFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->version, $request->content);
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -82,7 +86,9 @@ class PhpIniController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $phpVersions = $this->phpVersions($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $phpCurrentVersion = $this->phpCurrentVersion($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             if(!is_array($phpVersions) || !is_array($phpCurrentVersion) || !array_key_exists("metadata", $phpVersions) || !array_key_exists("metadata", $phpVersions)){
@@ -126,7 +132,9 @@ class PhpIniController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $phpGetDirectives = $this->phpIniGetDirectives($serverPackage->company_server_package->company_server_id, $serverPackage->domain, $request->version);
             if(!is_array($phpGetDirectives) || !array_key_exists("metadata", $phpGetDirectives)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -161,7 +169,9 @@ class PhpIniController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $phpGetDirectives = $this->phpIniUpdateDirectives($serverPackage->company_server_package->company_server_id, $serverPackage->domain, $request->version, $request->directive);
             if(!is_array($phpGetDirectives) || !array_key_exists("metadata", $phpGetDirectives)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -195,7 +205,9 @@ class PhpIniController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->updatePhpCurrentVersion($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name),$request->version);
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);

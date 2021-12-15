@@ -16,7 +16,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->loginPhpMyAdminAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -42,7 +44,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $userList = $this->getMySqlUsers($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($userList) || !array_key_exists("result", $userList)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -85,7 +89,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $userCreated = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(is_array($userCreated) && array_key_exists("result", $userCreated) && $userCreated['result']['status'] == 1) {
                 if('user' == $type && str_contains($name, $userCreated['result']['data']['prefix']) && $userCreated['result']['data']['max_username_length'] > strlen($name)){
@@ -116,7 +122,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -143,7 +151,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->getMySqlUsers($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -180,7 +190,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->createMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -225,7 +237,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->updateMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->newname,  $request->oldname);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -262,7 +276,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->updateMySqlUserPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->username,  $request->password);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -296,7 +312,9 @@ class MySqlController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->deleteMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->user);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);

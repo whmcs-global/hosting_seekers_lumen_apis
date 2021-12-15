@@ -15,7 +15,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->listEmailAccounts($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -65,7 +67,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->createEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password,  $request->quota);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -107,7 +111,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->loginWebEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email, $serverPackage->domain);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -150,7 +156,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -184,7 +192,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->suspendEmailsLogin($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -218,7 +228,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->unsuspendEmailsLogin($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -252,7 +264,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->suspendEmailsIncoming($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -286,7 +300,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->unsuspendEmailsIncoming($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -320,7 +336,9 @@ class EmailAccountController extends Controller
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::findOrFail($serverId);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->deleteEmailsAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);

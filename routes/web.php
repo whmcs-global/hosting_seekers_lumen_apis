@@ -14,7 +14,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return view('welcome');
 });
 
 // API route group
@@ -98,10 +98,15 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1','middleware'=> ['check
         $router->get('logout-all', 'UserController@logoutAll');
         //Get Delegate Account Permissions
         $router->get('delegate-permissions', 'DelegateAccountController@permissionList');
-        $router->get('delegate-accounts', 'DelegateAccountController@accountList');
+        $router->get('delegate-accounts[/{id}]', 'DelegateAccountController@accountList');
         $router->get('domain-list', 'DelegateAccountController@domainList');
         $router->get('delete-delegate-account/{id}', 'DelegateAccountController@deleteAccount');
         $router->post('create-delegate-account', 'DelegateAccountController@createAccount');
+        $router->post('search-user', 'DelegateAccountController@searchUser');
+        //Blocked Ip Routes
+        $router->get('blocked-ips/{id}', 'BlockedIpController@getIps');
+        $router->post('block-ip', 'BlockedIpController@blockIpAddress');
+        $router->post('unblock-ip', 'BlockedIpController@deleteIpAddress');
     // });
     
 	$router->group(['prefix' => 'delegate/account'], function () use ($router) {

@@ -73,10 +73,12 @@ class DelegateAccountController extends Controller
     Created Date:       2021-11-24 (yyyy-mm-dd)
     Purpose:            To get list of delegate acconts of a user
     */
-    public function accountList(Request $request)
+    public function accountList(Request $request, $id = null)
     {
         try{
-            $records = DelegateAccount::where(['status' => 1, 'user_id' => $request->userid])->get();
+            $records = DelegateAccount::when(($id != ''), function($q) use($id){
+                $q->where('id', jsdecode_userdata($id));
+            })->where(['status' => 1, 'user_id' => $request->userid])->get();
             $ratingArray = [];
             if($records->isNotEmpty()){ 
                 $permissionData = [];
@@ -101,6 +103,43 @@ class DelegateAccountController extends Controller
         }
     }
     /* End Method accountList */
+
+    /*
+    API Method Name:    searchUser
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get a user deatils on the basis of email
+    */
+    public function searchUser(Request $request)
+    {
+        
+        $validateData = [
+            'email' => 'required|email:rfc,dns'
+        ];
+		$validator = Validator::make($request->all(), $validateData);
+        if($validator->fails()){
+            return $this->apiResponse('error', '422', $validator->errors()->all());
+        }
+        try{
+            $email = $request->email;
+            if('gmail.com' == explode("@",$email)['1']){
+                $preEmail = str_replace('.', '', explode("@",$email)['0']);
+                $email = $preEmail.'@gmail.com';
+            }
+            $records = User::where('id', '!=', $request->userid)->where(['email' => $email])->first();
+            if(!$records)
+                return $this->apiResponse('success', '200', 'User not found');
+            $ratingArray = [];
+            $permissionData = ['id'=> jsencode_userdata($records->id), 'first_name' => $records->first_name, 'last_name' => $records->last_name];
+            
+            $rating['data'] = $permissionData;
+            $ratingArray = ['refinedData' => $rating];
+            return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
+        }  catch(\Exception $e){
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+        }
+    }
+    /* End Method searchUser */
 
     /*
     API Method Name:    deleteAccount
@@ -157,8 +196,8 @@ class DelegateAccountController extends Controller
             if(!$user)
                 return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
             $delegateAccount = DelegateAccount::updateOrCreate(['user_id' => $request->userid, 'delegate_user_id' => $userId]);
+            $permissions = DelegatePermission::where(['status' => 1])->get(); 
             if('full' == $request->access_type){
-                $permissions = DelegatePermission::where(['status' => 1])->get(); 
                 $servers = UserServer::where(['user_id' => $request->userid])->get();                
                 if(!$servers->isNotEmpty())
                 {

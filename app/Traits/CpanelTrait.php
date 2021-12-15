@@ -101,7 +101,66 @@ trait CpanelTrait {
         
         return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld']);
     }
-    /* End Method loginCpanelAccount */ 
+    /* End Method loginCpanelAccount */  
+    
+    /*
+    API Method Name:    getBlockIp
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new cpanel account
+    */
+    public function getBlockIp($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'BlockIP',
+            'cpanel_jsonapi_func' => 'list_ip',
+            'cpanel_jsonapi_user' => $username,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getBlockIp */ 
+    
+    /*
+    API Method Name:    blockIp
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new cpanel account
+    */
+    public function blockIp($id, $username, $ip)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'BlockIP',
+            'cpanel_jsonapi_func' => 'add_ip',
+            'cpanel_jsonapi_user' => $username,
+            'ip' => $ip
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method blockIp */  
+    
+    /*
+    API Method Name:    unblockIp
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new cpanel account
+    */
+    public function unblockIp($id, $username, $ip)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'BlockIP',
+            'cpanel_jsonapi_func' => 'remove_ip',
+            'cpanel_jsonapi_user' => $username,
+            'ip' => $ip
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method unblockIp */
     
     /*
     API Method Name:    createAccount

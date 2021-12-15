@@ -135,6 +135,10 @@ class User extends Model implements Authenticatable
 	{
 	   return $this->hasMany(DelegateAccount::class, 'user_id', 'id');
 	}
+	public function blocked_ip()
+	{
+	   return $this->hasMany(BlockedIp::class, 'user_id', 'id');
+	}
 	public function delegate_user()
 	{
 	   return $this->hasMany(DelegateAccount::class, 'delegate_user_id', 'id');
