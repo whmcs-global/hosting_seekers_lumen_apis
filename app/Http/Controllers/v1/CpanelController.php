@@ -77,7 +77,7 @@ class CpanelController extends Controller
                     array_push($orderData, $orderDataArray);
                 }
                 $ordersData['data'] = $orderData;
-                $orderArray = ['refinedData' => $ordersData];
+                $orderArray = $ordersData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
@@ -178,7 +178,7 @@ class CpanelController extends Controller
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
-            if(!is_array($accCreated) || !is_array($nameCreated) || !is_array($serverInfo) || !is_array($cpanelStats) ){
+            if(!is_array($accCreated) || !is_array($nameCreated) || !is_array($cpanelStats) ){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
@@ -188,10 +188,6 @@ class CpanelController extends Controller
             }
             if ((array_key_exists("metadata", $nameCreated) && $nameCreated["metadata"]['result'] == "0")) {
                 $error = $nameCreated["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
-            }
-            if ((array_key_exists("result", $serverInfo) && $serverInfo["result"]['status'] == "0")) {
-                $error = $serverInfo["result"]['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
@@ -221,7 +217,6 @@ class CpanelController extends Controller
                 "ip" => $accCreated["data"]['userdata']['ip'],
                 "port" => $accCreated["data"]['userdata']['port'],
                 "nameservers" => $nameCreated['data']['nameservers'],
-                "serverInfo" => $serverInfoArray,
                 "accountStats" => $cpanelStatArray
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);

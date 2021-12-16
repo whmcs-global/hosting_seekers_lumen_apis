@@ -64,9 +64,7 @@ class BlockedIpController extends Controller
                 foreach($records as $row){
                     array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'ip_address' => $row->ip_address]);
                 }
-                
-                $rating['data'] = $permissionData;
-                $ratingArray = ['refinedData' => $rating];
+                $ratingArray = $permissionData;
             }            
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ratingArray, 'message' => 'Ip address has been successfully blocked']);
         }
@@ -113,9 +111,7 @@ class BlockedIpController extends Controller
                 foreach($records as $row){
                     array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'ip_address' => $row->ip_address]);
                 }
-                
-                $rating['data'] = $permissionData;
-                $ratingArray = ['refinedData' => $rating];
+                $ratingArray = $permissionData;
             }      
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ratingArray, 'message' => 'Ip address has been successfully unblocked']);
         }

@@ -67,7 +67,7 @@ class UserController extends Controller
             $q->where('id', $id);
         })
         ->get(['id', 'short_code', 'name', 'country_flag']);
-        $dataArray = ['refinedData' => $countries];
+        $dataArray = $countries;
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }
 
@@ -85,7 +85,7 @@ class UserController extends Controller
         })
         ->where('country_id', $countryId)
         ->get(['id', 'country_id', 'name']);
-        $dataArray = ['refinedData' => $countries];
+        $dataArray = $countries;
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }
 
@@ -122,7 +122,7 @@ class UserController extends Controller
             array_push($delegateUserArray, ['id' => jsencode_userdata($user->id), 'name' => $user->user->first_name.' '.$user->user->last_name]);
         }
         $userArray['delegateUsers'] = $delegateUserArray;
-        $dataArray = ['refinedData' => $userArray];
+        $dataArray = $userArray;
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }
 

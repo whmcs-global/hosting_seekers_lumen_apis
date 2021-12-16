@@ -96,7 +96,7 @@ class ReviewController extends Controller
                     $criteriaKey = str_replace(' ','_',strtolower($key));
                     $raviewData[$criteriaKey] = $criteria;
                 }
-                $ratingArray = ['refinedData' => $raviewData];
+                $ratingArray = $raviewData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         } catch ( \Exception $e ) {
@@ -142,7 +142,7 @@ class ReviewController extends Controller
                     array_push($raviewData, ['id'=> jsencode_userdata($rate->id), 'company_id' => jsencode_userdata($rate->company_id), 'company_name' => strlen($rate->company->company_detail->company_name) > 20 ? substr($rate->company->company_detail->company_name, 0, 20).'...' : $rate->company->company_detail->company_name, 'overall_rating' => $rate->rate_point, 'review' => $rate->review, 'reply' => $reply, 'created_at' => change_date_format($rate->created_at)]);
                 }
                 $rating['data'] = $raviewData;
-                $ratingArray = ['refinedData' => $rating];
+                $ratingArray = $rating;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
             
@@ -162,7 +162,7 @@ class ReviewController extends Controller
     public function getReviewCriteria(Request $request) {
         try{
             $ratings = ReviewCriteria::select('id', 'name')->get();
-            $dataArray = ['refinedData' => $ratings];
+            $dataArray = $ratings;
             return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
         } catch ( \Exception $e ) {
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));

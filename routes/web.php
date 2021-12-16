@@ -104,6 +104,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('delete-delegate-account/{id}', 'DelegateAccountController@deleteAccount');
         $router->get('delete-delegate-domain/{id}', 'DelegateAccountController@deleteDomain');
         $router->post('create-delegate-account', 'DelegateAccountController@createAccount');
+        $router->post('update-delegate-account', 'DelegateAccountController@updateAccount');
         $router->post('search-user', 'DelegateAccountController@searchUser');
         //Blocked Ip Routes
         $router->get('blocked-ips/{id}', 'BlockedIpController@getIps');
@@ -178,7 +179,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
             $router->post('unblock-ip', 'BlockedIpController@deleteIpAddress'); 
         });
         $router->get('mysql-privileges', 'MySqlController@getPrivileges');
-        $router->get('user/servers', 'CpanelController@orderedServers'); 
+        $router->get('user/servers[/{id}]', 'CpanelController@orderedServers'); 
     });
 });
 

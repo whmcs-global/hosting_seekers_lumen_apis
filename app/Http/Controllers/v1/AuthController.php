@@ -81,11 +81,10 @@ class AuthController extends Controller
                 'mobile' => $user_details->mobile,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
-                'address' => $user_details->address
+                'address' => $user_details->address,
+                'access_token' => $access_token
             );
-
-            $dataArray = ['refinedData' => $user_data, 'access_token' => $access_token];
-            return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
+            return $this->apiResponse('success', '200', 'Data fetched', $user_data);
         }
         catch(\Exception $e){
             DB::rollback();

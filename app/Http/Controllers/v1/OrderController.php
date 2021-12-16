@@ -60,7 +60,7 @@ class OrderController extends Controller
                     array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => 'http://192.168.0.129:8000/invoice/'.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
-                $orderArray = ['refinedData' => $ordersData];
+                $orderArray = $ordersData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
@@ -113,7 +113,7 @@ class OrderController extends Controller
                     array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'currency_icon' => $order->currency->icon,  'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
-                $orderArray = ['refinedData' => $ordersData];
+                $orderArray = $ordersData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
@@ -173,7 +173,7 @@ class OrderController extends Controller
                     array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice->invoice_id, 'order_id' => $order->order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->updated_at)]);
                 }
                 $ordersData['data'] = $orderData;
-                $orderArray = ['refinedData' => $ordersData];
+                $orderArray = $ordersData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             

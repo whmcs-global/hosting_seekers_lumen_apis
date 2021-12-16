@@ -11,15 +11,21 @@ use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
 class CpanelController extends Controller
 {
     use CpanelTrait, CommonTrait, SendResponseTrait;
-    public function orderedServers(Request $request){
+    public function orderedServers(Request $request, $id = null){
         
         try {
-            $records = DelegateDomainAccess::where(['delegate_account_id' => $request->delegate_account_id])->get();
+            $records = DelegateDomainAccess::when(($id != ''), function($q) use($id){
+                $q->where('user_server_id', jsdecode_userdata($id));
+            })->where(['delegate_account_id' => $request->delegate_account_id])->get();
             $ratingArray = [];
             if($records->isNotEmpty()){ 
                 $permissionData = [];
                 foreach($records as $row){
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle)))]);
+                    $permissions = [];
+                    foreach($row->delegate_domain_access as $permission){
+                        array_push($permissions, ['id'=> jsencode_userdata($permission->delegate_permission->id), 'name' => $permission->delegate_permission->name, 'displayname' => $permission->delegate_permission->displayname, 'slug' => $permission->delegate_permission->slug]);
+                    }
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
                 }
                 $ratingArray['domains'] = $permissionData;
             }
