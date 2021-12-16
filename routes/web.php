@@ -52,6 +52,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
         $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
         $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
+        $router->get('login-webmail/{id}', 'EmailAccountController@loginWebmailAccount');
         $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
         $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
         $router->post('suspend-email-account-login', 'EmailAccountController@suspendLogin');
@@ -101,12 +102,15 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('delegate-accounts[/{id}]', 'DelegateAccountController@accountList');
         $router->get('domain-list', 'DelegateAccountController@domainList');
         $router->get('delete-delegate-account/{id}', 'DelegateAccountController@deleteAccount');
+        $router->get('delete-delegate-domain/{id}', 'DelegateAccountController@deleteDomain');
         $router->post('create-delegate-account', 'DelegateAccountController@createAccount');
         $router->post('search-user', 'DelegateAccountController@searchUser');
         //Blocked Ip Routes
         $router->get('blocked-ips/{id}', 'BlockedIpController@getIps');
         $router->post('block-ip', 'BlockedIpController@blockIpAddress');
         $router->post('unblock-ip', 'BlockedIpController@deleteIpAddress');
+        //Backup Routes
+        $router->get('return-backup-files/{id}', 'BackUpController@getBackupFiles');
     // });
     
 	$router->group(['prefix' => 'delegate-access', 'namespace' => 'delegate', 'middleware'=> ['delegateAccess']], function () use ($router) {

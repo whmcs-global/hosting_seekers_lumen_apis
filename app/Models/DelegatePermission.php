@@ -9,6 +9,7 @@ class DelegatePermission extends Model
     public $timestamps = true;
     protected $fillable = [
         'name',
+		'displayname',
        	'slug',
        	'status',
 	    'created_at',

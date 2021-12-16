@@ -78,6 +78,27 @@ trait CpanelTrait {
     }
     /* End Method addDevice */ 
     
+    
+    /*
+    API Method Name:    backupFiles
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To delete ftp account
+    */
+    public function backupFiles($id, $username)
+    {
+        // $action = 'cpanel';
+        // $params = [
+        //     'cpanel_jsonapi_apiversion' => 3,
+        //     'cpanel_jsonapi_module' => 'Backup',
+        //     'cpanel_jsonapi_func' => 'list_backups',
+        //     'cpanel_jsonapi_user' => $username,
+        // ];
+        // return $this->runQuery($id, $action, $params);
+        return $this->runQuery($id, 'backup_destination_list', ['api.version' => '1', 'user' => $username]);
+    }
+    /* End Method backupFiles */ 
+    
     /*
     API Method Name:    loginPhpMyAdminAccount
     Developer:          Shine Dezign
@@ -89,7 +110,21 @@ trait CpanelTrait {
         
         return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Database_phpMyAdmin']);
     }
+
     /* End Method loginPhpMyAdminAccount */ 
+    /*
+    API Method Name:    loginWebmail
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new email account
+    */
+    public function loginWebmail($id, $username)
+    {
+        
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Email_Accounts']);
+    }
+    /* End Method loginWebmail */ 
+
     /*
     API Method Name:    loginCpanelAccount
     Developer:          Shine Dezign

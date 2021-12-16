@@ -54,7 +54,7 @@ class DelegateAccountController extends Controller
             if($permissionRecords->isNotEmpty()){                
                 $permissionData = [];
                 foreach($permissionRecords as $row){
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'slug' => $row->slug]);
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'displayname' => $row->displayname, 'slug' => $row->slug]);
                 }
                 $ratingArray['permissions'] = $permissionData;
             }
@@ -93,7 +93,7 @@ class DelegateAccountController extends Controller
                     foreach($row->delegate_domain_access as $domain){
                         $permissions = [];
                         foreach($domain->delegate_domain_access as $permission){
-                            array_push($permissions, ['id'=> jsencode_userdata($permission->delegate_permission->id), 'name' => $permission->delegate_permission->name, 'slug' => $permission->delegate_permission->slug]);
+                            array_push($permissions, ['id'=> jsencode_userdata($permission->delegate_permission->id), 'name' => $permission->delegate_permission->name, 'displayname' => $permission->delegate_permission->displayname, 'slug' => $permission->delegate_permission->slug]);
                         }
                         array_push($domainArray, ['id'=> jsencode_userdata($domain->id), 'name' => $domain->user_server->name, 'domain' => $domain->user_server->domain, 'permissions' => $permissions]);
                     }
@@ -151,7 +151,7 @@ class DelegateAccountController extends Controller
     API Method Name:    deleteAccount
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To get list of delegate acconts of a user
+    Purpose:            To delete delegate acconts of a user
     */
     public function deleteAccount(Request $request, $id)
     {
@@ -168,12 +168,38 @@ class DelegateAccountController extends Controller
                 $rating['data'] = $permissionData;
                 $ratingArray = ['refinedData' => $rating];
             }
-            return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
+            return $this->apiResponse('success', '200', 'Delegate account has been deleted', $ratingArray);
         }  catch(\Exception $e){
             return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
     /* End Method deleteAccount */
+
+    /*
+    API Method Name:    deleteDomain
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To delete delegate access domain of a user
+    */
+    public function deleteDomain(Request $request, $id)
+    {
+        try{
+            $domain = DelegateDomainAccess::where(['id' => jsdecode_userdata($id)])->whereHas('delegate_account', function( $qu ) use($request){
+                $qu->where('user_id', $request->userid);
+            })->first();
+            if($domain){
+                $records = DelegateDomainAccess::where(['delegate_account_id' => $domain->delegate_account_id])->count();
+                if($records > 1){
+                    $domain->delete();
+                    return $this->apiResponse('success', '200', 'Delegate Domain Access has been deleted');
+                }
+            }
+            return $this->apiResponse('error', '404', 'Sorry! You canot delete single delegate domain access');
+        }  catch(\Exception $e){
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+        }
+    }
+    /* End Method deleteDomain */
 
     /*
     API Method Name:    createAccount
@@ -225,6 +251,7 @@ class DelegateAccountController extends Controller
                         return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
                     } 
                     $delegateDomain = DelegateDomainAccess::updateOrCreate(['delegate_account_id' => $delegateAccount->id, 'user_server_id' => jsdecode_userdata($server)]);
+                    $permissionArray = [];
                     foreach($request->permissions as $permission){
                         $servers = DelegatePermission::where(['id' => jsdecode_userdata($permission)])->first(); 
                         if(!$servers)
@@ -232,8 +259,10 @@ class DelegateAccountController extends Controller
                             DB::rollBack();
                             return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
                         } 
+                        array_push($permissionArray, jsdecode_userdata($permission));
                         DelegateDomainAccessPermission::updateOrCreate(['delegate_domain_access_id' => $delegateDomain->id, 'delegate_permission_id' => jsdecode_userdata($permission)]);
                     }
+                    DelegateDomainAccessPermission::where(['delegate_domain_access_id' => $delegateDomain->id])->whereNotIn('delegate_permission_id', $permissionArray)->delete();
                 }
             } else{
                 DB::rollBack();
