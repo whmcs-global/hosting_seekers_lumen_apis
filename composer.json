@@ -12,6 +12,7 @@
         "illuminate/mail": "^8.28",
         "irazasyed/larasupport": "^1.7",
         "laravel/lumen-framework": "^8.0",
+        "plesk/api-php-lib": "^1.1",
         "stevebauman/location": "^6.1",
         "torann/geoip": "^3.0",
         "tymon/jwt-auth": "dev-develop"

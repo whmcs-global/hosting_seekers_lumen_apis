@@ -183,3 +183,13 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
     });
 });
 
+$router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middleware'=> ['checktoken', 'auth']*/ ] ,  function () use ($router) {
+    $router->get('get-plans', 'DomainController@getPlans');
+    //Manage domain(Webspaces)
+    $router->group(['prefix'=>'domain'],function() use ($router){
+        $router->get('get-all', 'DomainController@getAll');
+        $router->post('get-detail', 'DomainController@getDomain');
+        $router->post('delete', 'DomainController@delete');
+        $router->post('create', 'DomainController@create');
+    });
+});
