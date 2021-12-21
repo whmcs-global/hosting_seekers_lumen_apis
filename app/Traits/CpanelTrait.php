@@ -13,18 +13,30 @@ trait CpanelTrait {
     Created Date:       2021-11-24 (yyyy-mm-dd)
     Purpose:            To hit cpanel api with specific action
     */
-    public function runQuery($id, $action, $arguments = [], $throw = false)
+    public function runQuery($id, $action, $arguments = [], $throw = false, $csf = null)
     {
         $records = CompanyServer::where('id', $id)->first();
         if(is_null($records))
             return config('constants.ERROR.FORBIDDEN_ERROR');
-        
         $linkserver = $records->link_server ? unserialize($records->link_server) : 'N/A';
         if('N/A' != $linkserver){
+            
             $hostUrl = 'https://'.$records->ip_address.':'.$linkserver['port'];
             $headers = ['Authorization' => 'WHM ' . $linkserver['username'] . ':' . preg_replace("'(\r|\n|\s|\t)'", '', $linkserver['apiToken'])];
             $client = new Client(['base_uri' => $hostUrl]);
             try{
+                if($csf){
+                    $response = $client->post('/' . $action, [
+                        'headers' => $headers,
+                        'verify' => false,
+                        'query' => $arguments,
+                        'timeout' => 60,
+                        'connect_timeout' => 2
+                    ]);
+                    
+        dd($response);
+                }
+                else
                 $response = $client->post('/json-api/' . $action, [
                     'headers' => $headers,
                     'verify' => false,
@@ -41,6 +53,8 @@ trait CpanelTrait {
             }
             catch(\GuzzleHttp\Exception\ClientException $e)
             {
+                dd($e);
+        dd($linkserver);
             if ($throw) {
                 throw $e; 
             }
@@ -146,14 +160,7 @@ trait CpanelTrait {
     */
     public function getBlockIp($id, $username)
     {
-        $action = 'cpanel';
-        $params = [
-            'cpanel_jsonapi_apiversion' => 3,
-            'cpanel_jsonapi_module' => 'BlockIP',
-            'cpanel_jsonapi_func' => 'list_ip',
-            'cpanel_jsonapi_user' => $username,
-        ];
-        return $this->runQuery($id, $action, $params);
+        return $this->runQuery($id, 'read_cphulk_records', ['api.version' => '1', 'user' => $username, 'list_name' => 'black']);
     }
     /* End Method getBlockIp */ 
     
@@ -163,17 +170,9 @@ trait CpanelTrait {
     Created Date:       2021-11-24 (yyyy-mm-dd)
     Purpose:            To create new cpanel account
     */
-    public function blockIp($id, $username, $ip)
+    public function blockIp($id, $username, $ip) 
     {
-        $action = 'cpanel';
-        $params = [
-            'cpanel_jsonapi_apiversion' => 3,
-            'cpanel_jsonapi_module' => 'BlockIP',
-            'cpanel_jsonapi_func' => 'add_ip',
-            'cpanel_jsonapi_user' => $username,
-            'ip' => $ip
-        ];
-        return $this->runQuery($id, $action, $params);
+        return $this->runQuery($id, 'create_cphulk_record', ['api.version' => '1', 'user' => $username, 'list_name' => 'black', 'ip' => $ip]);
     }
     /* End Method blockIp */  
     
@@ -185,15 +184,7 @@ trait CpanelTrait {
     */
     public function unblockIp($id, $username, $ip)
     {
-        $action = 'cpanel';
-        $params = [
-            'cpanel_jsonapi_apiversion' => 3,
-            'cpanel_jsonapi_module' => 'BlockIP',
-            'cpanel_jsonapi_func' => 'remove_ip',
-            'cpanel_jsonapi_user' => $username,
-            'ip' => $ip
-        ];
-        return $this->runQuery($id, $action, $params);
+        return $this->runQuery($id, 'cgi/addon_csf.cgi', ['action' => 'kill', 'ip' => $ip], false, true);
     }
     /* End Method unblockIp */
     

@@ -80,6 +80,7 @@ $app->configure('constants');
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'cors' => App\Http\Middleware\CorsMiddleware::class,
     'checktoken' => App\Http\Middleware\CheckTokenMiddleware::class,
     'delegateAccess' => App\Http\Middleware\DelegateMiddleware::class,
     'emailAccess' => App\Http\Middleware\EmailAccessMiddleware::class,

@@ -114,7 +114,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('return-backup-files/{id}', 'BackUpController@getBackupFiles');
     // });
     
-	$router->group(['prefix' => 'delegate-access', 'namespace' => 'delegate', 'middleware'=> ['delegateAccess']], function () use ($router) {
+	$router->group(['prefix' => 'delegate-access', 'namespace' => 'delegate', 'middleware'=> ['delegateAccess', 'cors']], function () use ($router) {
         //Email Account Routes emailAccess
         $router->group(['middleware'=> ['cpanelAccess']], function () use ($router) {
             $router->get('login-cpanel/{id}', 'CpanelController@loginAccount'); 

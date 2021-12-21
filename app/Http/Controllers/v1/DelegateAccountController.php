@@ -22,7 +22,7 @@ class DelegateAccountController extends Controller
     public function permissionList(Request $request)
     {
         try{
-            $records = DelegatePermission::where('status', 1)->get();
+            $records = DelegatePermission::where('status', 1)->orderByDesc('id')->get();
             $ratingArray = [];
             if($records->isNotEmpty()){                
                 $permissionData = [];
@@ -48,7 +48,7 @@ class DelegateAccountController extends Controller
     {
         try{
             $ratingArray = ['domains' => '', 'permissions' => ''];
-            $permissionRecords = DelegatePermission::where('status', 1)->get();
+            $permissionRecords = DelegatePermission::where('status', 1)->orderByDesc('id')->get();
             if($permissionRecords->isNotEmpty()){                
                 $permissionData = [];
                 foreach($permissionRecords as $row){
@@ -56,7 +56,7 @@ class DelegateAccountController extends Controller
                 }
                 $ratingArray['permissions'] = $permissionData;
             }
-            $records = UserServer::where(['user_id' => $request->userid])->get();
+            $records = UserServer::where(['user_id' => $request->userid])->orderByDesc('id')->get();
             if($records->isNotEmpty()){ 
                 $permissionData = [];
                 foreach($records as $row){
@@ -82,7 +82,7 @@ class DelegateAccountController extends Controller
         try{
             $records = DelegateAccount::when(($id != ''), function($q) use($id){
                 $q->where('id', jsdecode_userdata($id));
-            })->where(['status' => 1, 'user_id' => $request->userid])->get();
+            })->where(['status' => 1, 'user_id' => $request->userid])->orderByDesc('id')->get();
             $ratingArray = [];
             if($records->isNotEmpty()){ 
                 $permissionData = [];
@@ -151,7 +151,7 @@ class DelegateAccountController extends Controller
     {
         try{
             DelegateAccount::where(['id' => jsdecode_userdata($id), 'user_id' => $request->userid])->delete();
-            $records = DelegateAccount::where(['status' => 1, 'user_id' => $request->userid])->get();
+            $records = DelegateAccount::where(['status' => 1, 'user_id' => $request->userid])->orderByDesc('id')->get();
             $ratingArray = [];
             if($records->isNotEmpty()){ 
                 $permissionData = [];
@@ -221,13 +221,13 @@ class DelegateAccountController extends Controller
                 return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
             }
             $delegateAccount = DelegateAccount::updateOrCreate(['user_id' => $request->userid, 'delegate_user_id' => $userId]);
-            $permissions = DelegatePermission::where(['status' => 1])->get(); 
+            $permissions = DelegatePermission::where(['status' => 1])->orderByDesc('id')->get(); 
             if('full' == $request->access_type){
-                $servers = UserServer::where(['user_id' => $request->userid])->get();                
+                $servers = UserServer::where(['user_id' => $request->userid])->orderByDesc('id')->get();                
                 if(!$servers->isNotEmpty())
                 {
                     DB::rollBack();
-                    return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+                    return $this->apiResponse('error', '404', 'Add a domain first to gave delegate access');
                 }
                 foreach($servers as $server){
                     $delegateDomain = DelegateDomainAccess::updateOrCreate(['delegate_account_id' => $delegateAccount->id, 'user_server_id' => $server->id]);
@@ -296,7 +296,7 @@ class DelegateAccountController extends Controller
                 return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
             }
             $delegateAccount = DelegateAccount::updateOrCreate(['user_id' => $request->userid, 'delegate_user_id' => $userId]);
-            $permissions = DelegatePermission::where(['status' => 1])->get(); 
+            $permissions = DelegatePermission::where(['status' => 1])->orderByDesc('id')->get(); 
             if('custom' == $request->access_type){
                 $delegateDomain = DelegateDomainAccess::where(['id' => jsdecode_userdata($request->domains), 'delegate_account_id' => $delegateAccount->id])->first(); 
                 if(!$delegateDomain)
