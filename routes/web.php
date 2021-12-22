@@ -191,5 +191,8 @@ $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middl
         $router->post('get-detail', 'DomainController@getDomain');
         $router->post('delete', 'DomainController@delete');
         $router->post('create', 'DomainController@create');
+        $router->post('create-database','DomainController@createDatabase');
     });
+    $router->get('testing-123','DomainController@testing');
+    
 });
