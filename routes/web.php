@@ -185,6 +185,22 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
 
 $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middleware'=> ['checktoken', 'auth']*/ ] ,  function () use ($router) {
     $router->get('get-plans', 'DomainController@getPlans');
+    
+    $router->get('get-php-versions', 'PhpVersionController@getVersion');
+    $router->post('update-php-version', 'PhpVersionController@updateVersion');
+    $router->get('get-php-directives', 'PhpVersionController@getDirectives');
+    $router->post('update-php-directive', 'PhpVersionController@updateDirectives');
+    //Email Account Routes
+    $router->get('email-accounts', 'EmailAccountController@getEmailAccount');
+    $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
+    $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
+    $router->get('login-webmail/{id}', 'EmailAccountController@loginWebmailAccount');
+    $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
+    $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
+    $router->post('suspend-email-account-login', 'EmailAccountController@suspendLogin');
+    $router->post('unsuspend-email-account-login', 'EmailAccountController@unsuspendLogin');
+    $router->post('unsuspend-email-account-incoming', 'EmailAccountController@unsuspendIncoming');
+    $router->post('suspend-email-account-incoming', 'EmailAccountController@suspendIncoming');
     //Manage domain(Webspaces)
     $router->group(['prefix'=>'domain'],function() use ($router){
         $router->get('get-all', 'DomainController@getAll');
