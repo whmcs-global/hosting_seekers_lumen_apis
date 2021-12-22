@@ -148,7 +148,7 @@ class CpanelController extends Controller
             if ($accCreated['metadata']["result"] == "0") {
                 $error = $accCreated['metadata']['reason'];
                 $error = substr($error, strpos($error, ")")+1);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error." Package Name: ".$packageName]);
             }
             try{
             $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
