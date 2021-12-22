@@ -135,7 +135,7 @@ class CpanelController extends Controller
                 'company_id' =>  $serverPackage->user_id,
                 'company_server_package_id' => $serverPackage->id,
             ];
-            $packageName = str_replace("", "_", $serverPackage->package);
+            $packageName = str_replace(" ", "_", $serverPackage->package);
             $domainName = $this->getDomain($request->domain_name);
             $accountCreate['name'] = $request->account_name;
             $accountCreate['domain'] = $domainName;
