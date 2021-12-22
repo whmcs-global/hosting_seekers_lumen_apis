@@ -140,6 +140,7 @@ class CpanelController extends Controller
             $accountCreate['name'] = $request->account_name;
             $accountCreate['domain'] = $domainName;
             $accountCreate['password'] = 'G@ur@v123';
+            dd($packageName);
             $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -148,7 +149,7 @@ class CpanelController extends Controller
             if ($accCreated['metadata']["result"] == "0") {
                 $error = $accCreated['metadata']['reason'];
                 $error = substr($error, strpos($error, ")")+1);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error." Package Name: ".$packageName]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
             }
             try{
             $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
