@@ -48,6 +48,19 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('user/servers', 'CpanelController@orderedServers');
         $router->post('add/domain', 'CpanelController@addDomain');
         $router->get('login-cpanel/{id}', 'CpanelController@loginAccount');
+        //Sub Domains Routes
+        $router->group(['prefix' => 'subdomain'], function () use ($router) {
+            $router->get('/{id}', 'SubDomainController@getSubDomain');
+            $router->post('add', 'SubDomainController@addSubDomain');
+            $router->post('update', 'SubDomainController@updateSubDomain');
+            $router->post('delete', 'SubDomainController@deleteSubDomain');
+        });
+        //Addon Domains Routes
+        $router->group(['prefix' => 'addon-domain'], function () use ($router) {
+            $router->get('/{id}', 'AddonDomainController@getAddonsDomain');
+            $router->post('add', 'AddonDomainController@addAddonsDomain');
+            $router->post('delete', 'AddonDomainController@deleteAddonsDomain');
+        });
         //Email Account Routes
         $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
         $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
@@ -120,6 +133,19 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
             $router->get('login-cpanel/{id}', 'CpanelController@loginAccount'); 
             $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
             $router->get('login-phpmyadmin/{id}', 'MySqlController@loginPHPMYADMIN');
+        });
+        //Sub Domains Routes
+        $router->group(['prefix' => 'subdomain', 'middleware'=> ['subdomainAccess']], function () use ($router) {
+            $router->get('/{id}', 'SubDomainController@getSubDomain');
+            $router->post('add', 'SubDomainController@addSubDomain');
+            $router->post('update', 'SubDomainController@updateSubDomain');
+            $router->post('delete', 'SubDomainController@deleteSubDomain');
+        });
+        //Addon Domains Routes
+        $router->group(['prefix' => 'addon-domain', 'middleware'=> ['addonDomainAccess']], function () use ($router) {
+            $router->get('/{id}', 'AddonDomainController@getAddonsDomain');
+            $router->post('add', 'AddonDomainController@addAddonsDomain');
+            $router->post('delete', 'AddonDomainController@deleteAddonsDomain');
         });
         $router->group(['middleware'=> ['emailAccess']], function () use ($router) {
             $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');

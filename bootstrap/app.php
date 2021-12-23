@@ -91,6 +91,8 @@ $app->routeMiddleware([
     'ipAccess' => App\Http\Middleware\IpAccessMiddleware::class,
     'mysqlAccess' => App\Http\Middleware\MysqlAccessMiddleware::class,
     'phpversionsAccess' => App\Http\Middleware\PhpVersionsAccessMiddleware::class,
+    'subdomainAccess' => App\Http\Middleware\SubDomainAccessMiddleware::class,
+    'addonDomainAccess' => App\Http\Middleware\AddonDomainController::class,
 ]);
 $app->middleware([
     App\Http\Middleware\CorsMiddleware::class

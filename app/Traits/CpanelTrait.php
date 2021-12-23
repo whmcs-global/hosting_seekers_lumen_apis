@@ -33,8 +33,6 @@ trait CpanelTrait {
                         'timeout' => 60,
                         'connect_timeout' => 2
                     ]);
-                    
-        dd($response);
                 }
                 else
                 $response = $client->post('/json-api/' . $action, [
@@ -53,8 +51,6 @@ trait CpanelTrait {
             }
             catch(\GuzzleHttp\Exception\ClientException $e)
             {
-                dd($e);
-        dd($linkserver);
             if ($throw) {
                 throw $e; 
             }
@@ -91,6 +87,141 @@ trait CpanelTrait {
         }
     }
     /* End Method addDevice */ 
+    
+    /*
+    API Method Name:    getSubDomains
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of subdomains
+    */
+    public function getSubDomains($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'SubDomain',
+            'cpanel_jsonapi_func' => 'listsubdomains',
+            'cpanel_jsonapi_user' => $username,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getSubDomains */ 
+
+    /*
+    API Method Name:    createSubDomain
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new subdomain
+    */
+    public function createSubDomain($id, $domain, $homedir)
+    {
+        return $this->runQuery($id, 'create_subdomain', ['api.version' => '1', 'domain' => $domain, 'document_root' => $homedir]);
+    }
+    /* End Method createSubDomain */ 
+    
+    /*
+    API Method Name:    changeRootDir
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To update subdomain root directory
+    */
+    public function changeRootDir($id, $username, $domain, $subdomain, $homedir)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'SubDomain',
+            'cpanel_jsonapi_func' => 'changedocroot',
+            'cpanel_jsonapi_user' => $username,
+            'rootdomain' => $domain,
+            'subdomain' => $subdomain,
+            'dir' => $homedir
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method changeRootDir */ 
+    
+    /*
+    API Method Name:    delSubDomain
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To delete a subdomain
+    */
+    public function delSubDomain($id, $username, $domain)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'SubDomain',
+            'cpanel_jsonapi_func' => 'delsubdomain',
+            'cpanel_jsonapi_user' => $username,
+            'domain' => $domain,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method delSubDomain */ 
+    
+    /*
+    API Method Name:    getAddonsDomains
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of AddonsDomains
+    */
+    public function getAddonsDomains($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'AddonDomain',
+            'cpanel_jsonapi_func' => 'listaddondomains',
+            'cpanel_jsonapi_user' => $username,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getAddonsDomains */ 
+
+    /*
+    API Method Name:    createAddonsDomain
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new AddonsDomain
+    */
+    public function createAddonsDomain($id, $username, $domain, $subdomain, $homedir)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'AddonDomain',
+            'cpanel_jsonapi_func' => 'addaddondomain',
+            'cpanel_jsonapi_user' => $username,
+            'newdomain' => $domain,
+            'subdomain' => $subdomain,
+            'dir' => $homedir
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method createAddonsDomain */ 
+    
+    /*
+    API Method Name:    delAddonsDomain
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To delete a AddonsDomain
+    */
+    public function delAddonsDomain($id, $username, $domain, $subdomain)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'AddonDomain',
+            'cpanel_jsonapi_func' => 'deladdondomain',
+            'cpanel_jsonapi_user' => $username,
+            'domain' => $domain,
+            'subdomain' => $subdomain,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method delAddonsDomain */ 
     
     
     /*
