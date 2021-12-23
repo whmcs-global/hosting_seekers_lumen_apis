@@ -22,9 +22,9 @@ class DomainController extends Controller
     Purpose:        Get all domains(Webspaces) on Plesk
     Params:         client of plesk
     */
-    public function getAll( Client $client ){
+    public function getAll( ){
         try{
-            $all_domains = $client->Webspace()->getAll();
+            $all_domains = $this->client->Webspace()->getAll();
             $response_data = [];
             foreach( $all_domains as $single_domain ){
                 $response_data[] = [
@@ -48,7 +48,7 @@ class DomainController extends Controller
     Purpose:        Get detail of the domain
     Params:         client of plesk and request input
     */
-    public function getDomain( Client $client , Request $request){
+    public function getDomain( Request $request){
         $messages = [
             'domain.required' => 'We need to know domain'
         ];
@@ -79,9 +79,6 @@ class DomainController extends Controller
 </packet>
 STR;
             $response = $this->client->request($request);
-            //$domain_detail->stat = $response->data->stat;
-            //$domain_detail->disk_usage = $response->data->disk_usage;
-
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => $response->data , 'message' => 'Domain fetched successfully.' 
             ]);
@@ -98,7 +95,7 @@ STR;
     Purpose:        Delete the domain
     Params:         client of plesk
     */
-    public function delete( Client $client , Request $request ){
+    public function delete( Request $request ){
         $messages = [
             'domain.required' => 'We need to know domain'
         ];
@@ -112,7 +109,7 @@ STR;
             ]);
         }
         try{
-            $client->Webspace()->delete("name",$request->domain);
+            $this->client->Webspace()->delete("name",$request->domain);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'Domain deleted successfully.' 
             ]);
@@ -129,9 +126,9 @@ STR;
     Purpose:        Get plans
     Params:         client of plesk
     */
-    public function getPlans( Client $client ){
+    public function getPlans(  ){
         try{
-            $all_plans = $client->ServicePlan()->getAll();
+            $all_plans = $this->client->ServicePlan()->getAll();
             $response_plans = [];
             foreach( $all_plans as $single_plan ){
                 $response_plans[] = [
@@ -159,7 +156,7 @@ STR;
     Purpose:        Create the customer and domain(Webspace)
     Params:         client of plesk
     */
-    public function create( Client $client , Request $request ){
+    public function create( Request $request ){
         $messages = [
             'domain.required' => 'We need to know domain'
         ];
@@ -179,16 +176,16 @@ STR;
         try{
             $customer = $this->check_customer_exist($request->customer_name);
             if( empty($customer) ){
-                $customer = $client->customer()->create([
+                $customer = $this->client->customer()->create([
                     "pname"     =>  $request->customer_name,
                     "login"     =>  $request->customer_name,
                     "passwd"    =>  $request->customer_password,
                     "email"     =>  $request->customer_email
                 ]);
             }
-            $ip_address = $client->ip()->get();
+            $ip_address = $this->client->ip()->get();
             $ip_address = reset( $ip_address );
-            $domain = $client->webspace()->create([
+            $domain = $this->client->webspace()->create([
                     'name'          => $request->domain,
                     'ip_address'    => $ip_address->ipAddress,
                     'owner-guid'      => $customer->guid
@@ -222,71 +219,5 @@ STR;
             return false;
         }
     }
-    /*
-    Method Name:    createDatabase
-    Developer:      Shine Dezign
-    Created Date:   2021-12-22 (yyyy-mm-dd)
-    Purpose:        Create database 
-    Params:         Login name
-    */
-    public function createDatabase( Request $request ){
-        $messages = [
-            'domain.required' => 'We need to know domain',
-            'role.regex'      => 'Please set one value from (readWrite,readOnly,writeOnly)'
-        ];
-        $rules = [
-            'domain'         => 'required',
-            'database_name'     =>  'required',
-            'database_user'     =>  'required',
-            'user_password'     =>  'required',
-            'role'              =>  [
-                'required',
-                'regex:(readWrite|readOnly|writeOnly)'
-            ]
-        ];
-        $validator = Validator::make($request->all(), $rules, $messages);
-        if ($validator->fails()) {
-            return response()->json([
-                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
-            ]);
-        }
-        try{
-            $api_request = <<<EOL
-<packet>
-<webspace>
-   <get>
-    <filter>
-        <name>{$request->domain}</name>
-    </filter>
-    <dataset>
-      <hosting/>
-    </dataset>
-   </get>
-</webspace>
-</packet>
-EOL;
-            $response = $this->client->request($api_request);
-            
-            $database = $this->client->database()->create([
-                "webspace-id"   =>  (string)$response->id,
-                "name"          =>  $request->database_name,
-                "type"          =>  "mysql"
-            ]);
-            $database_user = $this->client->database()->createUser([
-                "db-id"         =>  $database->id,
-                "login"         =>  $request->database_user,
-                "password"      =>  $request->user_password,
-                "role"          =>  $request->role
-            ]);
-            return response()->json([
-                'api_response' => 'success', 'status_code' => 200, 'data' => [
-
-                ] , 'message' => 'Database created successfully.'
-            ]);
-        }catch(\Exception $e){
-            return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
-            ]);
-        }
-    }
+    
 }

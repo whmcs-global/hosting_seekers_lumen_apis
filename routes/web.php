@@ -191,8 +191,24 @@ $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middl
         $router->post('get-detail', 'DomainController@getDomain');
         $router->post('delete', 'DomainController@delete');
         $router->post('create', 'DomainController@create');
-        $router->post('create-database','DomainController@createDatabase');
     });
+    //Manage databases
+    $router->group(['prefix'=>'database'],function() use ($router){
+        $router->post('create','DatabaseController@create');
+        $router->post('detail[/{database_id}]','DatabaseController@detail');
+        $router->post('delete/{database_id}','DatabaseController@delete');
+        $router->post('create-user','DatabaseController@createUser');
+        $router->post('user-detail[/{user_id}]','DatabaseController@userDetail');
+        $router->post('delete-user/{user_id}','DatabaseController@deleteUser');
+        $router->post('change-user-settings','DatabaseController@updateUser');
+    });
+    //Manage FTPs
+    $router->group(['prefix'=>'ftp-account'],function() use ($router){
+        $router->post('create','FtpAccountController@create');
+        $router->post('detail[/{ftp_id}]','FtpAccountController@detail');
+        $router->post('update','FtpAccountController@update');
+        $router->post('delete/{ftp_id}','FtpAccountController@delete');
+    });
+
     $router->get('testing-123','DomainController@testing');
-    
 });
