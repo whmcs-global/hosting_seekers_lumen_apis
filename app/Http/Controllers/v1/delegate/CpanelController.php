@@ -16,9 +16,19 @@ class CpanelController extends Controller
         try {
             $records = DelegateDomainAccess::when(($id != ''), function($q) use($id){
                 $q->where('user_server_id', jsdecode_userdata($id));
-            })->where(['delegate_account_id' => $request->delegate_account_id])->get();
+            })->where(['delegate_account_id' => $request->delegate_account_id])->paginate(config('constants.PAGINATION_NUMBER'));
             $ratingArray = [];
             if($records->isNotEmpty()){ 
+                $ordersData = [
+                    'count' => $records->count(),
+                    'currentPage' => $records->currentPage(),
+                    'hasMorePages' => $records->hasMorePages(),
+                    'lastPage' => $records->lastPage(),
+                    'nextPageUrl' => $records->nextPageUrl(),
+                    'perPage' => $records->perPage(),
+                    'previousPageUrl' => $records->previousPageUrl(),
+                    'total' => $records->total()
+                ];
                 $permissionData = [];
                 foreach($records as $row){
                     $permissions = [];
@@ -27,7 +37,8 @@ class CpanelController extends Controller
                     }
                     array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
                 }
-                $ratingArray['domains'] = $permissionData;
+                $ordersData['data'] = $permissionData;
+                $ratingArray = $ordersData;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
             
