@@ -191,6 +191,11 @@ $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middl
         $router->post('get-detail', 'DomainController@getDomain');
         $router->post('delete', 'DomainController@delete');
         $router->post('create', 'DomainController@create');
+
+        $router->post('create-subdomain','DomainController@createSubdomain');
+        $router->post('get-subdomain','DomainController@subDomainDetail');
+        $router->post('all-subdomains','DomainController@subDomains');
+        $router->post('delete-subdomain','DomainController@deleteSubDomain');
     });
     //Manage databases
     $router->group(['prefix'=>'database'],function() use ($router){
@@ -209,6 +214,12 @@ $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middl
         $router->post('update','FtpAccountController@update');
         $router->post('delete/{ftp_id}','FtpAccountController@delete');
     });
-
+    //Manage Emails
+    $router->group(['prefix'=>'email-account'],function() use ($router){
+        $router->post('create','EmailAccountController@create');
+        $router->post('detail','EmailAccountController@detail');
+        $router->post('update','EmailAccountController@update');
+        $router->post('delete','EmailAccountController@delete');
+    });
     $router->get('testing-123','DomainController@testing');
 });

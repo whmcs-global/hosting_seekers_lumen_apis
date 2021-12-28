@@ -23,12 +23,17 @@ class FtpAccountController extends Controller
     */
     public function create(Request $request){
         $messages = [
-            'domain_id.required' => 'We need to know domain_id'
+            'domain.required' => 'We need to know domain'
         ];
         $rules = [
-            'domain_id'         => 'required|numeric',
+            'domain'         => 'required',
             'ftp_name'          =>  'required',
-            'ftp_password'      =>  'required'
+            'ftp_password'      =>  'required',
+            'quota'         =>  'required|numeric',
+            'quotasize' => [
+                'required',
+                'regex:(MB|GB|TB|PB)'
+            ]
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -36,7 +41,19 @@ class FtpAccountController extends Controller
                 'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
             ]);
         }
+        //$quota = $request->quota * 1024 * 1024;
         try{
+            $quota = 0;
+            if('MB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024;
+            } elseif('GB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024 * 1024;
+            } elseif('TB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024 * 1024 * 1024;
+            } elseif('PB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024 * 1024 * 1024 * 1024;
+            }
+
             $api_request = <<<EOL
 <packet>
 <ftp-user>
@@ -44,11 +61,12 @@ class FtpAccountController extends Controller
 <name>{$request->ftp_name}</name>
 <password>{$request->ftp_password}</password>
 <home/>
-   <permissions>
+<quota>{$quota}</quota>
+    <permissions>
      <read>true</read>
      <write>true</write>
     </permissions>
-<webspace-id>{$request->domain_id}</webspace-id>
+<webspace-name>{$request->domain}</webspace-name>
    
    
    
@@ -82,7 +100,6 @@ EOL;
             $rules = [
                 'domain_id'         => 'required'
             ];
-        
             if( empty($ftp_id) ){
                 $validator = Validator::make($request->all(), $rules, $messages);
                 if ($validator->fails()) {
@@ -90,12 +107,13 @@ EOL;
                         'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
                     ]);
                 }
+                $domain_id = jsdecode_userdata($request->domain_id);
                 $api_request = <<<EOL
                 <packet>
 <ftp-user>
 <get>
    <filter>
-      <webspace-id>{$request->domain_id}</webspace-id>
+      <webspace-id>{$domain_id}</webspace-id>
    </filter>
 </get>
 </ftp-user>
@@ -106,12 +124,13 @@ EOL;
                 $response_data = [];
                 foreach( $response->$ftp_user->get->result as $single_result ){
                     $response_data[] = [
-                        'id'    =>  (string)$single_result->id,
+                        'id'    =>  jsencode_userdata((string)$single_result->id),
                         'name'    =>  (string)$single_result->name,
                         'home'    =>  (string)$single_result->home,
                     ];
                 }
             }else{
+                $ftp_id = jsdecode_userdata($ftp_id);
                 $api_request = <<<EOL
                 <packet>
 <ftp-user>
@@ -125,7 +144,7 @@ EOL;
 EOL;
                 $response_data = $this->client->request($api_request);
                 $response_data = [
-                    'id'    =>  (string)$response_data->id,
+                    'id'    =>  jsencode_userdata((string)$response_data->id),
                     'name'    =>  (string)$response_data->name,
                     'home'    =>  (string)$response_data->home,
                 ];
@@ -156,7 +175,7 @@ EOL;
                 'ftp_id.required' => 'We need to know FTP account id'
             ];
             $rules = [
-                'ftp_id'         => 'required|numeric'
+                'ftp_id'         => 'required'
             ];
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
@@ -164,6 +183,7 @@ EOL;
                     'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
                 ]);
             }
+            $ftp_id = jsdecode_userdata($request->ftp_id);
             $password = "";
             if( $request->filled('password') ){
                 $password = "<password>{$request->password}</password>";
@@ -177,12 +197,11 @@ EOL;
 <ftp-user>
 <set>
    <filter>
-      <id>{$request->ftp_id}</id>
+      <id>$ftp_id</id>
    </filter>
    <values>
       {$name}
       {$password}
-      
       <permissions>
          <read>true</read>
          <write>true</write>
@@ -212,6 +231,7 @@ EOL;
     */
     public function delete( $ftp_id ){
         try{
+            $ftp_id = jsdecode_userdata($ftp_id);
             $api_request = <<<EOF
             <packet>
 <ftp-user>

@@ -42,7 +42,7 @@ class DomainController extends Controller
         }
     }
     /*
-    Method Name:    getDetail
+    Method Name:    getDomain
     Developer:      Shine Dezign
     Created Date:   2021-12-21 (yyyy-mm-dd)
     Purpose:        Get detail of the domain
@@ -73,14 +73,62 @@ class DomainController extends Controller
     <disk_usage/>
     <stat/>
     <gen_info/>
+    <hosting/>
+    <prefs/>
    </dataset>
    </get>
 </site>
 </packet>
 STR;
             $response = $this->client->request($request);
+            $webspace_id = "webspace-id";
+            $domain_id = (string)$response->data->gen_info->$webspace_id;
+            $response_data = [
+                'domain_id'     =>  jsencode_userdata($domain_id),
+                'document_root' =>  '',
+                'ip'            =>  (string)$response->data->hosting->vrt_hst->ip_address,
+                'account_stats' =>  [
+                    [
+                        'item'  =>  'Monthly Bandwidth Transfer',
+                        'name'  =>  'traffic',
+                        'value' =>  (string)$response->data->stat->traffic
+                    ],[
+                        'item'  =>  'Sub domain',
+                        'name'  =>  'subdom',
+                        'value' =>  (string)$response->data->disk_usage->subdomains
+                    ],[
+                        'item'  =>  'Database',
+                        'name'  =>  'db',
+                        'value' =>  (string)$response->data->stat->db
+                    ],[
+                        'item'  =>  'Disk usage',
+                        'name'  =>  'db',
+                        'value' =>  number_format($response->data->disk_usage->httpdocs / 1024 / 1024 , 2) . " MB"
+                    ]
+                ]
+            ];
+            foreach( $response->data->hosting->vrt_hst->property as $single_property ){
+                if( $single_property->name == "www_root" ){
+                    $response_data['document_root'] = (string)$single_property->value;
+                    break;
+                }
+            }
+            
+            foreach( $response->data->stat as $key_stat =>  $value ){
+                foreach( $value as $x => $v ){
+                    /*$response_data['api_response'][] = [
+                        'item'      =>  $x,
+                        'name'      =>  $x,
+                        'count'     =>  (string)$v,
+                        "max"       => "",
+                        "percent"   => 0,
+                        "value"     => null,
+                        "units"     => null
+                    ];*/
+                }
+            }
             return response()->json([
-                'api_response' => 'success', 'status_code' => 200, 'data' => $response->data , 'message' => 'Domain fetched successfully.' 
+                'api_response' => 'success', 'status_code' => 200, 'data' => $response_data , 'message' => 'Domain fetched successfully.' 
             ]);
         }catch(\Exception $e){
             return response()->json([
@@ -190,7 +238,7 @@ STR;
                     'ip_address'    => $ip_address->ipAddress,
                     'owner-guid'      => $customer->guid
                 ],[
-                    'ftp_login'         =>  $request->customer_name . uniqid(),
+                    'ftp_login'         =>  preg_replace('/[^a-zA-Z0-9_ -]/s','',strtolower($request->customer_name) ),
                     'ftp_password'      =>  $request->customer_password
                 ]
             );
@@ -218,6 +266,143 @@ STR;
         }catch(\Exception $e){
             return false;
         }
+    }
+
+    /*
+    Method Name:    createSubdomain(HELPER)
+    Developer:      Shine Dezign
+    Created Date:   2021-12-27 (yyyy-mm-dd)
+    Purpose:        Create sub domain
+    Params:         Request input
+    */
+    public function createSubdomain(Request $request){
+        $rules = [
+            'parent_domain'         =>  'required',
+            'sub_domain'     =>  'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
+        }
+        try{
+            $subdomain = $this->client->Subdomain()->create([
+                "parent"    =>  $request->parent_domain,
+                "name"      =>  $request->sub_domain
+            ]);
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'Sub Domain created successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
+    public function subDomainDetail(Request $request){
+        $rules = [
+            'sub_domain'     =>  'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
+        }
+        try{
+            $info = $this->client->Subdomain()->get("name",$request->sub_domain);
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                    'parent_domain'     =>  $info->parent,
+                    'domain'     =>  $info->name,
+                    'domain_id' =>  jsencode_userdata( $info->id ),
+                    'document_root' =>  $info->properties['www_root'],
+                ] , 'message' => 'Sub Domain created successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
+        }
+        
+    }
+
+    public function subDomains(Request $request){
+        $rules = [
+            'parent_domain'     =>  'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
+        }
+        try{
+            $all_subdomains = $this->client->Subdomain()->getAll("parent-name",$request->parent_domain);
+            $return_response = [];
+            foreach( $all_subdomains as $domain ){
+                $return_response[] = [
+                    'parent_domain'     =>  $domain->parent,
+                    'domain'     =>  $domain->name,
+                    'domain_id' =>  jsencode_userdata( $domain->id ),
+                    'document_root' =>  $domain->properties['www_root']
+                ];
+            }
+
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                    'sub_domains'   =>   $return_response
+                ], 'message'        => 'Sub Domain created successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteSubDomain(Request $request){
+        $rules = [
+            'sub_domain'     =>  'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
+        }
+        try{
+            $this->client->Subdomain()->delete("name",$request->sub_domain);
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                    
+                ], 'message'        => 'Sub Domain deleted successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
+        }
+
+    }
+
+    public function testing(Request $request){
+        //$domain = $request->domain;
+        //$id = jsdecode_userdata("tcozgcGj2FZxUATXAYI7TA==");
+        $request = <<<STR
+<packet>
+  <server>
+    <create_session>
+        <login>admin</login>
+    </create_session>
+  </server>
+</packet>
+STR;
+        $response = $this->client->request($request);
+        dd( $response );
     }
     
 }

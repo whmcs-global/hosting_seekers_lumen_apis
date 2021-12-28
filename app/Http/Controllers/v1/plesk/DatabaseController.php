@@ -111,16 +111,20 @@ EOL;
                 $return_response = [];
                 foreach( $domain_info as $single_domain ){
                     $return_response[] = [
-                        'id'    =>  $single_domain->id,
+                        'id'    =>  jsencode_userdata($single_domain->id),
                         'name'  =>  $single_domain->name,
                         'type'  =>  $single_domain->type,
                         'webspaceid'   =>   $single_domain->webspaceId
                     ];
                 }
             }else{
-                $return_response = $this->client->database()->get("id",$database_id);
+                $return_response = $this->client->database()->get("id",jsdecode_userdata($database_id));
+                //var_dump( empty($return_response->id) );exit;
+                if( empty($return_response->id) ){
+                    throw new \Exception("Database not found");
+                }
                 $return_response = [
-                    'id'    =>  $return_response->id,
+                    'id'    =>  jsencode_userdata($return_response->id),
                     'name'  =>  $return_response->name,
                     'type'  =>  $return_response->type,
                     'webspaceid'   =>   $return_response->webspaceId
@@ -148,7 +152,11 @@ EOL;
     */
     public function delete( Request $request , $database_id){
         try{
-            $this->client->database()->delete("id",$database_id);
+            $return_response = $this->client->database()->get("id",jsdecode_userdata($database_id));
+            if( empty($return_response->id) ){
+                throw new \Exception("Database not found");
+            }
+            $this->client->database()->delete("id", jsdecode_userdata($database_id));
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'Database deleted successfully.'
             ]);
@@ -171,7 +179,7 @@ EOL;
             'role.regex'      => 'Please set one value from (readWrite,readOnly,writeOnly)'
         ];
         $rules = [
-            'database_id'         => 'required',
+            'database_id'         => ['required'],
             'database_user'     =>  'required',
             'user_password'     =>  'required',
             'role'              =>  [
@@ -187,7 +195,7 @@ EOL;
         }
         try{
             $user = $this->client->database()->createUser([
-                "db-id" =>  $request->database_id,
+                "db-id" =>  jsdecode_userdata($request->database_id),
                 "login" =>  $request->database_user,
                 "password"  =>  $request->user_password
             ]);
@@ -212,9 +220,9 @@ EOL;
     public function userDetail( Request $request , $user_id = null ){
         try{
             if( $user_id ){
-                $response = $this->client->database()->getUser( "id" , $user_id );
+                $response = $this->client->database()->getUser( "id" , jsdecode_userdata($user_id) );
                 $detail = [
-                    'id'    =>  $response->id,
+                    'id'    =>  jsencode_userdata($response->id),
                     'name' =>  $response->login
                 ];
             }else{
@@ -227,12 +235,11 @@ EOL;
                         'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
                     ]);
                 }
-                $response = $this->client->database()->getAllUsers( "db-id" , $request->database_id );
-
+                $response = $this->client->database()->getAllUsers( "db-id" , jsdecode_userdata($request->database_id) );
                 $detail = [];
                 foreach( $response as $single_user ){
                     $detail[] = [
-                        'id'    =>  $single_user->id,
+                        'id'    =>  jsencode_userdata($single_user->id),
                         'name' =>  $single_user->login
                     ];
                 }
@@ -258,7 +265,7 @@ EOL;
     */
     public function deleteUser( Request $request , $user_id ){
         try{
-            $this->client->database()->deleteUser( "id" , $user_id );
+            $this->client->database()->deleteUser( "id" , jsdecode_userdata($user_id) );
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'User deleted successfully.'
             ]);
@@ -277,8 +284,22 @@ EOL;
     Params:         Input request
     */
     public function updateUser( Request $request ){
+        $messages = [
+            'id.required' => 'We need to know user id'
+        ];
+        $rules = [
+            'id'         => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
+        }
         try{
-            $this->client->database()->updateUser( $request->all() );
+            $update_user = $request->all();
+            $update_user['id'] = jsdecode_userdata($request->id);
+            $this->client->database()->updateUser( $update_user );
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'User updated successfully.'
             ]);
