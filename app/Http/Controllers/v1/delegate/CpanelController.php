@@ -47,7 +47,7 @@ class CpanelController extends Controller
                     $controlPanel = null;
                     if('N/A' != $linkserver)
                     $controlPanel = $linkserver['controlPanel'];
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name,  'server_type' => $controlPanel, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'imagePath' => $row->user_server->screenshot, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name,  'server_type' => $controlPanel, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
                 }
                 $ordersData['data'] = $permissionData;
                 $ratingArray = $ordersData;

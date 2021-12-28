@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Order, OrderTransaction, CompanyServerPackage, UserServer};
 use Illuminate\Support\Facades\{DB, Config, Validator};
+use Illuminate\Support\Str;
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
 
 class CpanelController extends Controller
@@ -76,7 +77,7 @@ class CpanelController extends Controller
                             $controlPanel = null;
                             if('N/A' != $linkserver)
                             $controlPanel = $linkserver['controlPanel'];
-                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
+                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'imagePath' => $order->user_server->screenshot, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
                         }
                     }
                     $orderDataArray['cpanelAccount'] = $cpanelAccount;
@@ -92,6 +93,26 @@ class CpanelController extends Controller
         }
     }
     
+    public function createImage(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'url' => 'required',
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $response = hitCurl('https://www.hostingseekers.com/c-review/generate/review', 'POST', [ 'url' => 'https://'.$request->url, 'imageName' => Str::slug($request->url).'-website-screenshot.png']);
+            $response = json_decode($response);
+            if($response->success){
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => str_replace('http://localhost:4000/',  'https://www.hostingseekers.com/c-review/', $response->path), 'message' => 'Website has been captured successfully']);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => $response->message]);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+    }
     public function loginAccount(Request $request, $id) {
         try
         {
