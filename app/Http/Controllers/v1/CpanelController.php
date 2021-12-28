@@ -70,8 +70,14 @@ class CpanelController extends Controller
                     $orderDataArray = ['id'=> jsencode_userdata($order->id), 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->updated_at), 'expiry' => change_date_format(add_days_to_date($order->updated_at, $this->billingCycleName($order->ordered_product->billing_cycle))), 'servers' => $packageArray];
                     $cpanelAccount = null;
                     if(!is_null($order->user_server)){
-                        if(!is_null($order->user_server->company_server_package))
-                        $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
+                        if(!is_null($order->user_server->company_server_package)){
+
+                            $linkserver = $order->user_server->company_server_package->company_server->link_server ? unserialize($order->user_server->company_server_package->company_server->link_server) : 'N/A';
+                            $controlPanel = null;
+                            if('N/A' != $linkserver)
+                            $controlPanel = $linkserver['controlPanel'];
+                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
+                        }
                     }
                     $orderDataArray['cpanelAccount'] = $cpanelAccount;
                     array_push($orderData, $orderDataArray);

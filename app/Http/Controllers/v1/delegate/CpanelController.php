@@ -14,9 +14,17 @@ class CpanelController extends Controller
     public function orderedServers(Request $request, $id = null){
         
         try {
+            $sortBy = 'id';
+            $orderBy = 'DESC';
+            if($request->has('sort_by')){
+                $sortBy = $request->sort_by;
+            }
+            if($request->has('dir')){
+                $orderBy = $request->dir;
+            }
             $records = DelegateDomainAccess::when(($id != ''), function($q) use($id){
                 $q->where('user_server_id', jsdecode_userdata($id));
-            })->where(['delegate_account_id' => $request->delegate_account_id])->paginate(config('constants.PAGINATION_NUMBER'));
+            })->where(['delegate_account_id' => $request->delegate_account_id])->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $ratingArray = [];
             if($records->isNotEmpty()){ 
                 $ordersData = [
@@ -35,7 +43,11 @@ class CpanelController extends Controller
                     foreach($row->delegate_domain_access as $permission){
                         array_push($permissions, ['id'=> jsencode_userdata($permission->delegate_permission->id), 'name' => $permission->delegate_permission->name, 'displayname' => $permission->delegate_permission->displayname, 'slug' => $permission->delegate_permission->slug]);
                     }
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
+                    $linkserver = $row->user_server->company_server_package->company_server->link_server ? unserialize($row->user_server->company_server_package->company_server->link_server) : 'N/A';
+                    $controlPanel = null;
+                    if('N/A' != $linkserver)
+                    $controlPanel = $linkserver['controlPanel'];
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name,  'server_type' => $controlPanel, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
                 }
                 $ordersData['data'] = $permissionData;
                 $ratingArray = $ordersData;

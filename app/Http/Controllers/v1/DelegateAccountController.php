@@ -27,7 +27,7 @@ class DelegateAccountController extends Controller
             if($records->isNotEmpty()){                
                 $permissionData = [];
                 foreach($records as $row){
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'slug' => $row->slug]);
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->id), 'name' => $row->name, 'displayname' => $row->displayname, 'slug' => $row->slug]);
                 }
                 $ratingArray = $permissionData;
             }

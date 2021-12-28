@@ -150,14 +150,16 @@ class EmailAccountController extends Controller
                 $error = $accCreated['result']["errors"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
             }
-            if(!$accCreated['result']['data']['hostname']){
-                $hostUrl = null;
-                $linkserver = $serverPackage->company_server_package->company_server->link_server ? unserialize($serverPackage->company_server_package->company_server->link_server) : 'N/A';
-                if('N/A' != $linkserver){
-                    $hostUrl = 'https://'.$serverPackage->company_server_package->company_server->ip_address.':2096';
-                }
-                $accCreated['result']['data']['hostname'] = $hostUrl;
+            $cpanelUrl = $this->loginCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($cpanelUrl) || !array_key_exists("metadata", $cpanelUrl)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
+            if (array_key_exists("result", $cpanelUrl['metadata']) && 0 == $cpanelUrl['metadata']["result"]) {
+                $error = $cpanelUrl['metadata']["reason"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+            }
+            $hostUrl = substr($cpanelUrl['data']['url'], 0, strpos($cpanelUrl['data']['url'], ':2083')).':2096';
+            $accCreated['result']['data']['hostname'] = $hostUrl;
             $accCreated['result']['data']['loginurl'] = $accCreated['result']['data']['hostname'].$accCreated['result']['data']['token'].'/login?session='.$accCreated['result']['data']['session'];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'Account is ready for login']);
         }
