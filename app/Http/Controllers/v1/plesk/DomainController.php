@@ -107,16 +107,19 @@ STR;
                     ]
                 ]
             ];
-            foreach( $response->data->hosting->vrt_hst->property as $single_property ){
-                if( $single_property->name == "www_root" ){
-                    $response_data['document_root'] = (string)$single_property->value;
-                    break;
+            if( isset($response->data->hosting->vrt_hst->property) ){
+                foreach( $response->data->hosting->vrt_hst->property as $single_property ){
+                    if( $single_property->name == "www_root" ){
+                        $response_data['document_root'] = (string)$single_property->value;
+                        break;
+                    }
                 }
             }
             
-            foreach( $response->data->stat as $key_stat =>  $value ){
+            
+            /*foreach( $response->data->stat as $key_stat =>  $value ){
                 foreach( $value as $x => $v ){
-                    /*$response_data['api_response'][] = [
+                    $response_data['api_response'][] = [
                         'item'      =>  $x,
                         'name'      =>  $x,
                         'count'     =>  (string)$v,
@@ -124,9 +127,10 @@ STR;
                         "percent"   => 0,
                         "value"     => null,
                         "units"     => null
-                    ];*/
+                    ];
                 }
-            }
+            }*/
+
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => $response_data , 'message' => 'Domain fetched successfully.' 
             ]);
