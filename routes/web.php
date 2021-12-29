@@ -183,29 +183,46 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
     });
 });
 
-$router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middleware'=> ['checktoken', 'auth']*/ ] ,  function () use ($router) {
-    $router->get('get-plans', 'DomainController@getPlans');
-    
-    $router->get('get-php-versions', 'PhpVersionController@getVersion');
-    $router->post('update-php-version', 'PhpVersionController@updateVersion');
-    $router->get('get-php-directives', 'PhpVersionController@getDirectives');
-    $router->post('update-php-directive', 'PhpVersionController@updateDirectives');
-    //Email Account Routes
-    $router->get('email-accounts', 'EmailAccountController@getEmailAccount');
-    $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
-    $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
-    $router->get('login-webmail/{id}', 'EmailAccountController@loginWebmailAccount');
-    $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
-    $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
-    $router->post('suspend-email-account-login', 'EmailAccountController@suspendLogin');
-    $router->post('unsuspend-email-account-login', 'EmailAccountController@unsuspendLogin');
-    $router->post('unsuspend-email-account-incoming', 'EmailAccountController@unsuspendIncoming');
-    $router->post('suspend-email-account-incoming', 'EmailAccountController@suspendIncoming');
+$router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' , 'middleware'=> ['checktoken', 'auth','pleskvalidation'] ] ,  function () use ($router) {
+    $router->post('get-plans', 'DomainController@getPlans');
     //Manage domain(Webspaces)
     $router->group(['prefix'=>'domain'],function() use ($router){
-        $router->get('get-all', 'DomainController@getAll');
+        $router->post('get-all', 'DomainController@getAll');
         $router->post('get-detail', 'DomainController@getDomain');
         $router->post('delete', 'DomainController@delete');
         $router->post('create', 'DomainController@create');
+
+        $router->post('create-subdomain','DomainController@createSubdomain');
+        $router->post('get-subdomain','DomainController@subDomainDetail');
+        $router->post('all-subdomains','DomainController@subDomains');
+        $router->post('delete-subdomain','DomainController@deleteSubDomain');
+
+        $router->post('login-session','DomainController@loginSession');
     });
+    //Manage databases
+    $router->group(['prefix'=>'database'],function() use ($router){
+        $router->post('create','DatabaseController@create');
+        $router->post('detail[/{database_id}]','DatabaseController@detail');
+        $router->post('delete/{database_id}','DatabaseController@delete');
+        $router->post('create-user','DatabaseController@createUser');
+        $router->post('user-detail[/{user_id}]','DatabaseController@userDetail');
+        $router->post('delete-user/{user_id}','DatabaseController@deleteUser');
+        $router->post('change-user-settings','DatabaseController@updateUser');
+    });
+    //Manage FTPs
+    $router->group(['prefix'=>'ftp-account'],function() use ($router){
+        $router->post('create','FtpAccountController@create');
+        $router->post('detail[/{ftp_id}]','FtpAccountController@detail');
+        $router->post('update','FtpAccountController@update');
+        $router->post('delete/{ftp_id}','FtpAccountController@delete');
+    });
+    //Manage Emails
+    $router->group(['prefix'=>'email-account'],function() use ($router){
+        $router->post('create','EmailAccountController@create');
+        $router->post('detail','EmailAccountController@detail');
+        $router->post('update','EmailAccountController@update');
+        $router->post('delete','EmailAccountController@delete');
+    });
+   
 });
+$router->get('testing-123','v1\plesk\DomainController@testing');

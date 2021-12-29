@@ -1,421 +1,221 @@
 <?php
-
 namespace App\Http\Controllers\v1\plesk;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Config, Validator};
 use PleskX\Api\Client;
-use App\Traits\{SendResponseTrait, CommonTrait};
+use Illuminate\Support\Facades\Validator;
+use App\Traits\PleskTrait;
 
-class EmailAccountController extends Controller
-{
-    use CommonTrait, SendResponseTrait;
-    public function getEmailAccount(Request $request) {
-        try
-        {
-            $emailList = $client->request('<packet>
-            <mail>
-            <get_info>
-               <filter>
-                  <site-id>11</site-id>
-               </filter>
-               <mailbox/>
-               <mailbox-usage/>
-            </get_info>
-            </mail>
-            </packet>');
-            if(!is_array($emailList) || !array_key_exists("result", $emailList)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($emailList["result"]['status'] == "0") {
-                $error = $emailList["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emailList['result']["data"], 'message' => 'Accounts has been successfully fetched']);
-        }
-        catch(Exception $ex){
-            dd($ex);
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\PleskX\Api\Exception $e){
-            dd($e);
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
+class EmailAccountController extends Controller{
+    use PleskTrait;
+    private $client;
+
+    function __construct() {
+        $this->runQuery();
     }
-    
-    public function addEmailAccount(Request $request, Client $client) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'quota' => 'required|numeric',
+
+    /*
+    Method Name:    create
+    Developer:      Shine Dezign
+    Created Date:   2021-12-24 (yyyy-mm-dd)
+    Purpose:        Create Email 
+    Params:         Request input
+    */
+    public function create( Request $request ){
+        $validator = Validator::make($request->all(),[
+            'domain_id' => 'required',
+            'email'     => 'required',
+            'password'  => 'required',
+            'quota'     => 'required|numeric',
             'quotasize' => 'required'
         ]);
         if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
         }
-        $quota = 0;
-        if('MB' == $request->quotasize){
-            $quota = $request->quota;
-        } elseif('GB' == $request->quotasize){
-            $quota = $request->quota*1024;
-        } elseif('TB' == $request->quotasize){
-            $quota = $request->quota*1024*1024;
-        } elseif('PB' == $request->quotasize){
-            $quota = $request->quota*1024*1024*1024;
+        try{
+            $quota = 0;
+            if('MB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024;
+            } elseif('GB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024 * 1024;
+            } elseif('TB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024 * 1024 * 1024;
+            } elseif('PB' == $request->quotasize){
+                $quota = $request->quota * 1024 * 1024 * 1024 * 1024 * 1024;
+            }
+            $domain_id = jsdecode_userdata($request->domain_id);
+            $api_request = <<<EOL
+                <?xml version="1.0" encoding="UTF-8"?>
+                <packet>
+                <mail>
+                <create>
+                <filter>
+                    <site-id>{$domain_id}</site-id>
+                    <mailname>
+                        <name>{$request->email}</name>
+                        <mailbox>
+                                <enabled>true</enabled>
+                                <quota>{$quota}</quota>
+                        </mailbox>
+                        <password>
+                                <value>{$request->password}</value>
+                                <type>plain</type>
+                        </password>
+                    </mailname>
+                </filter>
+                </create>
+                </mail>
+                </packet>
+            EOL;
+            $response = $this->client->request($api_request);
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [ ] , 'message' => 'Mail created successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
         }
-        if($quota > '4294967296'){
-            return response()->json(["success"=>false, "errors"=>'Quotas cannot exceed 4 PB.'],400);
+    }
+
+    /*
+    Method Name:    detail
+    Developer:      Shine Dezign
+    Created Date:   2021-12-24 (yyyy-mm-dd)
+    Purpose:        Detail of email account 
+    Params:         Request input
+    */
+    public function detail( Request $request ){
+        $validator = Validator::make($request->all(),[
+            'domain_id' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
         }
-        try
-        {
-            $accCreated = $client->request('<packet>
+        $domain_id = jsdecode_userdata($request->domain_id);
+        $api_request = <<<EOL
+        <packet>
             <mail>
-            <create>
-               <filter>
-                  <site-id>11</site-id>
-                  <mailname>
-                      <name>'.$request->email.'</name>
-                      <mailbox>
-                            <enabled>true</enabled>
-                            <quota>'.$request->quota.'</quota>
-                      </mailbox>
-                      <password>
-                            <value>'.$request->password.'</value>
-                            <type>plain</type>
-                      </password>
-                      <antivir>inout</antivir>
-                  </mailname>
-               </filter>
-            </create>
+            <get_info>
+            <filter>
+                <site-id>{$domain_id}</site-id>
+            </filter>
+            <mailbox/>
+            </get_info>
             </mail>
-            </packet>');
-            dd($accCreated);
-            
-            $xml = simplexml_load_string($accCreated);
-            $json = json_encode($xml);
-            $accCreated = json_decode($json,TRUE);
-            dd($accCreated);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        </packet>
+        EOL;
+        try{
+            $response = $this->client->request($api_request,2);
+            $response_data = [];
+            foreach( $response->mail->get_info->result as $single_mail ){
+                $response_data[] = [
+                    'id'    =>  jsencode_userdata((string)$single_mail->mailname->id),
+                    'name'  =>  (string)$single_mail->mailname->name,
+                    'quota' =>  $single_mail->mailname->mailbox->quota . " Bytes"
+                ];
             }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
-            }
-
-            $emails = $this->getEmailAccount($request, $request->cpanel_server)->getOriginalContent();
-            if(!is_array($emails)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }            
-            if ($emails['api_response'] == 'error') {
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $emails['message']]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Account has been successfully created']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\PleskX\Api\Exception $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Request error', 'message' => $e->getmessage()]);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
-    }
-    
-    public function loginWebmailAccount(Request $request, $id) {
-        try
-        {
-            $serverId = jsdecode_userdata($id);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->loginWebmail($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
-                $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['data'], 'message' => 'Webmail Account is ready for login']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                    'detail'    =>  $response_data
+                ] , 'message' => 'Mail detail fetched successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => $e->getMessage()
+            ]);
         }
     }
 
-    public function loginEmailAccount(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required',
+    /*
+    Method Name:    update
+    Developer:      Shine Dezign
+    Created Date:   2021-12-24 (yyyy-mm-dd)
+    Purpose:        Email account updated
+    Params:         Request input
+    */
+    public function update(Request $request){
+        $validator = Validator::make($request->all(),[
+            'domain_id' => 'required',
+            'name'      =>  'required',
+            'password'  =>  'required'
         ]);
         if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
         }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->loginWebEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email, $serverPackage->domain);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            if (array_key_exists("errors", $accCreated['result']) && '' != $accCreated['result']["errors"]) {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
-            }
-            if(!$accCreated['result']['data']['hostname']){
-                $hostUrl = null;
-                $linkserver = $serverPackage->company_server_package->company_server->link_server ? unserialize($serverPackage->company_server_package->company_server->link_server) : 'N/A';
-                if('N/A' != $linkserver){
-                    $hostUrl = 'https://'.$serverPackage->company_server_package->company_server->ip_address.':2096';
-                }
-                $accCreated['result']['data']['hostname'] = $hostUrl;
-            }
-            $accCreated['result']['data']['loginurl'] = $accCreated['result']['data']['hostname'].$accCreated['result']['data']['token'].'/login?session='.$accCreated['result']['data']['session'];
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'Account is ready for login']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        $domain_id = jsdecode_userdata($request->domain_id);
+        $api_request = <<<EOL
+            <packet>
+            <mail>
+            <update>
+            <set>
+                <filter>
+                    <site-id>{$domain_id}</site-id>
+                    <mailname>
+                        <name>{$request->name}</name>
+                        <password>
+                                <value>{$request->password}</value>
+                                <type>plain</type>
+                        </password>
+                    </mailname>
+                </filter>
+            </set>
+            </update>
+            </mail>
+            </packet>
+        EOL;
+        try{
+
+            $response = $this->client->request($api_request,2);
+            $response_data = [];
+            
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                   
+                ] , 'message' => 'Mail updated successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => $e->getMessage()
+            ]);
         }
     }
 
-    public function updateEmailPasswrod(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required',
-            'password' => 'required'
+    /*
+    Method Name:    Delete
+    Developer:      Shine Dezign
+    Created Date:   2021-12-24 (yyyy-mm-dd)
+    Purpose:        Email account delete
+    Params:         Request input
+    */
+    public function delete(Request $request){
+        $validator = Validator::make($request->all(),[
+            'domain_id' => 'required',
+            'name'      =>  'required',
         ]);
         if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
         }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account updation error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account password updated', 'message' => 'Account password has been successfully update']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
-    }
-    
-    public function suspendLogin(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-        }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->suspendEmailsLogin($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login suspend error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account login done', 'message' => 'Email Account login has been successfully suspended']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
-    }
-    
-    public function unsuspendLogin(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-        }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->unsuspendEmailsLogin($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login unsuspend error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email account login done', 'message' => 'Email Account login has been successfully unsuspended']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
-    }
-    
-    public function suspendIncoming(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-        }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->suspendEmailsIncoming($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account incoming suspend error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email account incoming done', 'message' => 'Email Account incoming has been successfully suspended']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
-    }
-    
-    public function unsuspendIncoming(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-        }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->unsuspendEmailsIncoming($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account incoming unsuspend error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account incoming done', 'message' => 'Email Account incoming has been successfully unsuspended']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-        }
-    }
-    
-    public function deleteEmailAccount(Request $request) {
-		$validator = Validator::make($request->all(),[
-            'cpanel_server' => 'required',
-            'email' => 'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
-        }
-        try
-        {
-            $serverId = jsdecode_userdata($request->cpanel_server);
-            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->deleteEmailsAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
-            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ($accCreated["result"]['status'] == "0") {
-                $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account deleting error', 'message' => $error]);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'Email Account done', 'message' => 'Email Account has been successfully deleted']);
-        }
-        catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-        }
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-        }
-        catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        try{
+            $response = $this->client->mail()->delete( "name" , $request->name, jsdecode_userdata($request->domain_id) );
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                   
+                ] , 'message' => 'Mail deleted successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => $e->getMessage()
+            ]);
         }
     }
 }
