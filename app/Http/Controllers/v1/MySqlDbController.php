@@ -21,11 +21,20 @@ class MySqlDbController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $userCreated = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(is_array($userCreated) && array_key_exists("result", $userCreated) && $userCreated['result']['status'] == 1) {
-                if('user' == $type && str_contains($name, $userCreated['result']['data']['prefix']) && $userCreated['result']['data']['max_username_length'] > strlen($name)){
-                    return true;
-                }
-                if('db' == $type && str_contains($name, $userCreated['result']['data']['prefix']) && $userCreated['result']['data']['max_database_name_length'] > strlen($name)){
-                    return true;
+                if($userCreated['result']['data']['prefix']){
+                    if('user' == $type && str_contains($name, $userCreated['result']['data']['prefix']) && $userCreated['result']['data']['max_username_length'] > strlen($name)){
+                        return true;
+                    }
+                    if('db' == $type && str_contains($name, $userCreated['result']['data']['prefix']) && $userCreated['result']['data']['max_database_name_length'] > strlen($name)){
+                        return true;
+                    }
+                } else{
+                    if('user' == $type && $userCreated['result']['data']['max_username_length'] > strlen($name)){
+                        return true;
+                    }
+                    if('db' == $type && $userCreated['result']['data']['max_database_name_length'] > strlen($name)){
+                        return true;
+                    }
                 }
             }
             return false;

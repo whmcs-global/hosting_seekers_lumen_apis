@@ -179,6 +179,7 @@ class CpanelController extends Controller
     }
     public function addDomain(Request $request) {
 		$validator = Validator::make($request->all(),[
+            'order_id' => 'required',
             'account_name' => 'required',
             'server_location' => 'required',
             'domain_name' => 'required'
@@ -200,6 +201,10 @@ class CpanelController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
+            $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
+            $controlPanel = null;
+            if('N/A' != $linkserver)
+            $controlPanel = $linkserver['controlPanel'];
             $accountCreate = [
                 'user_id' => $request->userid,
                 'order_id' => $orderId,
@@ -211,15 +216,20 @@ class CpanelController extends Controller
             $accountCreate['name'] = $request->account_name;
             $accountCreate['domain'] = $domainName;
             $accountCreate['password'] = 'G@ur@v123';
-            $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
-            if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if('cPanel' == $controlPanel){
+                $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
+                if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                }
+                
+                if ($accCreated['metadata']["result"] == "0") {
+                    $error = $accCreated['metadata']['reason'];
+                    $error = substr($error, strpos($error, ")")+1);
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                }
             }
-            
-            if ($accCreated['metadata']["result"] == "0") {
-                $error = $accCreated['metadata']['reason'];
-                $error = substr($error, strpos($error, ")")+1);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+            if('Plesk' == $controlPanel){
+                
             }
             try{
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
@@ -227,10 +237,6 @@ class CpanelController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
-            $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
-            $controlPanel = null;
-            if('N/A' != $linkserver)
-            $controlPanel = $linkserver['controlPanel'];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['cpanel_server_id' => jsencode_userdata($userAccount->id), 'name' => $userAccount->name, 'domain' => $userAccount->domain, 'company_name' => $serverPackage->company_server->user->company_detail->company_name, 'server_ip' => $serverPackage->company_server->ip_address, 'server_type' => $controlPanel], 'message' => 'Account has been successfully created']);
         }
         catch(Exception $ex){
