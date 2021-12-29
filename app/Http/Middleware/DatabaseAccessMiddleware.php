@@ -24,7 +24,7 @@ class DatabaseAccessMiddleware
             $qu->where(['delegate_permission_id' => $permission[0], 'status' => 1]);
         })->first();
         if(!$delegateDomainAccess)
-        return $this->apiResponse('error', '401', 'Invalid access token');
+        return $this->apiResponse('error', '401', 'Unauthorized access');
         return $next($request);
     }
 }

@@ -15,6 +15,7 @@ class UserServer extends Model
         'company_server_package_id',
 		'name',
 		'domain',
+		'screenshot',
 		'status',
 	    'created_at',
 	    'updated_at',

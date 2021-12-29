@@ -126,6 +126,8 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         //Backup Routes
         $router->get('return-backup-files/{id}', 'BackUpController@getBackupFiles');
         $router->post('create-image', 'CpanelController@createImage');
+        //Terminate cPanel Account
+        $router->get('delete-account/{id}', 'CpanelController@deleteAccount');
     // });
     
 	$router->group(['prefix' => 'delegate-access', 'namespace' => 'delegate', 'middleware'=> ['delegateAccess', 'cors']], function () use ($router) {

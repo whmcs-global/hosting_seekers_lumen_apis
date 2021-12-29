@@ -108,6 +108,18 @@ trait CpanelTrait {
     /* End Method getSubDomains */ 
 
     /*
+    API Method Name:    terminateCpanelAccount
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To terminate a cpanel account
+    */
+    public function terminateCpanelAccount($id, $username)
+    {
+        return $this->runQuery($id, 'removeacct', ['api.version' => '1', 'username' => $username]);
+    }
+    /* End Method terminateCpanelAccount */ 
+
+    /*
     API Method Name:    createSubDomain
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)

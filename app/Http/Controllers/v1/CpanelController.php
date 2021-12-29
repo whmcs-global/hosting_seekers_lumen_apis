@@ -4,10 +4,11 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Order, OrderTransaction, CompanyServerPackage, UserServer};
+use App\Models\{Order, OrderTransaction, OrderedProduct, Invoice, CompanyServerPackage, UserServer, UserTerminatedAccount};
 use Illuminate\Support\Facades\{DB, Config, Validator};
 use Illuminate\Support\Str;
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CpanelController extends Controller
 {
@@ -55,8 +56,7 @@ class CpanelController extends Controller
                     'total' => $orders->total()
                 ];
                 $orderData = [];
-                foreach($orders as $order){
-                    
+                foreach($orders as $order){                    
                     try{
                         $packageList = $order->ordered_product->product->company_server_package;
                     } catch(\Exception $e){
@@ -68,7 +68,7 @@ class CpanelController extends Controller
                             array_push($packageArray, ['id' => jsencode_userdata($package->id), 'server_name' => $package->company_server->name, 'server_location' => $package->company_server->state->name.', '.$package->company_server->country->name]);
                         }
                     }
-                    $orderDataArray = ['id'=> jsencode_userdata($order->id), 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->updated_at), 'expiry' => change_date_format(add_days_to_date($order->updated_at, $this->billingCycleName($order->ordered_product->billing_cycle))), 'servers' => $packageArray];
+                    $orderDataArray = ['id'=> jsencode_userdata($order->id), 'company_name' => $order->ordered_product->product->user->company_detail->company_name, 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->updated_at), 'expiry' => change_date_format(add_days_to_date($order->updated_at, $this->billingCycleName($order->ordered_product->billing_cycle))), 'servers' => $packageArray];
                     $cpanelAccount = null;
                     if(!is_null($order->user_server)){
                         if(!is_null($order->user_server->company_server_package)){
@@ -77,9 +77,9 @@ class CpanelController extends Controller
                             $controlPanel = null;
                             if('N/A' != $linkserver)
                             $controlPanel = $linkserver['controlPanel'];
-                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'imagePath' => $order->user_server->screenshot, 'package' => $order->user_server->company_server_package->package, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
+                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'imagePath' => $order->user_server->screenshot, 'package' => $order->user_server->company_server_package->package, 'server_ip' => $order->user_server->company_server_package->company_server->ip_address, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
                         }
-                    }
+                    } 
                     $orderDataArray['cpanelAccount'] = $cpanelAccount;
                     array_push($orderData, $orderDataArray);
                 }
@@ -95,6 +95,7 @@ class CpanelController extends Controller
     
     public function createImage(Request $request) {
 		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
             'url' => 'required',
         ]);
         if($validator->fails()){
@@ -102,10 +103,16 @@ class CpanelController extends Controller
         }
         try
         {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $response = hitCurl('https://www.hostingseekers.com/c-review/generate/review', 'POST', [ 'url' => 'https://'.$request->url, 'imageName' => Str::slug($request->url).'-website-screenshot.png']);
             $response = json_decode($response);
             if($response->success){
-                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => str_replace('http://localhost:4000/',  'https://www.hostingseekers.com/c-review/', $response->path), 'message' => 'Website has been captured successfully']);
+                $imagePath = str_replace('http://localhost:4000/',  'https://www.hostingseekers.com/c-review/', $response->path);
+                $serverPackage->update(['screenshot' => $imagePath]);
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $imagePath, 'message' => 'Website has been captured successfully']);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => $response->message]);
         }
@@ -141,6 +148,35 @@ class CpanelController extends Controller
         }
     }
     
+    public function deleteAccount(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $accCreated = $this->terminateCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
+                $error = $accCreated['metadata']["reason"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account terminating error', 'message' => $error]);
+            }
+            UserTerminatedAccount::create(['user_id' => $serverPackage->user_id, 'name' => $serverPackage->name, 'domain' => $serverPackage->domain ]);
+            $serverPackage->delete();
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['metadata']["reason"], 'message' => 'Account has been successfully terminated']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
     public function addDomain(Request $request) {
 		$validator = Validator::make($request->all(),[
             'account_name' => 'required',
@@ -154,7 +190,15 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($request->server_location);
             $orderId = jsdecode_userdata($request->order_id);
-            $serverPackage = CompanyServerPackage::findOrFail($serverId);
+            try
+            {
+                $serverPackage = CompanyServerPackage::findOrFail($serverId);
+            }
+            // catch(Exception $e) catch any exception
+            catch(ModelNotFoundException $e)
+            {
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
             
             $accountCreate = [
                 'user_id' => $request->userid,
@@ -178,11 +222,16 @@ class CpanelController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
             }
             try{
-            $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
+                $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
             } catch(\Exception $ex){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['cpanel_server_id' => jsencode_userdata($userAccount->id), 'name' => $userAccount->name, 'domain' => $userAccount->domain], 'message' => 'Account has been successfully created']);
+            
+            $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
+            $controlPanel = null;
+            if('N/A' != $linkserver)
+            $controlPanel = $linkserver['controlPanel'];
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['cpanel_server_id' => jsencode_userdata($userAccount->id), 'name' => $userAccount->name, 'domain' => $userAccount->domain, 'company_name' => $serverPackage->company_server->user->company_detail->company_name, 'server_ip' => $serverPackage->company_server->ip_address, 'server_type' => $controlPanel], 'message' => 'Account has been successfully created']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);

@@ -22,12 +22,12 @@ class DelegateMiddleware
             $user = DelegateAccount::where(['id' => $key, 'user_id' => $request->userid, 'delegate_user_id' => $request->delegate_user_id])->first();
 
             if(empty($user)){
-                return $this->apiResponse('error', '401', 'Invalid access token');
+                return $this->apiResponse('error', '401', 'Unauthorized access');
             }
             return $next($request);
         }
         else{
-            return $this->apiResponse('error', '401', 'Invalid access token');
+            return $this->apiResponse('error', '401', 'Unauthorized access');
         }
     }
 }
