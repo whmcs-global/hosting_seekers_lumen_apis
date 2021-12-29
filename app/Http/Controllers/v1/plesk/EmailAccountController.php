@@ -5,11 +5,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PleskX\Api\Client;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\PleskTrait;
 
 class EmailAccountController extends Controller{
+    use PleskTrait;
+    private $client;
+
     function __construct() {
-        $this->client = new Client("51.83.123.186");
-        $this->client->setCredentials("root", "1wR2guc3J@rujrOl");
+        $this->runQuery();
     }
 
     /*

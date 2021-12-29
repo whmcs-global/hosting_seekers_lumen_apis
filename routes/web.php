@@ -183,11 +183,11 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
     });
 });
 
-$router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middleware'=> ['checktoken', 'auth']*/ ] ,  function () use ($router) {
-    $router->get('get-plans', 'DomainController@getPlans');
+$router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' , 'middleware'=> ['checktoken', 'auth','pleskvalidation'] ] ,  function () use ($router) {
+    $router->post('get-plans', 'DomainController@getPlans');
     //Manage domain(Webspaces)
     $router->group(['prefix'=>'domain'],function() use ($router){
-        $router->get('get-all', 'DomainController@getAll');
+        $router->post('get-all', 'DomainController@getAll');
         $router->post('get-detail', 'DomainController@getDomain');
         $router->post('delete', 'DomainController@delete');
         $router->post('create', 'DomainController@create');
@@ -196,6 +196,8 @@ $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middl
         $router->post('get-subdomain','DomainController@subDomainDetail');
         $router->post('all-subdomains','DomainController@subDomains');
         $router->post('delete-subdomain','DomainController@deleteSubDomain');
+
+        $router->post('login-session','DomainController@loginSession');
     });
     //Manage databases
     $router->group(['prefix'=>'database'],function() use ($router){
@@ -221,5 +223,6 @@ $router->group(['prefix' => 'api/v1/plesk', 'namespace' => 'v1\plesk' /*, 'middl
         $router->post('update','EmailAccountController@update');
         $router->post('delete','EmailAccountController@delete');
     });
-    $router->get('testing-123','DomainController@testing');
+   
 });
+$router->get('testing-123','v1\plesk\DomainController@testing');

@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PleskX\Api\Client;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\PleskTrait;
 class DomainController extends Controller
 {
+    use PleskTrait;
     private $client;
 
     function __construct() {
-        //parent::__construct();
-        $this->client = new Client("51.83.123.186");
-        $this->client->setCredentials("root", "1wR2guc3J@rujrOl");
+        $this->runQuery();
     }
     /*
     Method Name:    getAll
@@ -50,10 +50,10 @@ class DomainController extends Controller
     */
     public function getDomain( Request $request){
         $messages = [
-            'domain.required' => 'We need to know domain'
+            'cpanel_server.required' => 'We need to know cpanel_server'
         ];
         $rules = [
-            'domain' => 'required|string'
+            'cpanel_server' => 'required|string'
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -389,20 +389,50 @@ STR;
 
     }
 
-    public function testing(Request $request){
-        //$domain = $request->domain;
-        //$id = jsdecode_userdata("tcozgcGj2FZxUATXAYI7TA==");
-        $request = <<<STR
+    public function loginSession(Request $request){
+        $rules = [
+            'customer_name'     =>  'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
+            ]);
+        }
+        try{
+            $request = <<<STR
 <packet>
   <server>
     <create_session>
-        <login>admin</login>
+        <login>{$request->customer_name}</login>
     </create_session>
   </server>
 </packet>
 STR;
-        $response = $this->client->request($request);
-        dd( $response );
+            $response = $this->client->request($request);
+            $token = (string)$response->id;
+            $ip_address = $this->client->ip()->get();
+            $ip_address = reset( $ip_address )->ipAddress;
+            $ip_address = "goofy-gates.51-83-123-186.plesk.page";
+            $parameters = [
+                'PHPSESSID'     =>  $token,
+                'PLESKSESSID'   =>  $token
+            ];
+            $login_url = "https://$ip_address:8443/enterprise/rsession_init.php";
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => [
+                    'session_token' =>  $token,
+                    'redirect_to'   =>  "$login_url?".http_build_query($parameters)
+                ], 'message'        => 'Session token generated successfully.'
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
+        }
     }
-    
+
+    public function testing(Request $request){
+       echo (jsencode_userdata( 23 ));
+    }
 }

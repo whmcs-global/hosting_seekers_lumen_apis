@@ -91,6 +91,7 @@ $app->routeMiddleware([
     'ipAccess' => App\Http\Middleware\IpAccessMiddleware::class,
     'mysqlAccess' => App\Http\Middleware\MysqlAccessMiddleware::class,
     'phpversionsAccess' => App\Http\Middleware\PhpVersionsAccessMiddleware::class,
+    'pleskvalidation' => App\Http\Middleware\PleskValidation::class
 ]);
 $app->middleware([
     App\Http\Middleware\CorsMiddleware::class
