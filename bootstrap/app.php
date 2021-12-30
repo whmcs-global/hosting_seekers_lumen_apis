@@ -93,6 +93,7 @@ $app->routeMiddleware([
     'phpversionsAccess' => App\Http\Middleware\PhpVersionsAccessMiddleware::class,
     'subdomainAccess' => App\Http\Middleware\SubDomainAccessMiddleware::class,
     'addonDomainAccess' => App\Http\Middleware\AddonDomainAccessMiddleware::class,
+    'DnsAccess' => App\Http\Middleware\DnsMiddleware::class,
     'pleskvalidation' => App\Http\Middleware\PleskValidation::class
 ]);
 $app->middleware([

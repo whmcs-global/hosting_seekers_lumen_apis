@@ -256,11 +256,54 @@ class CpanelController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $serverInfo = $this->getServerInfo($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($cpanelStats) ){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
+                $error = $cpanelStats["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            $cpanelStatArray = [];
+            foreach( $cpanelStats['result']['data'] as $cpanelStat){
+                    $value = $units = null;
+                    if(array_key_exists("units", $cpanelStat))
+                    $units = $cpanelStat['units'];
+                    if(array_key_exists("value", $cpanelStat))
+                    $value = $cpanelStat['value'];
+                    $count = $cpanelStat['count'];
+                    if(array_key_exists("_count", $cpanelStat))
+                    $count = $cpanelStat['_count'];
+                    $max = $cpanelStat['max'];
+                    if(array_key_exists("_max", $cpanelStat))
+                    $max = $cpanelStat['_max'];
+                    array_push($cpanelStatArray, ['item' => $cpanelStat['item'], 'name' => $cpanelStat['name'], 'count' => $count, 'max' => $max, 'percent' => $cpanelStat['percent'], 'value' => $value, 'units' => $units]);
+            }
+            $domainInfo = [
+                "accountStats" => $cpanelStatArray
+            ];
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    public function dnsInfo(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
-            if(!is_array($accCreated) || !is_array($nameCreated) || !is_array($cpanelStats) ){
+            if(!is_array($accCreated) || !is_array($nameCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
@@ -272,25 +315,6 @@ class CpanelController extends Controller
                 $error = $nameCreated["metadata"]['reason'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
-            if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
-                $error = $cpanelStats["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
-            }
-            $serverInfoArray = [];
-            foreach( $serverInfo['result']['data'] as $serverinfo){
-                if('device' == $serverinfo['type']){
-                    array_push($serverInfoArray, $serverinfo);
-                }
-            }
-            $cpanelStatArray = [];
-            foreach( $cpanelStats['result']['data'] as $cpanelStat){
-                    $value = $units = null;
-                    if(array_key_exists("units", $cpanelStat))
-                    $units = $cpanelStat['units'];
-                    if(array_key_exists("value", $cpanelStat))
-                    $value = $cpanelStat['value'];
-                    array_push($cpanelStatArray, ['item' => $cpanelStat['item'], 'name' => $cpanelStat['name'], 'count' => $cpanelStat['count'], 'max' => $cpanelStat['max'], 'percent' => $cpanelStat['percent'], 'value' => $value, 'units' => $units]);
-            }
             $domainInfo = [
                 "user" => $accCreated["data"]['userdata']["user"],
                 "servername" => $accCreated["data"]['userdata']['servername'],
@@ -299,7 +323,6 @@ class CpanelController extends Controller
                 "ip" => $accCreated["data"]['userdata']['ip'],
                 "port" => $accCreated["data"]['userdata']['port'],
                 "nameservers" => $nameCreated['data']['nameservers'],
-                "accountStats" => $cpanelStatArray
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }

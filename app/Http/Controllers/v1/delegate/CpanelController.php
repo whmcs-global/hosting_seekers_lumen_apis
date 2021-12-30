@@ -94,19 +94,8 @@ class CpanelController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
-            $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
-            if(!is_array($accCreated) || !is_array($nameCreated) || !is_array($cpanelStats) ){
+            if(!is_array($cpanelStats) ){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            }
-            
-            if ((array_key_exists("metadata", $accCreated) && $accCreated["metadata"]['result'] == "0")) {
-                $error = $accCreated["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
-            }
-            if ((array_key_exists("metadata", $nameCreated) && $nameCreated["metadata"]['result'] == "0")) {
-                $error = $nameCreated["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
                 $error = $cpanelStats["result"]['errors'];
@@ -119,7 +108,49 @@ class CpanelController extends Controller
                     $units = $cpanelStat['units'];
                     if(array_key_exists("value", $cpanelStat))
                     $value = $cpanelStat['value'];
-                    array_push($cpanelStatArray, ['item' => $cpanelStat['item'], 'name' => $cpanelStat['name'], 'count' => $cpanelStat['count'], 'max' => $cpanelStat['max'], 'percent' => $cpanelStat['percent'], 'value' => $value, 'units' => $units]);
+                    $count = $cpanelStat['count'];
+                    if(array_key_exists("_count", $cpanelStat))
+                    $count = $cpanelStat['_count'];
+                    $max = $cpanelStat['max'];
+                    if(array_key_exists("_max", $cpanelStat))
+                    $max = $cpanelStat['_max'];
+                    array_push($cpanelStatArray, ['item' => $cpanelStat['item'], 'name' => $cpanelStat['name'], 'count' => $count, 'max' => $max, 'percent' => $cpanelStat['percent'], 'value' => $value, 'units' => $units]);
+            }
+            $domainInfo = [
+                "accountStats" => $cpanelStatArray
+            ];
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+    public function dnsInfo(Request $request, $id) {
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
+            $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
+            if(!is_array($accCreated) || !is_array($nameCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ((array_key_exists("metadata", $accCreated) && $accCreated["metadata"]['result'] == "0")) {
+                $error = $accCreated["metadata"]['reason'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            if ((array_key_exists("metadata", $nameCreated) && $nameCreated["metadata"]['result'] == "0")) {
+                $error = $nameCreated["metadata"]['reason'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
             $domainInfo = [
                 "user" => $accCreated["data"]['userdata']["user"],
@@ -129,7 +160,6 @@ class CpanelController extends Controller
                 "ip" => $accCreated["data"]['userdata']['ip'],
                 "port" => $accCreated["data"]['userdata']['port'],
                 "nameservers" => $nameCreated['data']['nameservers'],
-                "accountStats" => $cpanelStatArray
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }

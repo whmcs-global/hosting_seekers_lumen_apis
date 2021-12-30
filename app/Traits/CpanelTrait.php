@@ -472,7 +472,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_module' => 'StatsBar',
             'cpanel_jsonapi_func' => 'get_stats',
             'cpanel_jsonapi_user' => $username,
-            'display' => 'addondomains|bandwidthusage|cpanelversion|dedicatedip||diskusage|emailaccounts|ftpaccounts|hostname|mysqldatabases|mysqldiskusage|mysqlversion|subdomains'
+            'display' => 'addondomains|bandwidthusage|cpanelversion|dedicatedip|diskusage|emailaccounts|ftpaccounts|hostname|mysqldatabases|mysqldiskusage|mysqlversion|subdomains'
         ];
         return $this->runQuery($id, $action, $params);
     }
