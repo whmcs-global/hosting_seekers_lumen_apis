@@ -58,7 +58,7 @@ class AddonDomainController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             if($serverPackage->domain == $request->domain)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => "Can't create addon domain for ".$request->domain]);
-            $accCreated = $this->createAddonsDomain($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->domain, $request->subdomain, $request->homedir);
+            $accCreated = $this->createAddonsDomain($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->domain, $request->subdomain.'.'.$serverPackage->domain, $request->homedir);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }

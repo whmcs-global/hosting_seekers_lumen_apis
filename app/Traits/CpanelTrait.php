@@ -454,16 +454,35 @@ trait CpanelTrait {
     */
     public function domainNameServersInfo($id, $domain_name)
     {
-        return $this->runQuery($id, 'get_nameserver_config', ['api.version' => '1', 'domain' => $domain_name]);
+        return $this->runQuery($id, 'convert_addon_fetch_domain_details', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method domainNameServersInfo */ 
+    
+    /*
+    API Method Name:    domainList
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get nameserver info for any domain
+    */
+    public function domainList($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'DomainInfo',
+            'cpanel_jsonapi_func' => 'list_domains',
+            'cpanel_jsonapi_user' => $username,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method domainList */ 
     
     /*
     API Method Name:    getCpanelStats
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
     Purpose:            To get list of all mysql users
-    */
+    */ 
     public function getCpanelStats($id, $username)
     {
         $action = 'cpanel';
@@ -472,7 +491,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_module' => 'StatsBar',
             'cpanel_jsonapi_func' => 'get_stats',
             'cpanel_jsonapi_user' => $username,
-            'display' => 'addondomains|bandwidthusage|cpanelversion|dedicatedip|diskusage|emailaccounts|ftpaccounts|hostname|mysqldatabases|mysqldiskusage|mysqlversion|subdomains'
+            'display' => 'addondomains|bandwidthusage|cpanelversion|dedicatedip|diskusage|emailaccounts|ftpaccounts|hostname|mysqldatabases|mysqldiskusage|mysqlversion|subdomains|apacheversion|phpversion'
         ];
         return $this->runQuery($id, $action, $params);
     }

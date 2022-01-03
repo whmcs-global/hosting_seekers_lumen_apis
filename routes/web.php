@@ -104,6 +104,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->post('get-mysql-privileges', 'MySqlDbController@getPrivileges');
         $router->post('update-mysql-privileges', 'MySqlDbController@updatePrivileges');
         //Get Domain Info Route
+        $router->get('domain-list/{id}', 'CpanelController@getDomains');
         $router->get('domain-info/{id}', 'CpanelController@getUserInfo');
         $router->get('domain-detail/{id}', 'CpanelController@dnsInfo');
         $router->post('update/review', 'ReviewController@companyReview');
@@ -205,6 +206,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->group(['middleware'=> ['DnsAccess']], function () use ($router) {
             $router->get('domain-detail/{id}', 'CpanelController@dnsInfo');
         }); 
+        $router->get('domain-list/{id}', 'CpanelController@getDomains');
         //Blocked Ip Routes
         $router->group(['middleware'=> ['ipAccess']], function () use ($router) {
             $router->get('blocked-ips/{id}', 'BlockedIpController@getIps');

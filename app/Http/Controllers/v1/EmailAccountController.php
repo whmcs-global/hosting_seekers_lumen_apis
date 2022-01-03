@@ -45,6 +45,7 @@ class EmailAccountController extends Controller
             'cpanel_server' => 'required',
             'email' => 'required',
             'password' => 'required',
+            'domain' => 'required',
             'quota' => 'required|numeric',
             'quotasize' => 'required'
         ]);
@@ -70,7 +71,7 @@ class EmailAccountController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->createEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password,  $request->quota);
+            $accCreated = $this->createEmailAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$request->domain,  $request->password,  $request->quota);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -178,6 +179,7 @@ class EmailAccountController extends Controller
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
             'email' => 'required',
+            'domain' => 'required',
             'password' => 'required'
         ]);
         if($validator->fails()){
@@ -189,7 +191,7 @@ class EmailAccountController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$serverPackage->domain,  $request->password);
+            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$request->domain,  $request->password);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
