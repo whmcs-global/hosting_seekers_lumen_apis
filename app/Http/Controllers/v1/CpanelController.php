@@ -211,12 +211,12 @@ class CpanelController extends Controller
                 'company_id' =>  $serverPackage->user_id,
                 'company_server_package_id' => $serverPackage->id,
             ];
-            $packageName = str_replace(" ", "_", $serverPackage->package);
             $domainName = $this->getDomain($request->domain_name);
             $accountCreate['name'] = $request->account_name;
             $accountCreate['domain'] = $domainName;
             $accountCreate['password'] = 'G@ur@v123';
             if('cPanel' == $controlPanel){
+                $packageName = str_replace(" ", "_", $serverPackage->package);
                 $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
                 if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
                     return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -229,6 +229,7 @@ class CpanelController extends Controller
                 }
             }
             if('Plesk' == $controlPanel){
+                $packageName = $serverPackage->package;
                 
             }
             try{
