@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\{DB, Config, Validator};
 use Illuminate\Support\Str;
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PleskX\Api\Client;
 
 class CpanelController extends Controller
 {
     use CpanelTrait, CommonTrait, SendResponseTrait;
+    
+    private $client;
     public function orderedServers(Request $request){
         
         try {
@@ -155,13 +158,34 @@ class CpanelController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $accCreated = $this->terminateCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            
+            $linkserver = $serverPackage->company_server_package->company_server->link_server ? unserialize($serverPackage->company_server_package->company_server->link_server) : 'N/A';
+            $controlPanel = null;
+            if('N/A' == $linkserver)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $controlPanel = $linkserver['controlPanel'];
+            if('cPanel' == $controlPanel){
+                $accCreated = $this->terminateCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+                if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                }
+                if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
+                    $error = $accCreated['metadata']["reason"];
+                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account terminating error', 'message' => $error]);
+                }
             }
-            if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
-                $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account terminating error', 'message' => $error]);
+            if('Plesk' == $controlPanel){
+                $packageName = $serverPackage->package;                
+                try{
+
+                    $this->client = new Client($serverPackage->company_server_package->company_server->ip_address);
+                    $this->client->setCredentials($linkserver['username'], $linkserver['apiToken']);
+                    $this->client->Webspace()->delete("name",$request->domain);
+                }catch(\Exception $e){
+                    return response()->json([
+                        'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                    ]);
+                }
             }
             UserTerminatedAccount::create(['user_id' => $serverPackage->user_id, 'name' => $serverPackage->name, 'domain' => $serverPackage->domain ]);
             $serverPackage->delete();
@@ -203,7 +227,8 @@ class CpanelController extends Controller
             
             $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
             $controlPanel = null;
-            if('N/A' != $linkserver)
+            if('N/A' == $linkserver)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $controlPanel = $linkserver['controlPanel'];
             $accountCreate = [
                 'user_id' => $request->userid,
@@ -229,8 +254,36 @@ class CpanelController extends Controller
                 }
             }
             if('Plesk' == $controlPanel){
-                $packageName = $serverPackage->package;
-                
+                $packageName = $serverPackage->package;                
+                try{
+
+                    $this->client = new Client($serverPackage->company_server->ip_address);
+	                $this->client->setCredentials($linkserver['username'], $linkserver['apiToken']);
+                    $customer = $this->checkCustomerExist($request->account_name);
+                    if( empty($customer) ){
+                        $customer = $this->client->customer()->create([
+                            "pname"     =>  $request->account_name,
+                            "login"     =>  $request->account_name,
+                            "passwd"    =>  'G@ur@v123',
+                            "email"     =>  $request->customer_email
+                        ]);
+                    }
+                    $ip_address = $this->client->ip()->get();
+                    $ip_address = reset($ip_address);
+                    $domain = $this->client->webspace()->create([
+                            'name'          => $request->domain_name,
+                            'ip_address'    => $ip_address->ipAddress,
+                            'owner-guid'      => $customer->guid
+                        ],[
+                            'ftp_login'         =>  preg_replace('/[^a-zA-Z0-9_ -]/s','',strtolower($request->account_name) ),
+                            'ftp_password'      =>  'G@ur@v123'
+                        ]
+                    );
+                }catch(\Exception $e){
+                    return response()->json([
+                        'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                    ]);
+                }
             }
             try{
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
@@ -248,6 +301,22 @@ class CpanelController extends Controller
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+
+    /*
+    Method Name:    check_customer_exist(HELPER)
+    Developer:      Shine Dezign
+    Created Date:   2022-01-06 (yyyy-mm-dd)
+    Purpose:        Check customer with login name exist
+    Params:         Login name
+    */
+    public function checkCustomerExist( $name ){
+        try{
+            $c = $this->client->customer()->get("login",$name);
+            return $c;
+        }catch(\Exception $e){
+            return false;
         }
     }
     public function getUserInfo(Request $request, $id) {

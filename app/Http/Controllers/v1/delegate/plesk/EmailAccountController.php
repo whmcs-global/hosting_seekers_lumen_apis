@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\v1\plesk;
+namespace App\Http\Controllers\v1\delegate\plesk;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

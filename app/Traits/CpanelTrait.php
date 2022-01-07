@@ -89,6 +89,27 @@ trait CpanelTrait {
     /* End Method addDevice */ 
     
     /*
+    API Method Name:    analogStats
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of subdomains
+    */
+    public function analogStats($id, $username, $domain)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Stats',
+            'cpanel_jsonapi_func' => 'list_stats_by_domain',
+            'cpanel_jsonapi_user' => $username,
+            'domain' => $domain,
+            'engine' => 'analog'
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method analogStats */ 
+    
+    /*
     API Method Name:    getSubDomains
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
@@ -454,7 +475,7 @@ trait CpanelTrait {
     */
     public function domainNameServersInfo($id, $domain_name)
     {
-        return $this->runQuery($id, 'convert_addon_fetch_domain_details', ['api.version' => '1', 'domain' => $domain_name]);
+        return $this->runQuery($id, 'get_nameserver_config', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method domainNameServersInfo */ 
     
@@ -1069,7 +1090,7 @@ trait CpanelTrait {
             "user" => $user,
             "pass" => $password,
             "quota" => $quota,
-            "homedir" => "public_html/".$homedir
+            "homedir" => $homedir
         ];
         return $this->runQuery($id, $action, $params);
     }
