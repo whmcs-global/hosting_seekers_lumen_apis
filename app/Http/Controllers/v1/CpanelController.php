@@ -80,8 +80,18 @@ class CpanelController extends Controller
                             $controlPanel = null;
                             if('N/A' != $linkserver)
                             $controlPanel = $linkserver['controlPanel'];
-                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'imagePath' => $order->user_server->screenshot, 'package' => $order->user_server->company_server_package->package, 'server_ip' => $order->user_server->company_server_package->company_server->ip_address, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name];
+                            $cpanelAccount = ['id' => jsencode_userdata($order->user_server->id), 'name' => $order->user_server->name, 'domain' => $order->user_server->domain, 'imagePath' => $order->user_server->screenshot, 'package' => $order->user_server->company_server_package->package, 'server_ip' => $order->user_server->company_server_package->company_server->ip_address, 'server_name' => $order->user_server->company_server_package->company_server->name, 'server_type' => $controlPanel, 'server_location' => $order->user_server->company_server_package->company_server->state->name.', '.$order->user_server->company_server_package->company_server->country->name, 'bandwidth' => null];
+                            
+                            if($order->user_server->bandwidth->isNotEmpty()){
+                                $bandwidthArray = $dateArray = [];
+                                foreach($order->user_server->bandwidth as $bandwidth){
+                                    array_push($dateArray, change_date_format($bandwidth->stats_date, 'Y-m-d'));
+                                    array_push($bandwidthArray, $bandwidth->bandwidth);
+                                }
+                                $cpanelAccount['bandwidth'] = ['dates' => $dateArray, 'stats' => $bandwidthArray];
+                            }
                         }
+                        
                     } 
                     $orderDataArray['cpanelAccount'] = $cpanelAccount;
                     array_push($orderData, $orderDataArray);

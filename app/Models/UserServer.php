@@ -40,4 +40,8 @@ class UserServer extends Model
 	{
 	   return $this->hasOne(DelegateDomainAccess::class, 'user_server_id', 'id');
 	}
+	public function bandwidth()
+	{
+	   return $this->hasMany(DomainBandwidthStat::class, 'user_server_id', 'id');
+	}
 }

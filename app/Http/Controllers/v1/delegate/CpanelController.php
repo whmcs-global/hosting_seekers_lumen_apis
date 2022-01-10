@@ -47,7 +47,16 @@ class CpanelController extends Controller
                     $controlPanel = null;
                     if('N/A' != $linkserver)
                     $controlPanel = $linkserver['controlPanel'];
-                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'company_name' => $row->user_server->company_server_package->company_server->user->company_detail->company_name, 'imagePath' => $row->user_server->screenshot, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name, 'server_ip' => $row->user_server->company_server_package->company_server->ip_address, 'server_type' => $controlPanel, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'permissions' => $permissions]);
+                    $bandwidthStatsArray = null;
+                    if($order->user_server->bandwidth->isNotEmpty()){
+                        $bandwidthArray = $dateArray = [];
+                        foreach($order->user_server->bandwidth as $bandwidth){
+                            array_push($dateArray, change_date_format($bandwidth->stats_date, 'Y-m-d'));
+                            array_push($bandwidthArray, $bandwidth->bandwidth);
+                        }
+                        $bandwidthStatsArray = ['dates' => $dateArray, 'stats' => $bandwidthArray];
+                    }
+                    array_push($permissionData, ['id'=> jsencode_userdata($row->user_server->id), 'name' => $row->user_server->name, 'domain' => $row->user_server->domain, 'company_name' => $row->user_server->company_server_package->company_server->user->company_detail->company_name, 'imagePath' => $row->user_server->screenshot, 'server_location' => $row->user_server->company_server_package->company_server->state->name.', '.$row->user_server->company_server_package->company_server->country->name, 'server_ip' => $row->user_server->company_server_package->company_server->ip_address, 'server_type' => $controlPanel, 'created_at' => change_date_format($row->user_server->order->updated_at), 'expiry' => change_date_format(add_days_to_date($row->user_server->order->updated_at, $this->billingCycleName($row->user_server->order->ordered_product->billing_cycle))), 'bandwidth' => $bandwidthStatsArray, 'permissions' => $permissions]);
                 }
                 $ordersData['data'] = $permissionData;
                 $ratingArray = $ordersData;
