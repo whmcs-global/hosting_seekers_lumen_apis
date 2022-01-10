@@ -175,6 +175,42 @@ class EmailAccountController extends Controller
         }
     }
 
+    public function emailSetting(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'email' => 'required',
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $accCreated = $this->getClientSetting($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'Email client setting has been fetched successfully']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
+
     public function updateEmailPasswrod(Request $request) {
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',

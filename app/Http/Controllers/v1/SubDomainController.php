@@ -55,8 +55,6 @@ class SubDomainController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            if($serverPackage->domain != $request->domain)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => "Can't create sub domain for ".$request->domain]);
             $domain = $request->subdomain.'.'.$request->domain;
             $accCreated = $this->createSubDomain($serverPackage->company_server_package->company_server_id, $domain, $request->homedir);
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
@@ -95,8 +93,6 @@ class SubDomainController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            if($serverPackage->domain != $request->domain)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => "Can't update sub domain for ".$request->domain]);
             $domain = $request->domain;
             $accCreated = $this->changeRootDir($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $domain, $request->subdomain, $request->homedir);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){

@@ -55,6 +55,7 @@ class DomainController extends Controller
         if(!$server)
         return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         try{
+            $siteId = $this->getSiteId();
             $request = <<<STR
             <packet>
                 <site>
@@ -255,21 +256,29 @@ class DomainController extends Controller
     Params:         Request input
     */
     public function createSubdomain(Request $request){
-        $rules = [
-            'parent_domain'         =>  'required',
-            'sub_domain'     =>  'required'
-        ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
-            return response()->json([
-                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
-            ]);
+		$validator = Validator::make($request->all(),[
+            'domain' => 'required',
+            'subdomain' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try{
-            $subdomain = $this->client->Subdomain()->create([
-                "parent"    =>  $request->parent_domain,
-                "name"      =>  $request->sub_domain
-            ]);
+            $api_request = <<<EOL
+            <packet>
+            <subdomain>
+                <add>
+                <parent>{$request->domain}</parent>
+                <name>{$request->subdomain}</name>
+                <property>
+                    <name>www_root</name>
+                    <value>/{$request->homedir}</value>
+                </property>
+                </add>
+            </subdomain>
+            </packet>
+            EOL;
+            $response = $this->client->request($api_request);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'Sub Domain created successfully.'
             ]);
@@ -281,48 +290,51 @@ class DomainController extends Controller
         exit;
     }
 
-    public function subDomainDetail(Request $request){
-        $rules = [
-            'sub_domain'     =>  'required'
-        ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
-            return response()->json([
-                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
-            ]);
+    public function updateSubdomain(Request $request){
+		$validator = Validator::make($request->all(),[
+            'subdomain' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try{
-            $info = $this->client->Subdomain()->get("name",$request->sub_domain);
+            $api_request = <<<EOL
+            <packet>
+            <subdomain>
+            <set>
+            <filter>
+            <name>{$request->subdomain}</name>
+            </filter>
+            <property>
+                <name>www_root</name>
+                <value>/{$request->homedir}</value>
+            </property>
+            </set>
+            </subdomain>
+            </packet>
+            EOL;
+            $response = $this->client->request($api_request);
             return response()->json([
-                'api_response' => 'success', 'status_code' => 200, 'data' => [
-                    'parent_domain'     =>  $info->parent,
-                    'domain'     =>  $info->name,
-                    'domain_id' =>  jsencode_userdata( $info->id ),
-                    'document_root' =>  $info->properties['www_root'],
-                ] , 'message' => 'Sub Domain created successfully.'
+                'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'Sub Domain updated successfully.'
             ]);
         }catch(\Exception $e){
             return response()->json([
                 'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
             ]);
         }
-        
+        exit;
     }
 
     public function subDomains(Request $request){
-        $rules = [
-            'parent_domain'     =>  'required'
-        ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
-            return response()->json([
-                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
-            ]);
-        }
         try{
-            $all_subdomains = $this->client->Subdomain()->getAll("parent-name",$request->parent_domain);
+            $serverId = jsdecode_userdata(request()->cpanel_server);
+            $server = UserServer::where(['user_id' => request()->userid, 'id' => $serverId])->first();
+            if(!$server)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                
+            $allSubdomains = $this->client->Subdomain()->getAll("parent-name",$server->domain);
             $return_response = [];
-            foreach( $all_subdomains as $domain ){
+            foreach( $allSubdomains as $domain ){
                 $return_response[] = [
                     'parent_domain'     =>  $domain->parent,
                     'domain'     =>  $domain->name,
@@ -332,9 +344,7 @@ class DomainController extends Controller
             }
 
             return response()->json([
-                'api_response' => 'success', 'status_code' => 200, 'data' => [
-                    'sub_domains'   =>   $return_response
-                ], 'message'        => 'Sub Domain created successfully.'
+                'api_response' => 'success', 'status_code' => 200, 'data' => $return_response, 'message' => 'Sub Domain created successfully.'
             ]);
         }catch(\Exception $e){
             return response()->json([
@@ -345,7 +355,7 @@ class DomainController extends Controller
 
     public function deleteSubDomain(Request $request){
         $rules = [
-            'sub_domain'     =>  'required'
+            'subdomain'     =>  'required'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -354,7 +364,7 @@ class DomainController extends Controller
             ]);
         }
         try{
-            $this->client->Subdomain()->delete("name",$request->sub_domain);
+            $this->client->Subdomain()->delete("name",$request->subdomain);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [
                     
@@ -369,35 +379,29 @@ class DomainController extends Controller
     }
 
     public function loginSession(Request $request){
-        $rules = [
-            'customer_name'     =>  'required'
-        ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
-            return response()->json([
-                'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
-            ]);
-        }
         try{
+            $serverId = jsdecode_userdata(request()->cpanel_server);
+            $server = UserServer::where(['user_id' => request()->userid, 'id' => $serverId])->first();
+            if(!$server)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $request = <<<STR
-<packet>
-  <server>
-    <create_session>
-        <login>{$request->customer_name}</login>
-    </create_session>
-  </server>
-</packet>
-STR;
+            <packet>
+            <server>
+                <create_session>
+                    <login>{$server->name}</login>
+                </create_session>
+            </server>
+            </packet>
+            STR;
             $response = $this->client->request($request);
             $token = (string)$response->id;
             $ip_address = $this->client->ip()->get();
             $ip_address = reset( $ip_address )->ipAddress;
-            $ip_address = "goofy-gates.51-83-123-186.plesk.page";
             $parameters = [
-                'PHPSESSID'     =>  $token,
                 'PLESKSESSID'   =>  $token
             ];
-            $login_url = "https://$ip_address:8443/enterprise/rsession_init.php";
+            $login_url = $server->company_server_package->company_server->host.":8443/enterprise/rsession_init.php";
+
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [
                     'session_token' =>  $token,

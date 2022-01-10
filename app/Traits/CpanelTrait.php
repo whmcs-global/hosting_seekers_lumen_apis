@@ -872,6 +872,26 @@ trait CpanelTrait {
     /* End Method createEmailAccount */ 
     
     /*
+    API Method Name:    getClientSetting
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To create new email account
+    */
+    public function getClientSetting($id, $username, $email)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Email',
+            'cpanel_jsonapi_func' => 'get_client_settings',
+            'cpanel_jsonapi_user' => $username,
+            'account' => $email
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getClientSetting */ 
+    
+    /*
     API Method Name:    changeEmailPassword
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)

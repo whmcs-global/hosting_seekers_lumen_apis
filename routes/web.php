@@ -64,6 +64,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         //Email Account Routes
         $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
         $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
+        $router->post('email-client-settings', 'EmailAccountController@emailSetting');
         $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
         $router->get('login-webmail/{id}', 'EmailAccountController@loginWebmailAccount');
         $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
@@ -154,6 +155,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         });
         $router->group(['middleware'=> ['emailAccess']], function () use ($router) {
             $router->get('email-accounts/{id}', 'EmailAccountController@getEmailAccount');
+            $router->post('email-client-settings', 'EmailAccountController@emailSetting');
             $router->post('create-email-accounts', 'EmailAccountController@addEmailAccount');
             $router->post('update-email-accounts-password', 'EmailAccountController@updateEmailPasswrod');
             $router->post('delete-email-accounts', 'EmailAccountController@deleteEmailAccount');
@@ -243,7 +245,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
                 $router->post('delete/{database_id}','DatabaseController@delete');
                 $router->post('create-user','DatabaseController@createUser');
                 $router->post('user-detail[/{user_id}]','DatabaseController@userDetail');
-                $router->post('delete-user/{user_id}','DatabaseController@deleteUser');
+                $router->post('delete-user','DatabaseController@deleteUser');
                 $router->post('change-user-settings','DatabaseController@updateUser');
             });
             $router->post('mysql-privileges', 'DatabaseController@getPrivileges');
@@ -275,7 +277,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
             $router->post('create', 'DomainController@create');
     
             $router->post('create-subdomain','DomainController@createSubdomain');
-            $router->post('get-subdomain','DomainController@subDomainDetail');
+            $router->post('update-subdomain','DomainController@updateSubdomain');
             $router->post('all-subdomains','DomainController@subDomains');
             $router->post('delete-subdomain','DomainController@deleteSubDomain');
     
