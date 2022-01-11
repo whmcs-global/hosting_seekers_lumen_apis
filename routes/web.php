@@ -108,6 +108,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('domain-list/{id}', 'CpanelController@getDomains');
         $router->get('domain-info/{id}', 'CpanelController@getUserInfo');
         $router->get('domain-detail/{id}', 'CpanelController@dnsInfo');
+        $router->post('install-ssl', 'CpanelController@installSsl');
         $router->post('update/review', 'ReviewController@companyReview');
         $router->get('review/{id}', 'ReviewController@getRating');
         $router->get('criteria', 'ReviewController@getReviewCriteria');
@@ -139,6 +140,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
             $router->get('login-cpanel/{id}', 'CpanelController@loginAccount'); 
             $router->post('login-email-account', 'EmailAccountController@loginEmailAccount');
             $router->get('login-phpmyadmin/{id}', 'MySqlController@loginPHPMYADMIN');
+            $router->post('install-ssl', 'CpanelController@installSsl');
         });
         //Sub Domains Routes
         $router->group(['prefix' => 'subdomain', 'middleware'=> ['subdomainAccess']], function () use ($router) {
@@ -224,6 +226,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
             $router->group(['prefix'=>'domain'],function() use ($router){
                 $router->post('get-all', 'DomainController@getAll');
                 $router->post('get-detail', 'DomainController@getDomain');
+                $router->post('dns-detail', 'DomainController@dnsInfo');
                 $router->post('delete', 'DomainController@delete');
                 $router->post('create', 'DomainController@create');
                 $router->group(['middleware'=> ['subdomainAccess']],function() use ($router){
@@ -273,6 +276,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->group(['prefix'=>'domain'],function() use ($router){
             $router->post('get-all', 'DomainController@getAll');
             $router->post('get-detail', 'DomainController@getDomain');
+            $router->post('dns-detail', 'DomainController@dnsInfo');
             $router->post('delete', 'DomainController@delete');
             $router->post('create', 'DomainController@create');
     

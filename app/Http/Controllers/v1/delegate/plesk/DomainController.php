@@ -117,6 +117,58 @@ class DomainController extends Controller
         }
     }
     /*
+    Method Name:    dnsInfo
+    Developer:      Shine Dezign
+    Created Date:   2021-12-21 (yyyy-mm-dd)
+    Purpose:        Get detail of the domain
+    Params:         client of plesk and request input
+    */
+    public function dnsInfo( Request $request ){
+        $serverId = jsdecode_userdata(request()->cpanel_server);
+        $server = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+        if(!$server)
+        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        try{
+            $siteId = $this->getSiteId();
+            $request = <<<STR
+            <packet>
+                <site>
+                <get>
+                <filter>
+                    <name>{$server->domain}</name>
+                </filter>
+                <dataset>
+                    <hosting/>
+                </dataset>
+                </get>
+                </site>
+            </packet>
+            STR;
+            $response = $this->client->request($request);
+            $response_data = [
+                'document_root' =>  (string)$response->data->hosting->vrt_hst->www_root,
+                'ip'            =>  (string)$response->data->hosting->vrt_hst->ip_address,
+                'dns' =>  unserialize($server->company_server_package->company_server->name_servers)
+            ];
+            if( isset($response->data->hosting->vrt_hst->property) ){
+                foreach( $response->data->hosting->vrt_hst->property as $single_property ){
+                    if( $single_property->name == "www_root" ){
+                        $response_data['document_root'] = (string)$single_property->value;
+                        break;
+                    }
+                }
+            }
+            
+            return response()->json([
+                'api_response' => 'success', 'status_code' => 200, 'data' => $response_data , 'message' => 'Domain DNS fetched successfully.' 
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+            ]);
+        }
+    }
+    /*
     Method Name:    delete
     Developer:      Shine Dezign
     Created Date:   2021-12-21 (yyyy-mm-dd)

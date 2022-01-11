@@ -48,10 +48,10 @@ class CpanelController extends Controller
                     if('N/A' != $linkserver)
                     $controlPanel = $linkserver['controlPanel'];
                     $bandwidthStatsArray = null;
-                    if($order->user_server->bandwidth->isNotEmpty()){
+                    if($row->user_server->bandwidth->isNotEmpty()){
                         $bandwidthArray = $dateArray = [];
-                        foreach($order->user_server->bandwidth as $bandwidth){
-                            array_push($dateArray, change_date_format($bandwidth->stats_date, 'Y-m-d'));
+                        foreach($row->user_server->bandwidth as $bandwidth){
+                            array_push($dateArray, change_date_format($bandwidth->stats_date, 'd M'));
                             array_push($bandwidthArray, $bandwidth->bandwidth);
                         }
                         $bandwidthStatsArray = ['dates' => $dateArray, 'stats' => $bandwidthArray];
@@ -68,6 +68,42 @@ class CpanelController extends Controller
         }
     }
     
+    public function installSsl(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'cert' => 'required',
+            'key' => 'required',
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $accCreated = $this->installCertificate($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $serverPackage->domain,  $request->cert,  $request->key,  $request->cabundle);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'SSL updation error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'SSL has been successfully installed', 'message' => 'SSL has been successfully installed']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+        }
+    }
     public function loginAccount(Request $request, $id) {
         try
         {

@@ -108,6 +108,29 @@ trait CpanelTrait {
         return $this->runQuery($id, $action, $params);
     }
     /* End Method analogStats */ 
+    /*
+    API Method Name:    installCertificate
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of subdomains
+    */
+    public function installCertificate($id, $username, $domain, $cert, $key, $cabundle = null)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'SSL',
+            'cpanel_jsonapi_func' => 'install_ssl',
+            'cpanel_jsonapi_user' => $username,
+            'domain' => $domain,
+            'cert' => $cert,
+            'key' => $key
+        ];
+        if($cabundle)
+        $params['cabundle'] = $cabundle;
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method installCertificate */ 
     
     /*
     API Method Name:    getSubDomains
