@@ -92,6 +92,34 @@ return [
                 'NO_ENGINE_SUBSTITUTION'
             ]
         ],
+        'mysql3' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL3'),
+            'host' => env('DB_HOST3', '127.0.0.1'),
+            'port' => env('DB_PORT3', '3306'),
+            'database' => env('DB_DATABASE3', 'forge'),
+            'username' => env('DB_USERNAME3', 'forge'),
+            'password' => env('DB_PASSWORD3', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+            'modes' => [
+                //'ONLY_FULL_GROUP_BY', // Disable this to allow grouping by one column
+                'STRICT_TRANS_TABLES',
+                'NO_ZERO_IN_DATE',
+                'NO_ZERO_DATE',
+                'ERROR_FOR_DIVISION_BY_ZERO',
+                'NO_AUTO_CREATE_USER',
+                'NO_ENGINE_SUBSTITUTION'
+            ]
+        ],
 
 
     ],

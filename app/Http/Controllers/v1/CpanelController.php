@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\{Order, OrderTransaction, OrderedProduct, Invoice, CompanyServerPackage, UserServer, UserTerminatedAccount, DomainBandwidthStat};
 use Illuminate\Support\Facades\{DB, Config, Validator};
 use Illuminate\Support\Str;
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
 
 class CpanelController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait;
+    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait;
     
     private $client;
     public function orderedServers(Request $request){
@@ -297,6 +297,8 @@ class CpanelController extends Controller
             }
             try{
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
+                $accountCreate['ipaddress'] = $serverPackage->company_server->ip_address;
+                $response = $this->WgsCreateDomainPowerDns($accountCreate);
             } catch(\Exception $ex){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
