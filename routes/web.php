@@ -30,6 +30,8 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1'], function () use ($ro
     $router->post('forgot/password', 'AuthController@password_reset_link');
     $router->get('tokencheck/{token}', 'AuthController@password_reset_token_check');
     $router->post('reset/password', 'AuthController@update_new_password');
+    $router->get('bandwidth/stats', 'CpanelController@bandwidthStats');
+    
 });
 
 $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['checktoken', 'auth']], function () use ($router) {

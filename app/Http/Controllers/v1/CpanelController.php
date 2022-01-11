@@ -4,7 +4,7 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Order, OrderTransaction, OrderedProduct, Invoice, CompanyServerPackage, UserServer, UserTerminatedAccount};
+use App\Models\{Order, OrderTransaction, OrderedProduct, Invoice, CompanyServerPackage, UserServer, UserTerminatedAccount, DomainBandwidthStat};
 use Illuminate\Support\Facades\{DB, Config, Validator};
 use Illuminate\Support\Str;
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
@@ -362,6 +362,81 @@ class CpanelController extends Controller
             $c = $this->client->customer()->get("login",$name);
             return $c;
         }catch(\Exception $e){
+            return false;
+        }
+    }
+
+    public function bandwidthStats(){
+    
+        try{
+            $servers = UserServer::get();
+            foreach($servers as $server){
+                
+                $dbw = DomainBandwidthStat::where(['user_server_id' => $server->id])->where('stats_date', 'LIKE', date('Y-m-d')."%")->count();
+                if($dbw < 1){
+                    $server->company_server_package->company_server;
+                    $linkserver = $server->company_server_package->company_server->link_server ? unserialize($server->company_server_package->company_server->link_server) : 'N/A';
+                    $controlPanel = $bandwidth = null;
+                    if('N/A' == $linkserver)
+                    return false;
+                    $controlPanel = $linkserver['controlPanel'];
+                    if('cPanel' == $controlPanel){
+                        $cpanelStats = $this->getCpanelStats($server->company_server_package->company_server_id, strtolower($server->name));
+                        if(!is_array($cpanelStats) ){
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                        }
+                        if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
+                            $error = $cpanelStats["result"]['errors'];
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                        }
+                        $cpanelStatArray = [];
+                        foreach( $cpanelStats['result']['data'] as $cpanelStat){
+                            $count = $cpanelStat['count'];
+                            if(array_key_exists("_count", $cpanelStat))
+                            $count = $cpanelStat['_count'];
+                            if('bandwidthusage' == $cpanelStat['name'])
+                            $bandwidth = $count;
+                        }
+                    }
+                    if('Plesk' == $controlPanel){         
+                        try{
+
+                            $this->client = new Client($server->company_server_package->company_server->ip_address);
+                            $this->client->setCredentials($linkserver['username'], $linkserver['apiToken']);
+                            $request = <<<STR
+                            <packet>
+                                <site>
+                                <get>
+                                <filter>
+                                    <name>{$server->domain}</name>
+                                </filter>
+                                <dataset>
+                                    <stat/>
+                                </dataset>
+                                </get>
+                                </site>
+                            </packet>
+                            STR;
+                            $response = $this->client->request($request);
+                            
+                            $bandwidth =   (string)$response->data->stat->traffic;
+                        }catch(\Exception $e){
+                            return response()->json([
+                                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                            ]);
+                        }
+                    }
+                    if($bandwidth){
+                        DomainBandwidthStat::create([
+                            'user_server_id' => $server->id,
+                            'stats_date' => date('Y-m-d H:i:s'),
+                            'bandwidth' => $bandwidth,
+                            'status' => 1
+                        ]);
+                    }
+                }
+            }
+        } catch(\Exception $e){
             return false;
         }
     }
