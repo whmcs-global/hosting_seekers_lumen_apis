@@ -94,7 +94,9 @@ $app->routeMiddleware([
     'subdomainAccess' => App\Http\Middleware\SubDomainAccessMiddleware::class,
     'addonDomainAccess' => App\Http\Middleware\AddonDomainAccessMiddleware::class,
     'DnsAccess' => App\Http\Middleware\DnsMiddleware::class,
-    'pleskvalidation' => App\Http\Middleware\PleskValidation::class
+    'pleskvalidation' => App\Http\Middleware\PleskValidation::class,
+    'cronjobAccess' => App\Http\Middleware\CronJobAccessMiddleware::class,
+    'powerdnsAccess' => App\Http\Middleware\PowerDnsAccessMiddleware::class
 ]);
 $app->middleware([
     App\Http\Middleware\CorsMiddleware::class

@@ -18,7 +18,7 @@ class CronJobAccessMiddleware
     public function handle($request, Closure $next)
     {
         
-        $permission = DelegatePermission::where('name', 'Cron Job')->pluck('id')->toArray();
+        $permission = DelegatePermission::where('name', 'Cron Jobs')->pluck('id')->toArray();
         $id = $request->route('id') ?? $request->cpanel_server;
         $delegateDomainAccess = DelegateDomainAccess::where(['delegate_account_id' => $request->delegate_account_id, 'user_server_id' => jsdecode_userdata($id)])->whereHas('delegate_domain_access', function( $qu ) use($permission){
             $qu->where(['delegate_permission_id' => $permission[0], 'status' => 1]);
