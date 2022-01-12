@@ -288,14 +288,14 @@ trait CpanelTrait {
     */
     public function backupFiles($id, $username)
     {
-        // $action = 'cpanel';
-        // $params = [
-        //     'cpanel_jsonapi_apiversion' => 3,
-        //     'cpanel_jsonapi_module' => 'Backup',
-        //     'cpanel_jsonapi_func' => 'list_backups',
-        //     'cpanel_jsonapi_user' => $username,
-        // ];
-        // return $this->runQuery($id, $action, $params);
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Backup',
+            'cpanel_jsonapi_func' => 'fullbackup_to_homedir',
+            'cpanel_jsonapi_user' => $username,
+        ];
+        return $this->runQuery($id, $action, $params);
         return $this->runQuery($id, 'backup_destination_list', ['api.version' => '1', 'user' => $username]);
     }
     /* End Method backupFiles */ 

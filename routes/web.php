@@ -116,6 +116,16 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('criteria', 'ReviewController@getReviewCriteria');
         $router->get('logout', 'UserController@logout');
         $router->get('logout-all', 'UserController@logoutAll');
+        //Get zone records api
+        $router->get('zone-record-list/{id}', 'PowerDnsController@getListing');
+        $router->post('zone-record-add', 'PowerDnsController@createRecord');
+        $router->post('zone-record-update', 'PowerDnsController@updateRecord');
+        $router->get('zone-record-delete/{id}', 'PowerDnsController@deleteRecord');
+        //Get zone records api
+        $router->get('cron-job-list/{id}', 'CronJobController@getListing');
+        $router->post('cron-job-add', 'CronJobController@createRecord');
+        $router->post('cron-job-update', 'CronJobController@updateRecord');
+        $router->post('cron-job-delete', 'CronJobController@deleteRecord');
         //Get Delegate Account Permissions
         $router->get('delegate-permissions', 'DelegateAccountController@permissionList');
         $router->get('delegate-accounts[/{id}]', 'DelegateAccountController@accountList');
@@ -205,6 +215,23 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
             $router->post('get-mysql-privileges', 'MySqlDbController@getPrivileges');
             $router->post('update-mysql-privileges', 'MySqlDbController@updatePrivileges');
         });
+        
+        //Get zone records api
+        $router->group(['middleware'=> ['powerdnsAccess']], function () use ($router) {
+            $router->get('zone-record-list/{id}', 'PowerDnsController@getListing');
+            $router->post('zone-record-add', 'PowerDnsController@createRecord');
+            $router->post('zone-record-update', 'PowerDnsController@updateRecord');
+            $router->get('zone-record-delete/{id}', 'PowerDnsController@deleteRecord');
+        });
+
+        //Get zone records api
+        $router->group(['middleware'=> ['cronjobAccess']], function () use ($router) {
+            $router->get('cron-job-list/{id}', 'CronJobController@getListing');
+            $router->post('cron-job-add', 'CronJobController@createRecord');
+            $router->post('cron-job-update', 'CronJobController@updateRecord');
+            $router->post('cron-job-delete', 'CronJobController@deleteRecord');
+        });
+
         //Get Domain Info Route
         $router->group(['middleware'=> ['infoAccess']], function () use ($router) {
             $router->get('domain-info/{id}', 'CpanelController@getUserInfo');  

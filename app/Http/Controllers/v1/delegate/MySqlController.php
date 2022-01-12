@@ -65,14 +65,7 @@ class MySqlController extends Controller
                 $error = $dbList['result']['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql User and databases fetching error', 'message' => $error]);
             }
-            $userArray = $dbArray = [];
-            foreach($userList['result']['data'] as $user){
-                array_push($userArray, $user['user']);
-            }
-            foreach($dbList['result']['data'] as $db){
-                array_push($dbArray, $db['database']);
-            }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['users' => $userArray, 'databases' => $dbArray], 'message' => 'MySql User and databases has been successfully fetched']);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['users' => $userList['result']['data'], 'databases' => $dbList['result']['data']], 'message' => 'MySql User and databases has been successfully fetched']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);

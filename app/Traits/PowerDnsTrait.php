@@ -16,7 +16,7 @@ trait PowerDnsTrait {
 		}
 		return $resultQuery->id;		
 	}
-    public function WgsCreateDomainPowerDns($dataDomain) {
+    public function WgsCreateDomain($dataDomain) {
 		$domainId = $this->wgsReturnDomainId($dataDomain['domain']);
 		if(!$domainId) {
             try{
@@ -24,7 +24,7 @@ trait PowerDnsTrait {
                 'name' => $dataDomain['domain'],
                 'master' => NULL,
                 'last_check' => NULL,
-                'type' => 'NATIVE',
+                'type' => 'MASTER',
                 'notified_serial' => NULL,
                 'account' => NULL,
             ]);
@@ -33,72 +33,12 @@ trait PowerDnsTrait {
             }
 			$lastid = $resultQuery;
 			if($lastid < 1) return "Something went REALLY wrong.Entry not inserted in db";
-			// NS1 Entry
-			if(!empty($dataDomain['ns1'])){
-                try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                        'domain_id' => strval($lastid),
-                        'name' => $dataDomain['domain'],
-                        'type' => 'NS',
-                        'content' => $dataLoop['ns1'],
-                        'ttl' => 86400,
-                        'change_date' => time()
-                    ]);
-                } catch(Exception $ex){
-                    return $ex->get_message();
-                }
-			}
-			// NS2 Entry
-			if(!empty($dataDomain['ns2'])){
-                try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                        'domain_id' => strval($lastid),
-                        'name' => $dataDomain['domain'],
-                        'type' => 'NS',
-                        'content' => $dataLoop['ns2'],
-                        'ttl' => 86400,
-                        'change_date' => time()
-                    ]);
-                } catch(Exception $ex){
-                    return $ex->get_message();
-                }
-			}
-			// NS3 Entry
-			if(!empty($dataDomain['ns3'])){
-                try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                        'domain_id' => strval($lastid),
-                        'name' => $dataDomain['domain'],
-                        'type' => 'NS',
-                        'content' => $dataLoop['ns3'],
-                        'ttl' => 86400,
-                        'change_date' => time()
-                    ]);
-                } catch(Exception $ex){
-                    return $ex->get_message();
-                }
-			}
-			// NS4 Entry
-			if(!empty($dataDomain['ns4'])){
-                try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                        'domain_id' => strval($lastid),
-                        'name' => $dataDomain['domain'],
-                        'type' => 'NS',
-                        'content' => $dataLoop['ns4'],
-                        'ttl' => 86400,
-                        'change_date' => time()
-                    ]);
-                } catch(Exception $ex){
-                    return $ex->get_message();
-                }
-			}
 			// A record Entry
 			if(!empty($dataDomain['ipaddress'])){
                 try{
                     $resultQuery = DB::connection('mysql3')->table('records')->insert([
                         'domain_id' => strval($lastid),
-                        'name' => $dataDomain['domain'],
+                        'name' => 'www.'.$dataDomain['domain'],
                         'type' => 'A',
                         'content' => $dataDomain['ipaddress'],
                         'ttl' => 86400,
@@ -108,146 +48,13 @@ trait PowerDnsTrait {
                     return $ex->get_message();
                 }
 			}
-			// SOA record Entry
-			if(!empty($dataDomain['soa'])){
-                try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                        'domain_id' => strval($lastid),
-                        'name' => $dataDomain['domain'],
-                        'type' => 'SOA',
-                        'content' => $dataDomain['soa'],
-                        'ttl' => 86400,
-                        'change_date' => time()
-                    ]);
-                } catch(Exception $ex){
-                    return $ex->get_message();
-                }
-			}
-			// A RECORD Update Domain Transfer
-			if(!empty($dataDomain['A_RECORD'])){
-				foreach($dataDomain['A_RECORD'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'A',
-                            'content' => $dataLoop['ip'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}
-			// AAAA RECORD Update Domain Transfer
-			if(!empty($dataDomain['AAAA_RECORD'])){
-				foreach($dataDomain['AAAA_RECORD'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'AAAA',
-                            'content' => $dataLoop['ipv6'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}
-			// CNAME RECORD Update Domain Transfer
-			if(!empty($dataDomain['CNAME_RECORD'])){
-				foreach($dataDomain['CNAME_RECORD'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'CNAME',
-                            'content' => $dataLoop['target'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}			
-			// HINFO RECORD Update Domain Transfer
-			if(!empty($dataDomain['HINFO_RECORD'])){
-				foreach($dataDomain['HINFO_RECORD'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'HINFO',
-                            'content' => $dataLoop['target'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}
-			// MX RECORD Update Domain Transfer
-			if(!empty($dataDomain['MX_RECORD'])){
-				foreach($dataDomain['MX_RECORD'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'MX',
-                            'content' => $dataLoop['target'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}
-			// TXT RECORD Update Domain Transfer
-			if(!empty($dataDomain['TXT_RECORD'])){
-				foreach($dataDomain['TXT_RECORD'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'TXT',
-                            'content' => $dataLoop['txt'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}
-			// SOA RECORD Update Domain Transfer
-			if(!empty($dataDomain['SOA_Record'])){
-				foreach($dataDomain['SOA_Record'] as $dataLoop){
-                    try{
-                        $resultQuery = DB::connection('mysql3')->table('records')->insert([
-                            'domain_id' => strval($lastid),
-                            'name' => $dataDomain['domain'],
-                            'type' => 'SOA',
-                            'content' => $dataLoop['mname'],
-                            'ttl' => $dataLoop['ttl'],
-                            'change_date' => time()
-                        ]);
-                    } catch(Exception $ex){
-                        return $ex->get_message();
-                    }
-				}
-			}
+            return "success";
 		}else{
 			return "Domain already exists in database.";			
 		}
     }
-    public function wgsDeleteDomainPowerDns($dataDomain){
-        $domainId = $this->wgsReturnDomainId($dataDomain['domain']);
+    public function wgsDeleteDomain($dataDomain){
+        $domainId = $this->wgsReturnDomainId($dataDomain);
 		if(!$domainId){
 			return "Domain not found in database.";
 		}else{
@@ -268,32 +75,39 @@ trait PowerDnsTrait {
 			return "success";
 		}
     }
-    public function wgsReturnDomainDataClientArea($domainName){
+    public function wgsReturnDomainData($domainName, $ipaddress){
         $domainId = $this->wgsReturnDomainId($domainName); 
 		$response = [];
 		if(!$domainId){
-			$response["status"] = "errorDomain";
-			$response["data"] = "Domain not found in power dns database. please contact administrator for more info.";
+			$domainHostName = $this->WgsCreateDomain(['domain' => $domainName, 'ipaddress' => $ipaddress]);
+            if($domainHostName == 'success')
+            return $this->wgsReturnDomainData($domainName, $ipaddress);
+            else{
+                $response["status"] = "errorDomain";
+                $response["data"] = "Domain not found in power dns database. please contact administrator for more info.";
+            }
 		}else{
             $resultQuery = DB::connection('mysql3')->table('records')
             ->select('id', 'name', 'type', 'content', 'ttl', 'prio', 'change_date')
             ->where('domain_id', $domainId)
             ->orderBy('name')
             ->orderBy('content')
-            ->get();
-			if($resultQuery->count() < 1){ 
+            ->get()->toArray();
+			if(count($resultQuery) < 1){ 
 				$response["status"] = "error";
 				$response["data"] = "No record found in database.";
 			}else{
-				while($subArr[] = $resultQuery->fetch_object());
-				$subArr = array_filter($subArr);
+                $recordArray = [];
+                foreach($resultQuery as $row){
+                    array_push($recordArray, ['id' => jsencode_userdata($row->id), 'name' => $row->name, 'type' => $row->type, 'content' => $row->content, 'ttl' => $row->ttl, 'prio' => $row->prio]);
+                }
 				$response["status"] = "success";
-				$response["data"] = $subArr;
+				$response["data"] = $recordArray;
 			}
 		}
 		return $response;
     }
-    public function wgsUpdateRecordDataClientArea($recordData,$for){
+    public function wgsUpdateRecordData($recordData,$for){
 		if($for == 'update'){
 			$stringErrpr = '';
 			$response = [];

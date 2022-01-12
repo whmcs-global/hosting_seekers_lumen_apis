@@ -199,6 +199,7 @@ class CpanelController extends Controller
             }
             UserTerminatedAccount::create(['user_id' => $serverPackage->user_id, 'name' => $serverPackage->name, 'domain' => $serverPackage->domain ]);
             $serverPackage->delete();
+            $this->wgsDeleteDomain($serverPackage->domain);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['metadata']["reason"], 'message' => 'Account has been successfully terminated']);
         }
         catch(Exception $ex){
