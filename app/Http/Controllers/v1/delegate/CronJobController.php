@@ -93,6 +93,23 @@ class CronJobController extends Controller
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("status", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['status']) {
                 $error = $accCreated['cpanelresult']['data'][0]['statusmsg'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Cron job adding error', 'message' => $error]);
+            }  
+            
+            $action = 'cpanel';
+            $params = [
+                'cpanel_jsonapi_apiversion' => 2,
+                'cpanel_jsonapi_module' => 'Cron',
+                'cpanel_jsonapi_func' => 'fetchcron',
+                'cpanel_jsonapi_user' => strtolower($server->name)
+            ];
+            $accCreated = $this->runQuery($server->company_server_package->company_server_id, $action, $params);
+            
+            if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
+                $error = $accCreated['cpanelresult']['data']["reason"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Cron job adding error', 'message' => $error]);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Cron job has been successfully added']);
         }
