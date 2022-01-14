@@ -84,9 +84,13 @@ class CpanelController extends Controller
                             
                             if($order->user_server->bandwidth->isNotEmpty()){
                                 $bandwidthArray = $dateArray = [];
+                                $counter = 1;
                                 foreach($order->user_server->bandwidth as $bandwidth){
+                                    if($counter == 6)
+                                    break;
                                     array_push($dateArray, change_date_format($bandwidth->stats_date, 'd M'));
                                     array_push($bandwidthArray, $bandwidth->bandwidth);
+                                    $counter++;
                                 }
                                 $cpanelAccount['bandwidth'] = ['dates' => $dateArray, 'stats' => $bandwidthArray];
                             }
@@ -377,6 +381,11 @@ class CpanelController extends Controller
                 
                 $dbw = DomainBandwidthStat::where(['user_server_id' => $server->id])->where('stats_date', 'LIKE', date('Y-m-d')."%")->count();
                 if($dbw < 1){
+                    $dbw = DomainBandwidthStat::where(['user_server_id' => $server->id])->count();
+                    if($dbw >= 5){
+                        $dbw = DomainBandwidthStat::where(['user_server_id' => $server->id])->first();
+                        $dbw->delete();
+                    }
                     $server->company_server_package->company_server;
                     $linkserver = $server->company_server_package->company_server->link_server ? unserialize($server->company_server_package->company_server->link_server) : 'N/A';
                     $controlPanel = $bandwidth = null;
@@ -406,6 +415,7 @@ class CpanelController extends Controller
 
                             $this->client = new Client($server->company_server_package->company_server->ip_address);
                             $this->client->setCredentials($linkserver['username'], $linkserver['apiToken']);
+                            
                             $request = <<<STR
                             <packet>
                                 <site>

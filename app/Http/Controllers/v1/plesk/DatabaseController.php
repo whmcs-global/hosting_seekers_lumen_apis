@@ -13,7 +13,7 @@ class DatabaseController extends Controller
     private $client;
 
     function __construct() {
-        $this->runQuery();
+        $this->runPleskQuery();
     }
     
     public function getPrivileges() {

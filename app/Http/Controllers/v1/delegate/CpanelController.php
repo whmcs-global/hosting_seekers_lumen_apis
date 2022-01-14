@@ -50,7 +50,10 @@ class CpanelController extends Controller
                     $bandwidthStatsArray = null;
                     if($row->user_server->bandwidth->isNotEmpty()){
                         $bandwidthArray = $dateArray = [];
+                        $counter = 1;
                         foreach($row->user_server->bandwidth as $bandwidth){
+                            if($counter == 6)
+                            break;
                             array_push($dateArray, change_date_format($bandwidth->stats_date, 'd M'));
                             array_push($bandwidthArray, $bandwidth->bandwidth);
                         }

@@ -14,7 +14,7 @@ class FtpAccountController extends Controller
     private $client;
 
     function __construct() {
-        $this->runQuery();
+        $this->runPleskQuery();
     }
 
     /*

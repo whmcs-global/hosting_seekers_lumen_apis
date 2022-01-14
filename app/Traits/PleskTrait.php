@@ -5,12 +5,12 @@ use PleskX\Api\Client;
 
 trait PleskTrait {
 	/*
-    API Method Name:    runQuery
+    API Method Name:    runPleskQuery
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
     Purpose:            To get User server from Database
     */
-	public function runQuery(){
+	public function runPleskQuery(){
         $serverId = jsdecode_userdata(request()->cpanel_server);
         $server = UserServer::where(['user_id' => request()->userid, 'id' => $serverId])->first();
         if(!$server)
