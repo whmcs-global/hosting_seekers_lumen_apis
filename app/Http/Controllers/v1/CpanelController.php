@@ -303,7 +303,7 @@ class CpanelController extends Controller
             try{
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
                 $accountCreate['ipaddress'] = $serverPackage->company_server->ip_address;
-                $response = $this->WgsCreateDomainPowerDns($accountCreate);
+                $response = $this->WgsCreateDomain($accountCreate);
                 if($response['status'] == 'error')
                     return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['cpanel_server_id' => jsencode_userdata($userAccount->id), 'name' => $userAccount->name, 'domain' => $userAccount->domain, 'company_name' => $serverPackage->company_server->user->company_detail->company_name, 'server_ip' => $serverPackage->company_server->ip_address, 'server_type' => $controlPanel], 'message' => 'Account has been successfully created'.' '.$response['data']]);
             } catch(\Exception $ex){

@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use PleskX\Api\Client;
 use App\Models\{UserServer};
 use Illuminate\Support\Facades\Validator;
-use App\Traits\PleskTrait;
+use App\Traits\{PleskTrait, PowerDnsTrait};
 class DomainController extends Controller
 {
-    use PleskTrait;
+    use PleskTrait, PowerDnsTrait;
     private $client;
 
     function __construct() {
@@ -340,7 +340,7 @@ class DomainController extends Controller
             $accountCreate['subdomain'] = $request->subdomain;
             $accountCreate['domain'] = $request->domain;
             $accountCreate['ipaddress'] = $serverPackage->company_server_package->company_server->ip_address;
-            $response = $this->WgsCreateDomainPowerDns($accountCreate);
+            $response = $this->WgsCreateDomain($accountCreate);
             if($response['status'] == 'error')
                 return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created'.' '.$response['data']]);
             return response()->json([

@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\DB;
-
+use App\Models\{ZoneDomain, ZoneRecord};
 trait PowerDnsTrait {
 
 	public function wgsReturnDomainId($domainName){
@@ -20,7 +20,7 @@ trait PowerDnsTrait {
 		$domainId = $this->wgsReturnDomainId($dataDomain['domain']);
 		if($domainId['status'] == 'error') {
             try{
-            $resultQuery = DB::connection('mysql3')->table('domains')->insertGetId([
+            $resultQuery = ZoneDomain::insertGetId([
                 'name' => $dataDomain['domain'],
                 'master' => NULL,
                 'last_check' => NULL,
@@ -36,7 +36,7 @@ trait PowerDnsTrait {
 			// A record Entry
 			if(!empty($dataDomain['ipaddress'])){
                 try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'www.'.$dataDomain['domain'],
                         'type' => 'A'
@@ -48,7 +48,7 @@ trait PowerDnsTrait {
                         'ttl' => 86400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'ftp.'.$dataDomain['domain'],
                         'type' => 'A'
@@ -60,7 +60,7 @@ trait PowerDnsTrait {
                         'ttl' => 86400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'mail.'.$dataDomain['domain'],
                         'type' => 'A'
@@ -72,7 +72,7 @@ trait PowerDnsTrait {
                         'ttl' => 86400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'webmail.'.$dataDomain['domain'],
                         'type' => 'A'
@@ -84,7 +84,7 @@ trait PowerDnsTrait {
                         'ttl' => 86400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'cpanel.'.$dataDomain['domain'],
                         'type' => 'A'
@@ -103,7 +103,7 @@ trait PowerDnsTrait {
 			if(array_key_exists('subdomain', $dataDomain) && !empty($dataDomain['ipaddress'])){
                 try{
 					$subDomain = $dataDomain['subdomain'].'.'.$dataDomain['domain'];
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => $subDomain,
                         'type' => 'A'
@@ -115,7 +115,7 @@ trait PowerDnsTrait {
                         'ttl' => 14400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'ftp.'.$subDomain,
                         'type' => 'A'
@@ -127,7 +127,7 @@ trait PowerDnsTrait {
                         'ttl' => 14400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'webmail.'.$subDomain,
                         'type' => 'A'
@@ -139,7 +139,7 @@ trait PowerDnsTrait {
                         'ttl' => 14400,
                         'change_date' => time()
                     ]);
-                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                    $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
                         'name' => 'cpanel.'.$subDomain,
                         'type' => 'A'
@@ -157,6 +157,61 @@ trait PowerDnsTrait {
 			}
             return ['status' => 'success', 'data' => "Zone records has been created"];
 		}else{
+			if(array_key_exists('subdomain', $dataDomain) && !empty($dataDomain['ipaddress'])){
+                try{
+					$subDomain = $dataDomain['subdomain'].'.'.$dataDomain['domain'];
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => $subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => $subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'ftp.'.$subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'ftp.'.$subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'webmail.'.$subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'webmail.'.$subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'cpanel.'.$subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'cpanel.'.$subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                } catch(Exception $ex){
+                    return ['status' => 'error', 'data' => $ex->get_message()];
+                }
+			}
 			return ['status' => 'error', 'data' => "Domain already exists in database"];			
 		}
     }
@@ -167,15 +222,13 @@ trait PowerDnsTrait {
 			return $domainId['data'];
 		}else{
             try{
-                $resultQuery = DB::connection('mysql3')->table('records')
-                ->where('domain_id', $domainId['data'])
+                $resultQuery = ZoneRecord::where('domain_id', $domainId['data'])
                 ->delete();
             } catch(Exception $ex){
                 return ['status' => 'error', 'data' => $ex->get_message()];
             }
             try{
-                $resultQuery = DB::connection('mysql3')->table('domains')
-                ->where('id', $domainId['data'])
+                $resultQuery = ZoneDomain::where('id', $domainId['data'])
                 ->delete();
             } catch(Exception $ex){
                 return ['status' => 'error', 'data' => $ex->get_message()];
