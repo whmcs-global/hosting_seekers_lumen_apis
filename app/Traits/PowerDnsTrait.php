@@ -212,7 +212,7 @@ trait PowerDnsTrait {
                     return ['status' => 'error', 'data' => $ex->get_message()];
                 }
 			}
-			return ['status' => 'error', 'data' => "Domain already exists in database"];			
+			return ['status' => 'error', 'data' => ''];			
 		}
     }
     public function wgsDeleteDomain($dataDomain){
