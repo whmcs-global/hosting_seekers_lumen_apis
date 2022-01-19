@@ -12,13 +12,13 @@ trait PowerDnsTrait {
         ->where('name', $domainName)
         ->first();
 		if(!$resultQuery){
-			return false;	
+			return ['status' => 'error', 'data' => "Domain not found in database"];	
 		}
-		return $resultQuery->id;		
+		return ['status' => 'success', 'data' => $resultQuery->id];	
 	}
     public function WgsCreateDomain($dataDomain) {
 		$domainId = $this->wgsReturnDomainId($dataDomain['domain']);
-		if(!$domainId) {
+		if($domainId['status'] == 'error') {
             try{
             $resultQuery = DB::connection('mysql3')->table('domains')->insertGetId([
                 'name' => $dataDomain['domain'],
@@ -29,14 +29,18 @@ trait PowerDnsTrait {
                 'account' => NULL,
             ]);
             } catch(Exception $ex){
-                return $ex->get_message();
+                return ['status' => 'error', 'data' => $ex->get_message()];
             }
 			$lastid = $resultQuery;
-			if($lastid < 1) return "Something went REALLY wrong.Entry not inserted in db";
+			if($lastid < 1) return ['status' => 'error', 'data' => "Something went REALLY wrong.Entry not inserted in db"];
 			// A record Entry
 			if(!empty($dataDomain['ipaddress'])){
                 try{
-                    $resultQuery = DB::connection('mysql3')->table('records')->insert([
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'www.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
                         'domain_id' => strval($lastid),
                         'name' => 'www.'.$dataDomain['domain'],
                         'type' => 'A',
@@ -44,52 +48,156 @@ trait PowerDnsTrait {
                         'ttl' => 86400,
                         'change_date' => time()
                     ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'ftp.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'ftp.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'mail.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'mail.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'webmail.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'webmail.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'cpanel.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'cpanel.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
                 } catch(Exception $ex){
-                    return $ex->get_message();
+                    return ['status' => 'error', 'data' => $ex->get_message()];
                 }
 			}
-            return "success";
+			if(array_key_exists('subdomain', $dataDomain) && !empty($dataDomain['ipaddress'])){
+                try{
+					$subDomain = $dataDomain['subdomain'].'.'.$dataDomain['domain'];
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => $subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => $subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'ftp.'.$subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'ftp.'.$subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'webmail.'.$subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'webmail.'.$subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = DB::connection('mysql3')->table('records')->createOrUpdate([
+                        'domain_id' => strval($lastid),
+                        'name' => 'cpanel.'.$subDomain,
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => 'cpanel.'.$subDomain,
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 14400,
+                        'change_date' => time()
+                    ]);
+                } catch(Exception $ex){
+                    return ['status' => 'error', 'data' => $ex->get_message()];
+                }
+			}
+            return ['status' => 'success', 'data' => "Zone records has been created"];
 		}else{
-			return "Domain already exists in database.";			
+			return ['status' => 'error', 'data' => "Domain already exists in database"];			
 		}
     }
     public function wgsDeleteDomain($dataDomain){
         $domainId = $this->wgsReturnDomainId($dataDomain);
-		if(!$domainId){
-			return "Domain not found in database.";
+		$response = [];
+		if($domainId['status'] == 'error'){
+			return $domainId['data'];
 		}else{
             try{
                 $resultQuery = DB::connection('mysql3')->table('records')
-                ->where('domain_id', $domainId)
+                ->where('domain_id', $domainId['data'])
                 ->delete();
             } catch(Exception $ex){
-                return $ex->get_message();
+                return ['status' => 'error', 'data' => $ex->get_message()];
             }
             try{
                 $resultQuery = DB::connection('mysql3')->table('domains')
-                ->where('id', $domainId)
+                ->where('id', $domainId['data'])
                 ->delete();
             } catch(Exception $ex){
-                return $ex->get_message();
+                return ['status' => 'error', 'data' => $ex->get_message()];
             }
-			return "success";
+            return ['status' => 'success', 'data' => "Zone records has been deleted"];
 		}
     }
     public function wgsReturnDomainData($domainName, $ipaddress){
         $domainId = $this->wgsReturnDomainId($domainName); 
 		$response = [];
-		if(!$domainId){
+		if($domainId['status'] == 'error'){
 			$domainHostName = $this->WgsCreateDomain(['domain' => $domainName, 'ipaddress' => $ipaddress]);
-            if($domainHostName == 'success')
+            if($domainHostName['status'] == 'success')
             return $this->wgsReturnDomainData($domainName, $ipaddress);
             else{
-                $response["status"] = "errorDomain";
+                $response["status"] = "error";
                 $response["data"] = "Domain not found in power dns database. please contact administrator for more info.";
             }
 		}else{
             $resultQuery = DB::connection('mysql3')->table('records')
             ->select('id', 'name', 'type', 'content', 'ttl', 'prio', 'change_date')
-            ->where('domain_id', $domainId)
+            ->where('domain_id', $domainId['data'])
             ->orderBy('name')
             ->orderBy('content')
             ->get()->toArray();

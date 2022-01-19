@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{BlockedIp, UserServer};
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait};
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait};
 
 class SubDomainController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait;
+    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait;
     public function getSubDomain(Request $request, $id) {
         try
         {
@@ -64,6 +64,14 @@ class SubDomainController extends Controller
                 $error = $accCreated['metadata']["reason"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
             }   
+
+            $accountCreate = [];
+            $accountCreate['subdomain'] = $request->subdomain;
+            $accountCreate['domain'] = $request->domain;
+            $accountCreate['ipaddress'] = $serverPackage->company_server_package->company_server->ip_address;
+            $response = $this->WgsCreateDomainPowerDns($accountCreate);
+            if($response['status'] == 'error')
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created.'.' '.$response['data']]);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created']);
         }
         catch(Exception $ex){

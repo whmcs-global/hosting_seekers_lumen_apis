@@ -316,6 +316,10 @@ class DomainController extends Controller
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
         try{
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $api_request = <<<EOL
             <packet>
             <subdomain>
@@ -331,6 +335,14 @@ class DomainController extends Controller
             </packet>
             EOL;
             $response = $this->client->request($api_request);
+            
+            $accountCreate = [];
+            $accountCreate['subdomain'] = $request->subdomain;
+            $accountCreate['domain'] = $request->domain;
+            $accountCreate['ipaddress'] = $serverPackage->company_server_package->company_server->ip_address;
+            $response = $this->WgsCreateDomainPowerDns($accountCreate);
+            if($response['status'] == 'error')
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created'.' '.$response['data']]);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'Sub Domain created successfully.'
             ]);

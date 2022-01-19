@@ -64,6 +64,13 @@ class SubDomainController extends Controller
                 $error = $accCreated['metadata']["reason"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
             }   
+            $accountCreate = [];
+            $accountCreate['subdomain'] = $request->subdomain;
+            $accountCreate['domain'] = $request->domain;
+            $accountCreate['ipaddress'] = $serverPackage->company_server_package->company_server->ip_address;
+            $response = $this->WgsCreateDomainPowerDns($accountCreate);
+            if($response['status'] == 'error')
+                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created.'.' '.$response['data']]);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created']);
         }
         catch(Exception $ex){
