@@ -428,7 +428,12 @@ class DomainController extends Controller
             ]);
         }
         try{
+            $serverId = jsdecode_userdata(request()->cpanel_server);
+            $server = UserServer::where(['user_id' => request()->userid, 'id' => $serverId])->first();
+            if(!$server)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $this->client->Subdomain()->delete("name",$request->subdomain);
+            $this->wgsDeleteDomain(['domain' => $server->domain, 'subdomain' => $request->subdomain]);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [
                     

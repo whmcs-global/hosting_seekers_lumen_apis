@@ -147,6 +147,7 @@ class SubDomainController extends Controller
                 $error = $accCreated['cpanelresult']['data'][0]["reason"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => 'Failed to find the domain(s): "'.$request->subdomain.'"']);
             }
+            $this->wgsDeleteDomain(['domain' => $serverPackage->domain, 'subdomain' => $request->subdomain]);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully deleted']);
         }
         catch(Exception $ex){

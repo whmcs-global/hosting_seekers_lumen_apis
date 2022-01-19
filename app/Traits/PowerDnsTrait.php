@@ -216,23 +216,35 @@ trait PowerDnsTrait {
 		}
     }
     public function wgsDeleteDomain($dataDomain){
-        $domainId = $this->wgsReturnDomainId($dataDomain);
+        $domainId = $this->wgsReturnDomainId($dataDomain['domain']);
 		$response = [];
 		if($domainId['status'] == 'error'){
 			return $domainId['data'];
 		}else{
-            try{
-                $resultQuery = ZoneRecord::where('domain_id', $domainId['data'])
-                ->delete();
-            } catch(Exception $ex){
-                return ['status' => 'error', 'data' => $ex->get_message()];
-            }
-            try{
-                $resultQuery = ZoneDomain::where('id', $domainId['data'])
-                ->delete();
-            } catch(Exception $ex){
-                return ['status' => 'error', 'data' => $ex->get_message()];
-            }
+			if(array_key_exists('subdomain', $dataDomain)){
+				try{
+					$subDomain = $dataDomain['subdomain'];
+					$resultQuery = ZoneRecord::where([
+						'domain_id' => strval($domainId['data'])
+					])->whereIn('name', [$subDomain, 'ftp.'.$subDomain, 'webmail.'.$subDomain, 'cpanel.'.$subDomain])->delete();
+				} catch(Exception $ex){
+					return ['status' => 'error', 'data' => $ex->get_message()];
+				}
+			}
+			else{
+				try{
+					$resultQuery = ZoneRecord::where('domain_id', $domainId['data'])
+					->delete();
+				} catch(Exception $ex){
+					return ['status' => 'error', 'data' => $ex->get_message()];
+				}
+				try{
+					$resultQuery = ZoneDomain::where('id', $domainId['data'])
+					->delete();
+				} catch(Exception $ex){
+					return ['status' => 'error', 'data' => $ex->get_message()];
+				}
+			}
             return ['status' => 'success', 'data' => "Zone records has been deleted"];
 		}
     }
