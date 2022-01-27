@@ -56,4 +56,12 @@ class Currency extends Model
 	{
 		return $this->hasMany(OrderTransaction::class);
 	}
+    public function withdrawal_payment()
+	{
+		return $this->hasMany(WithdrawalPayment::class);
+	}
+    public function wallet_payment()
+	{
+		return $this->hasMany(WalletPayment::class);
+	}
 }

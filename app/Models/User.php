@@ -143,4 +143,20 @@ class User extends Model implements Authenticatable
 	{
 	   return $this->hasMany(DelegateAccount::class, 'delegate_user_id', 'id');
 	}
+    public function company_order()
+	{
+		return $this->hasMany(Order::class, 'company_id', 'id');
+	}
+    public function payment_by()
+	{
+		return $this->hasMany(WithdrawalPayment::class, 'user_id', 'id');
+	}
+    public function withdrawal_payment()
+	{
+		return $this->hasMany(WithdrawalPayment::class, 'company_id', 'id');
+	}
+    public function wallet_payment()
+	{
+		return $this->hasMany(WalletPayment::class);
+	}
 }

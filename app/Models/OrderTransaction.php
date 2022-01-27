@@ -38,4 +38,8 @@ class OrderTransaction extends Model
 	{
 	   return $this->belongsTo(Invoice::class);
 	}
+    public function wallet_payment()
+	{
+		return $this->hasMany(WalletPayment::class);
+	}
 }

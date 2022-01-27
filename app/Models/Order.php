@@ -53,4 +53,8 @@ class Order extends Model
 	{
 		return $this->hasMany(OrderTransaction::class);
 	}
+    public function wallet_payment()
+	{
+		return $this->hasMany(WalletPayment::class);
+	}
 }
