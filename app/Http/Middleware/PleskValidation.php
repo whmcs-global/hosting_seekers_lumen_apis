@@ -17,7 +17,6 @@ class PleskValidation
      */
     public function handle($request, Closure $next)
     {
-        // Pre-Middleware Action
         $messages = [
             'cpanel_server.required' => 'We need to know cpanel_server'
         ];
@@ -30,15 +29,11 @@ class PleskValidation
                 'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
             ]);
         }
-        
         $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => jsdecode_userdata($request->cpanel_server)])->first();
-        /*dd( jsdecode_userdata($request->cpanel_server) );*/
         if(!$serverPackage){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
-
         $response = $next($request);
-        // Post-Middleware Action
 
         return $response;
     }

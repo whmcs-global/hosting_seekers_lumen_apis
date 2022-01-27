@@ -34,8 +34,6 @@ trait SendResponseTrait {
     public function validateToken($token = NULL){
         if(!$token)
             return FALSE;
-        
-            // dd($token);
         $browse_detail = $this->getUserBrowseDetail();
         $dectypy_token = jsdecode_api($token);
         $token_array = explode('#', $dectypy_token);

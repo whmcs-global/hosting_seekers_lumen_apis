@@ -19,7 +19,7 @@ class AddonDomainController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $accCreated = $this->getAddonsDomains($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            // dd($accCreated);
+
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
@@ -95,7 +95,7 @@ class AddonDomainController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
 
             $accCreated = $this->delAddonsDomain($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->domain, $request->subdomain);
-            // dd($accCreated);
+
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }

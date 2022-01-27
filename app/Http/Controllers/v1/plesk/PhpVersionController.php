@@ -28,7 +28,6 @@ class PhpVersionController extends Controller
             </get_info>
             </mail>
             </packet>');
-          dd($phpVersions);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => compact('all_domains'), 'message' => 'Domains fetched successfully.' 
             ]);

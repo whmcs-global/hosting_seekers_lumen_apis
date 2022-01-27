@@ -139,7 +139,6 @@ class SubDomainController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
 
             $accCreated = $this->delSubDomain($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->subdomain);
-            // dd($accCreated);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
