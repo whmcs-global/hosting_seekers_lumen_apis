@@ -27,6 +27,7 @@ class OrderController extends Controller
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
+            $statusArray = ['UnPaid', 'Paid', 'Cancelled'];
             $orders = Invoice::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
@@ -36,7 +37,7 @@ class OrderController extends Controller
                     });
                 })->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
             })->when(($request->has('status') && $request->status != ''), function($q) use($request){
-                $q->where('trans_status', $request->status);
+                $q->where('status', array_search($request->status, $statusArray));
             })->when($id, function($q) use($id){
                 $q->where('order_id', jsdecode_userdata($id));
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
@@ -57,7 +58,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => 'https://dev.hostingseekers.com/invoice/'.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => 'https://dev.hostingseekers.com/invoice/'.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
@@ -86,12 +87,13 @@ class OrderController extends Controller
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
+            $statusArray = ['In Progress', 'Completed', 'Cancelled'];
             $orders = Order::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
             })->when(($request->has('status') && $request->status != ''), function($q) use($request){
-                $q->where('trans_status', $request->status);
+                $q->where('status', array_search($request->status, $statusArray));
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
@@ -110,7 +112,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'currency_icon' => $order->currency->icon,  'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->created_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'currency_icon' => $order->currency->icon,  'payable_amount' => $order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
@@ -140,6 +142,7 @@ class OrderController extends Controller
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
+            $statusArray = ['Failed', 'Completed', 'Canclled'];
             $orders = OrderTransaction::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
@@ -152,7 +155,7 @@ class OrderController extends Controller
                     });
                 })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
             })->when(($request->has('status') && $request->status != ''), function($q) use($request){
-                $q->where('trans_status', $request->status);
+                $q->where('status', array_search($request->status, $statusArray));
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
@@ -171,7 +174,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice->invoice_id, 'order_id' => $order->order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'trans_status' => $order->trans_status, 'created_at' => change_date_format($order->updated_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice->invoice_id, 'order_id' => $order->order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->updated_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
