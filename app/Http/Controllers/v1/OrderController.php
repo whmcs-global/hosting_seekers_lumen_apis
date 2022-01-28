@@ -36,7 +36,7 @@ class OrderController extends Controller
                         $qu->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
                     });
                 })->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
-            })->when(($request->has('status') && $request->status != ''), function($q) use($request){
+            })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
             })->when($id, function($q) use($id){
                 $q->where('order_id', jsdecode_userdata($id));
@@ -92,7 +92,7 @@ class OrderController extends Controller
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
-            })->when(($request->has('status') && $request->status != ''), function($q) use($request){
+            })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
@@ -154,7 +154,7 @@ class OrderController extends Controller
                         ->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
                     });
                 })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
-            })->when(($request->has('status') && $request->status != ''), function($q) use($request){
+            })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
