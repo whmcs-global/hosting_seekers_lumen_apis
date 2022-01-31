@@ -38,6 +38,18 @@ trait PowerDnsTrait {
                 try{
                     $resultQuery = ZoneRecord::updateOrCreate([
                         'domain_id' => strval($lastid),
+                        'name' => $dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($lastid),
+                        'name' => $dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($lastid),
                         'name' => 'www.'.$dataDomain['domain'],
                         'type' => 'A'
 					], [
@@ -190,6 +202,84 @@ trait PowerDnsTrait {
 			}
             return ['status' => 'success', 'data' => "Zone records has been created"];
 		}else{
+			if(!empty($dataDomain['ipaddress'])){
+                try{
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => $dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => $dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'www.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'www.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'ftp.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'ftp.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'mail.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'mail.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'webmail.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'webmail.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    $resultQuery = ZoneRecord::updateOrCreate([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'cpanel.'.$dataDomain['domain'],
+                        'type' => 'A'
+					], [
+                        'domain_id' => strval($domainId['data']),
+                        'name' => 'cpanel.'.$dataDomain['domain'],
+                        'type' => 'A',
+                        'content' => $dataDomain['ipaddress'],
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                } catch(Exception $ex){
+                    return ['status' => 'error', 'data' => $ex->get_message()];
+                }
+			}
 			if(array_key_exists('subdomain', $dataDomain) && !empty($dataDomain['ipaddress'])){
                 try{
 					$subDomain = $dataDomain['subdomain'].'.'.$dataDomain['domain'];
