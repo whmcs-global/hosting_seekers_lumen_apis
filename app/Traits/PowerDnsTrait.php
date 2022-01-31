@@ -155,6 +155,39 @@ trait PowerDnsTrait {
                     return ['status' => 'error', 'data' => $ex->get_message()];
                 }
 			}
+            
+            $resultQuery = ZoneRecord::select('id', 'name', 'type', 'content', 'ttl', 'prio', 'change_date')
+            ->where('domain_id', $lastid)
+            ->where('type', '!=', 'SOA')
+            ->orderBy('name')
+            ->orderBy('content')
+            ->get()->toArray();
+			if(count($resultQuery) > 1){ 
+                if(count($nameserver)>0){
+                    $soaType = ZoneRecord::where([
+                        'domain_id' => $lastid,
+                        'name' => $dataDomain['domain'],
+                        'type' => 'SOA'
+                    ])->first();
+                    $soaNo = count($resultQuery);
+                    if(count($resultQuery) < 10)
+                    $soaNo = sprintf("%02d", $soaNo);
+                    if(!$soaType)
+                    ZoneRecord::create([
+                        'domain_id' => $lastid,
+                        'name' => $dataDomain['domain'],
+                        'type' => 'SOA',
+                        'content' => implode(" ", array_slice($dataDomain['nameserver'], 0, 2)).' '.date('Ymd').$soaNo.' 28800 7200 604800 86400',
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    else{
+                        $soaType->content = substr($soaType->content,0,strlen(implode(" ", array_slice($dataDomain['nameserver'], 0, 2)).' '.date('Ymd'))).$soaNo.' 28800 7200 604800 86400';
+                        $soaType->change_date = time();
+                        $soaType->save();
+                    }
+                }
+			}
             return ['status' => 'success', 'data' => "Zone records has been created"];
 		}else{
 			if(array_key_exists('subdomain', $dataDomain) && !empty($dataDomain['ipaddress'])){
@@ -210,6 +243,38 @@ trait PowerDnsTrait {
                     ]);
                 } catch(Exception $ex){
                     return ['status' => 'error', 'data' => $ex->get_message()];
+                }
+			}
+            $resultQuery = ZoneRecord::select('id', 'name', 'type', 'content', 'ttl', 'prio', 'change_date')
+            ->where('domain_id', strval($domainId['data']))
+            ->where('type', '!=', 'SOA')
+            ->orderBy('name')
+            ->orderBy('content')
+            ->get()->toArray();
+			if(count($resultQuery) > 1){ 
+                if(count($nameserver)>0){
+                    $soaType = ZoneRecord::where([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => $dataDomain['domain'],
+                        'type' => 'SOA'
+                    ])->first();
+                    $soaNo = count($resultQuery);
+                    if(count($resultQuery) < 10)
+                    $soaNo = sprintf("%02d", $soaNo);
+                    if(!$soaType)
+                    ZoneRecord::create([
+                        'domain_id' => strval($domainId['data']),
+                        'name' => $dataDomain['domain'],
+                        'type' => 'SOA',
+                        'content' => implode(" ", array_slice($dataDomain['nameserver'], 0, 2)).' '.date('Ymd').$soaNo.' 28800 7200 604800 86400',
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    else{
+                        $soaType->content = substr($soaType->content,0,strlen(implode(" ", array_slice($dataDomain['nameserver'], 0, 2)).' '.date('Ymd'))).$soaNo.' 28800 7200 604800 86400';
+                        $soaType->change_date = time();
+                        $soaType->save();
+                    }
                 }
 			}
 			return ['status' => 'error', 'data' => ''];			
