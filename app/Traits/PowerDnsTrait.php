@@ -267,20 +267,7 @@ trait PowerDnsTrait {
             ->orderBy('name')
             ->orderBy('content')
             ->get()->toArray();
-			if(count($resultQuery) < 1){ 
-				$response["status"] = "error";
-				$response["data"] = "No record found in database.";
-                
-                ZoneRecord::create([
-                    'domain_id' => $domainId['data'],
-                    'name' => $domainName,
-                    'type' => 'SOA',
-                    'content' => implode(" ", array_slice($nameserver, 0, 2)).' '.date('Ymd').'00 28800 7200 604800 86400',
-                    'ttl' => 86400,
-                    'change_date' => time()
-                ]);
-			}else{
-                
+			if(count($resultQuery) >1){ 
                 if(count($nameserver)>0){
                     $soaType = ZoneRecord::where([
                         'domain_id' => $domainId['data'],
@@ -305,8 +292,19 @@ trait PowerDnsTrait {
                         $soaType->save();
                     }
                 }
+			}
+            $resultQuery2 = DB::connection('mysql3')->table('records')
+            ->select('id', 'name', 'type', 'content', 'ttl', 'prio', 'change_date')
+            ->where('domain_id', $domainId['data'])
+            ->orderBy('name')
+            ->orderBy('content')
+            ->get()->toArray();
+			if(count($resultQuery2) < 1){ 
+				$response["status"] = "error";
+				$response["data"] = "No record found in database.";
+			}else{
                 $recordArray = [];
-                foreach($resultQuery as $row){
+                foreach($resultQuery2 as $row){
                     array_push($recordArray, ['id' => jsencode_userdata($row->id), 'name' => $row->name, 'type' => $row->type, 'content' => $row->content, 'ttl' => $row->ttl, 'prio' => $row->prio]);
                 }
 				$response["status"] = "success";
