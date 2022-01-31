@@ -241,6 +241,9 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($request->server_location);
             $orderId = jsdecode_userdata($request->order_id);
+            $orders = Order::where(['user_id' => $request->userid, 'id' => $orderId, 'status' => 1, 'is_cancelled' => 0])->first();
+            if(!$orders || !in_array($serverId, $orders->ordered_product->product->company_server_package->pluck('id')->toArray()))
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             try
             {
                 $serverPackage = CompanyServerPackage::findOrFail($serverId);

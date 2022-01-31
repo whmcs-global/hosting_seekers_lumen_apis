@@ -142,7 +142,7 @@ class OrderController extends Controller
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
-            $statusArray = ['Failed', 'Completed', 'Canclled'];
+            $statusArray = ['Failed', 'Completed', 'Cancelled', 'Refunded'];
             $orders = OrderTransaction::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){

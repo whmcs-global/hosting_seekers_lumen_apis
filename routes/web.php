@@ -48,7 +48,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', 'middleware'=> ['checktok
         $router->get('orders-transaction', 'OrderController@ordersTransactions');
         $router->get('invoices[/{id}]', 'OrderController@invoiceList');
         $router->get('user/servers', 'CpanelController@orderedServers');
-        $router->get('cancel-service/{id}', 'ServiceController@cancelService');
+        $router->post('cancel-service', 'ServiceController@cancelService');
         $router->post('add/domain', 'CpanelController@addDomain');
         $router->get('login-cpanel/{id}', 'CpanelController@loginAccount');
         //Sub Domains Routes
