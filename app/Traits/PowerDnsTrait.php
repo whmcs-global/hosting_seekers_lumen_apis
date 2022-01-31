@@ -248,13 +248,13 @@ trait PowerDnsTrait {
             return ['status' => 'success', 'data' => "Zone records has been deleted"];
 		}
     }
-    public function wgsReturnDomainData($domainName, $ipaddress){
+    public function wgsReturnDomainData($domainName, $ipaddress, $nameserver){
         $domainId = $this->wgsReturnDomainId($domainName); 
 		$response = [];
 		if($domainId['status'] == 'error'){
-			$domainHostName = $this->WgsCreateDomain(['domain' => $domainName, 'ipaddress' => $ipaddress]);
+			$domainHostName = $this->WgsCreateDomain(['domain' => $domainName, 'ipaddress' => $ipaddress, 'nameserver' => $nameserver]);
             if($domainHostName['status'] == 'success')
-            return $this->wgsReturnDomainData($domainName, $ipaddress);
+            return $this->wgsReturnDomainData($domainName, $ipaddress, $nameserver);
             else{
                 $response["status"] = "error";
                 $response["data"] = "Domain not found in power dns database. please contact administrator for more info.";
@@ -263,13 +263,48 @@ trait PowerDnsTrait {
             $resultQuery = DB::connection('mysql3')->table('records')
             ->select('id', 'name', 'type', 'content', 'ttl', 'prio', 'change_date')
             ->where('domain_id', $domainId['data'])
+            ->where('type', '!=', 'SOA')
             ->orderBy('name')
             ->orderBy('content')
             ->get()->toArray();
 			if(count($resultQuery) < 1){ 
 				$response["status"] = "error";
 				$response["data"] = "No record found in database.";
+                
+                ZoneRecord::create([
+                    'domain_id' => $domainId['data'],
+                    'name' => $domainName,
+                    'type' => 'SOA',
+                    'content' => implode(" ", array_slice($nameserver, 0, 2)).' '.date('Ymd').'00 28800 7200 604800 86400',
+                    'ttl' => 86400,
+                    'change_date' => time()
+                ]);
 			}else{
+                
+                if(count($nameserver)>0){
+                    $soaType = ZoneRecord::where([
+                        'domain_id' => $domainId['data'],
+                        'name' => $domainName,
+                        'type' => 'SOA'
+                    ])->first();
+                    $soaNo = count($resultQuery);
+                    if(count($resultQuery) < 10)
+                    $soaNo = sprintf("%02d", $soaNo);
+                    if(!$soaType)
+                    ZoneRecord::create([
+                        'domain_id' => $domainId['data'],
+                        'name' => $domainName,
+                        'type' => 'SOA',
+                        'content' => implode(" ", array_slice($nameserver, 0, 2)).' '.date('Ymd').$soaNo.' 28800 7200 604800 86400',
+                        'ttl' => 86400,
+                        'change_date' => time()
+                    ]);
+                    else{
+                        $soaType->content = substr($soaType->content,0,strlen(implode(" ", array_slice($nameserver, 0, 2)).' '.date('Ymd'))).$soaNo.' 28800 7200 604800 86400';
+                        $soaType->change_date = time();
+                        $soaType->save();
+                    }
+                }
                 $recordArray = [];
                 foreach($resultQuery as $row){
                     array_push($recordArray, ['id' => jsencode_userdata($row->id), 'name' => $row->name, 'type' => $row->type, 'content' => $row->content, 'ttl' => $row->ttl, 'prio' => $row->prio]);
