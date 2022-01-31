@@ -163,7 +163,7 @@ trait PowerDnsTrait {
             ->orderBy('content')
             ->get()->toArray();
 			if(count($resultQuery) > 1){ 
-                if(count($nameserver)>0){
+                if(count($dataDomain['nameserver'])>0){
                     $soaType = ZoneRecord::where([
                         'domain_id' => $lastid,
                         'name' => $dataDomain['domain'],
@@ -252,7 +252,7 @@ trait PowerDnsTrait {
             ->orderBy('content')
             ->get()->toArray();
 			if(count($resultQuery) > 1){ 
-                if(count($nameserver)>0){
+                if(count($dataDomain['nameserver'])>0){
                     $soaType = ZoneRecord::where([
                         'domain_id' => strval($domainId['data']),
                         'name' => $dataDomain['domain'],
