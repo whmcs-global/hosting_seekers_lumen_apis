@@ -48,11 +48,13 @@ class PowerDnsController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
             $domainId = $this->wgsReturnDomainId($serverPackage->domain); 
+            if($domainId['status'] == 'error')
+            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => 'Zone Record adding error', 'message' => $domainId['data']]);
 			$stringErrpr = '';
 			$response = [];
 			$fullHostName = $request->name.'.'.$serverPackage->domain; 
             $data = [
-                'domain_id' => strval($domainId),
+                'domain_id' => strval($domainId['data']),
                 'name' => $fullHostName,
                 'type' => $request->type,
                 'content' => $request->content,

@@ -38,6 +38,8 @@ return [
     'REVIEWS_NUMBER' => '120',
     'RATING_NUMBER' => '4.5',
     'VIEWS_NUMBER' => '5',
+    'DAYS_FOR_YEARLY_BILLING' => '30',
+    'DAYS_FOR_MONTHLY_BILLING' => '3',
     'CC_EMAIL' => 'shivkaggarwal@shinedezign.com',
     'ADMIN_EMAIL' => 'info@hostingseekers.com',
     'SENDER' => 'Anjana Joshi',

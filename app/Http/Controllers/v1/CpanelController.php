@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
+use Carbon\Carbon;
 
 class CpanelController extends Controller
 {
@@ -71,7 +72,17 @@ class CpanelController extends Controller
                             array_push($packageArray, ['id' => jsencode_userdata($package->id), 'server_name' => $package->company_server->name, 'server_location' => $package->company_server->state->name.', '.$package->company_server->country->name]);
                         }
                     }
-                    $orderDataArray = ['id'=> jsencode_userdata($order->id), 'company_name' => $order->ordered_product->product->user->company_detail->company_name, 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->created_at), 'expiry' => change_date_format(add_days_to_date($order->created_at, $this->billingCycleName($order->ordered_product->billing_cycle))), 'cancel_service' => '', 'servers' => $packageArray];
+                    $billingCycle = $this->billingCycleName($order->ordered_product->billing_cycle);
+                    $cancelDays = config('constants.DAYS_FOR_MONTHLY_BILLING');
+                    if($billingCycle == 'Annually')
+                    $cancelDays = config('constants.DAYS_FOR_YEARLY_BILLING');
+                    $to = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $order->created_at);
+                    $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
+                    $cancelService = false;
+                    $diff_in_days = $to->diffInDays($from) + 1;
+                    if($diff_in_days <= $cancelDays)
+                    $cancelService = true;
+                    $orderDataArray = ['id'=> jsencode_userdata($order->id), 'company_name' => $order->ordered_product->product->user->company_detail->company_name, 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'created_at' => change_date_format($order->created_at), 'expiry' => change_date_format(add_days_to_date($order->created_at, $billingCycle)), 'cancel_service' => $cancelService, 'servers' => $packageArray];
                     $cpanelAccount = null;
                     if(!is_null($order->user_server)){
                         if(!is_null($order->user_server->company_server_package)){

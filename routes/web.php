@@ -18,15 +18,15 @@ $router->get('/', function () use ($router) {
 });
 
 // API route group
-$router->group(['prefix' => 'api/v1', 'namespace' => 'v1'], function () use ($router) {
+$router->group(['prefix' => 'v1', 'namespace' => 'v1'], function () use ($router) {
     
-    //make api/v1/login
+    //make v1/login
     $router->post('login', 'AuthController@login');
 
-    // make api/v1/register
+    // make v1/register
     $router->post('register', 'AuthController@register');
 
-    // make api/v1/reset
+    // make v1/reset
     $router->post('forgot/password', 'AuthController@password_reset_link');
     $router->get('tokencheck/{token}', 'AuthController@password_reset_token_check');
     $router->post('reset/password', 'AuthController@update_new_password');
@@ -34,7 +34,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1'], function () use ($ro
     
 });
 
-$router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['checktoken', 'auth']], function () use ($router) {
+$router->group(['prefix' => 'v1', 'namespace' => 'v1', 'middleware'=> ['checktoken', 'auth']], function () use ($router) {
     
 	// $router->group(['prefix' => 'user'], function () use ($router) {
         $router->post('update/password', 'UserController@updatePassword');
@@ -48,6 +48,7 @@ $router->group(['prefix' => 'api/v1', 'namespace' => 'v1', 'middleware'=> ['chec
         $router->get('orders-transaction', 'OrderController@ordersTransactions');
         $router->get('invoices[/{id}]', 'OrderController@invoiceList');
         $router->get('user/servers', 'CpanelController@orderedServers');
+        $router->get('cancel-service/{id}', 'ServiceController@cancelService');
         $router->post('add/domain', 'CpanelController@addDomain');
         $router->get('login-cpanel/{id}', 'CpanelController@loginAccount');
         //Sub Domains Routes

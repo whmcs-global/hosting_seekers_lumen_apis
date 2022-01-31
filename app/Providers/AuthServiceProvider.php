@@ -36,7 +36,7 @@ class AuthServiceProvider extends ServiceProvider
                 $key = explode(' ',$request->header('Authorization'));
                 $user = UserToken::where('access_token', $key[1])->first();
                 if(!empty($user)){
-                    if( $request->is('api/v1/delegate-access/*') && $request->header('delegate-token')) {
+                    if( $request->is('v1/delegate-access/*') && $request->header('delegate-token')) {
                         $key_acc = jsdecode_userdata($request->header('delegate-token'));
                         $user_acc = DelegateAccount::where(['id' => $key_acc, 'delegate_user_id' => $user->user_id])->first();
                         if(!empty($user_acc)){

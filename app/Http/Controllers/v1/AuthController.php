@@ -201,7 +201,7 @@ class AuthController extends Controller
         );
         
         $logtoken = Str::random(12);
-        $link = 'http://localhost:4000/api/v1/tokencheck/'.$passwordReset->token;
+        $link = 'http://localhost:4000/v1/tokencheck/'.$passwordReset->token;
         $string_to_replace = array('{{$name}}','{{$token}}','{{$logToken}}');
         $string_replace_with = array('Admin',$link,$logtoken);
         $newval = str_replace($string_to_replace, $string_replace_with, $template->template);
