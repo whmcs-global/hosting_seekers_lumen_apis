@@ -99,7 +99,7 @@ class ServiceController extends Controller
                     WalletPayment::create([
                         'user_id' => $orders->user_id,
                         'credit_by' => $orders->company_id,
-                        'payment_mode' => 'Wallet',
+                        'payment_mode' => 'Credit',
                         'currency_id' => $orders->currency_id,
                         'amount' => $orders->payable_amount,
                         'comments' => $request->comments,
@@ -113,7 +113,6 @@ class ServiceController extends Controller
             }
             return $this->apiResponse('error', '200', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
-            dd($e);
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }
     }

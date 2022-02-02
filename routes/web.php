@@ -44,6 +44,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', 'middleware'=> ['checktok
         $router->post('update/detail', 'UserController@updateDetails');
         $router->post('update/address', 'UserController@updateAddress');
         $router->get('rating', 'ReviewController@getRatings');
+        $router->get('wallet-history', 'OrderController@walletTransactions');
         $router->get('orders-history', 'OrderController@ordersHistory');
         $router->get('orders-transaction', 'OrderController@ordersTransactions');
         $router->get('invoices[/{id}]', 'OrderController@invoiceList');

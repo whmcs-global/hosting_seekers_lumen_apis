@@ -35,7 +35,7 @@ class CpanelController extends Controller
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
-            $orders = Order::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
+            $orders = Order::whereHas('ordered_product')->when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where(function ($quer) use ($request) {
