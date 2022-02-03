@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Traits\AutoResponderTrait;
 use App\Traits\SendResponseTrait;
 use hisorange\BrowserDetect\Parser;
-use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order, DelegateAccount};
+use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order, DelegateAccount, Currency};
 use App\Traits\GetDataTrait;
 
 class UserController extends Controller
@@ -44,8 +44,8 @@ class UserController extends Controller
 			$users->user_detail->address = $postData['address'];
 			$users->user_detail->city = $postData['city'];
 			$users->user_detail->zipcode = $postData['zipcode'];
-			$users->user_detail->country_id = $postData['country'];
-			$users->user_detail->state_id = $postData['state'];
+			$users->user_detail->country_id = jsdecode_userdata($postData['country']);
+			$users->user_detail->state_id = jsdecode_userdata($postData['state']);
             $users->push();       
             return $this->apiResponse('success', '200', 'Users address '.config('constants.SUCCESS.UPDATE_DONE'));
 
@@ -63,11 +63,38 @@ class UserController extends Controller
     */
 
     public function getCountries($id = null) {
+        if($id)
+        $id = jsdecode_userdata($id);
         $countries = Country::when(($id != null), function($q) use($id){
             $q->where('id', $id);
         })
-        ->get(['id', 'short_code', 'name', 'country_flag']);
-        $dataArray = $countries;
+        ->get(['id', 'name']);
+        $dataArray = [];
+        foreach($countries as $country){
+            array_push($dataArray, ['id' => jsencode_userdata($country->id), 'name' => $country->name ]);
+        }
+        return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
+    }
+
+    /*
+    Method Name:    getCurrencies
+    Developer:      Shine Dezign
+    Created Date:   2021-11/08 (yyyy-mm-dd)
+    Purpose:        To get currencies Details
+    Params:         [id]
+    */
+
+    public function getCurrencies($id = null) {
+        if($id)
+        $id = jsdecode_userdata($id);
+        $countries = Currency::when(($id != null), function($q) use($id){
+            $q->where('id', $id);
+        })
+        ->get(['id', 'name']);
+        $dataArray = [];
+        foreach($countries as $country){
+            array_push($dataArray, ['id' => jsencode_userdata($country->id), 'name' => $country->name ]);
+        }
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }
 
@@ -80,12 +107,18 @@ class UserController extends Controller
     */
 
     public function getStates($countryId,  $id = null) {
+        if($id)
+        $id = jsdecode_userdata($id);
+        $countryId = jsdecode_userdata($countryId);
         $countries = State::when(($id != null), function($q) use($id){
             $q->where('id', $id);
         })
         ->where('country_id', $countryId)
         ->get(['id', 'country_id', 'name']);
-        $dataArray = $countries;
+        $dataArray = [];
+        foreach($countries as $country){
+            array_push($dataArray, ['id' => jsencode_userdata($country->id), 'country_id' => jsencode_userdata($country->country_id), 'name' => $country->name ]);
+        }
         return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
     }
 
@@ -108,7 +141,16 @@ class UserController extends Controller
                 $lastLoginData = unserialize($user);
                 $userArray['last_login_ip'] = $lastLoginData['ip_address'];
                 }
-            }else{
+            } elseif('state_id' == $key || 'country_id' == $key)
+            {
+
+                $userArray[$key] = $user ? jsencode_userdata($user) : null;
+            } elseif('currency_id' == $key)
+            {
+                $currency  = Currency::where('id', $user)->first();
+                $userArray[$key] = $currency ? $currency->icon : null;
+            }
+            else{
                 $userArray[$key] = $user;
             }
         }
@@ -165,11 +207,14 @@ class UserController extends Controller
 			$users->first_name = $postData['first_name'];
 			$users->last_name = $postData['last_name'];
 			$users->user_detail->mobile = $postData['mobile'];
+            if($request->has('currency_id'))
+			$users->currency_id = jsdecode_userdata($postData['currency_id']);
             $users->push();  
 
             return $this->apiResponse('success', '200', 'Users details '.config('constants.SUCCESS.UPDATE_DONE'));
         }
         catch(\Exception $e){
+            dd($e);
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }
         

@@ -40,6 +40,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', 'middleware'=> ['checktok
         $router->post('update/password', 'UserController@updatePassword');
         $router->get('detail', 'UserController@getDetails');
         $router->get('countries[/{id}]', 'UserController@getCountries');
+        $router->get('currencies[/{id}]', 'UserController@getCurrencies');
         $router->get('states/{countryId}[/{id}]', 'UserController@getStates');
         $router->post('update/detail', 'UserController@updateDetails');
         $router->post('update/address', 'UserController@updateAddress');

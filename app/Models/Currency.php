@@ -28,6 +28,10 @@ class Currency extends Model
 	{
 		return $this->hasOne(Membership_plan::class);
 	}
+    public function user()
+	{
+		return $this->hasOne(User::class);
+	}
 	public function company_service()
 	{
 	   return $this->hasMany(Company_service::class);

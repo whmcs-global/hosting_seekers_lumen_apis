@@ -159,4 +159,8 @@ class User extends Model implements Authenticatable
 	{
 		return $this->hasMany(WalletPayment::class);
 	}
+    public function currency()
+	{
+		return $this->belongsTo(Currency::class);
+	}
 }

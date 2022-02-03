@@ -5,12 +5,12 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Order, OrderTransaction, Invoice, WalletPayment};
-use App\Traits\{AutoResponderTrait, SendResponseTrait, GetDataTrait};
+use App\Traits\{AutoResponderTrait, SendResponseTrait, GetDataTrait, CommonTrait};
 use DB;
 
 class OrderController extends Controller
 {
-    use SendResponseTrait, AutoResponderTrait, GetDataTrait;
+    use SendResponseTrait, AutoResponderTrait, GetDataTrait, CommonTrait;
     public function invoiceList(Request $request, $id = null){
         try {
             $start = $end = $daterange = '';
@@ -113,7 +113,19 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'currency_icon' => $order->currency->icon,  'payable_amount' => $order->payable_amount, 'is_cancelled' => $order->is_cancelled, 'cancelled_on' => $order->cancelled_on ? change_date_format($order->cancelled_on) : null, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
+                    $cancelService = false;
+                    if($order->status == 1 && $order->is_cancelled == 0){
+                        $billingCycle = $this->billingCycleName($order->ordered_product->billing_cycle);
+                        $cancelDays = config('constants.DAYS_FOR_MONTHLY_BILLING');
+                        if($billingCycle == 'Annually')
+                        $cancelDays = config('constants.DAYS_FOR_YEARLY_BILLING');
+                        $to = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $order->created_at);
+                        $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
+                        $diff_in_days = $to->diffInDays($from) + 1;
+                        if($diff_in_days <= $cancelDays)
+                        $cancelService = true;
+                    }
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'order_id' => $order->order_id, 'currency_icon' => $order->currency->icon,  'payable_amount' => $order->payable_amount, 'cancel_service' => $cancelService, 'is_cancelled' => $order->is_cancelled, 'cancelled_on' => $order->cancelled_on ? change_date_format($order->cancelled_on) : null, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
