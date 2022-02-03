@@ -111,7 +111,7 @@ class ServiceController extends Controller
                     return $this->apiResponse('success', '200', "An amount of ".$orders->payable_amount." ".$orders->currency->name." has been refunded to your wallet.");
                 }
             }
-            return $this->apiResponse('error', '200', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }

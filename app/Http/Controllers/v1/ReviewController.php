@@ -62,8 +62,12 @@ class ReviewController extends Controller
                 $reviewCount = Company_review::where('company_id', $companyId)->count();
                 $reviewAvg = Company_review::where('company_id', $companyId)->avg('rate_point');
                 Company_detail::where('user_id', $companyId)->update(['average_rating' => $reviewAvg, 'total_reviews' => $reviewCount]);
-                $dataArray = ['reviewUrl' => $reviewUrl, 'imageName' => $imageName, 'reviewId' => $postData['reviewId']];
-                return $this->apiResponse('success', '200', "Review ".config('constants.SUCCESS.UPDATE_DONE'), $dataArray);
+                $dataArray = ['url' => $reviewUrl, 'imageName' => $imageName];
+                $response = hitCurl(config('constants.NODE_URL').'/generate/review', 'POST', $dataArray);
+                $response = json_decode($response);
+                if($response->success)
+                Company_review::where('id', jsdecode_userdata($postData['reviewId']))->update(['review_image' => str_replace('http://localhost:4000/',  config('constants.nodeurl'), $response->path)]);
+                return $this->apiResponse('success', '200', "Review ".config('constants.SUCCESS.UPDATE_DONE'));
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
