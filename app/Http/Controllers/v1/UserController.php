@@ -214,7 +214,6 @@ class UserController extends Controller
             return $this->apiResponse('success', '200', 'Users details '.config('constants.SUCCESS.UPDATE_DONE'));
         }
         catch(\Exception $e){
-            dd($e);
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }
         
