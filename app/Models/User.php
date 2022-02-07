@@ -16,7 +16,10 @@ class User extends Model implements Authenticatable
      */
     
     public $timestamps = true;
-    protected $fillable = [        
+    protected $fillable = [    
+		'currency_id',
+		'amount',
+		'currency_updated',    
         'first_name', 
         'last_name',
 		'email',

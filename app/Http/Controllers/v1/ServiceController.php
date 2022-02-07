@@ -5,15 +5,15 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount};
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait};
+use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount, User};
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait, GetDataTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
 use Carbon\Carbon;
 
 class ServiceController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait;    use SendResponseTrait, CommonTrait;
+    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait, SendResponseTrait, CommonTrait, GetDataTrait;
 
     public function cancelService(Request $request){
         try {
@@ -108,6 +108,10 @@ class ServiceController extends Controller
                         'raw_data' => serialize($browseDetail),
                         'status' => 1
                     ]);
+                    $usersDetail = User::where('id', $request->userid)->first();
+                    $amount = $this->getCurrency($orders->currency->name, $orders->payable_amount, $usersDetail->currency_id);
+                    $usersDetail->amount = $usersDetail->amount+$amount;
+                    $usersDetail->save();
                     return $this->apiResponse('success', '200', "An amount of ".$orders->payable_amount." ".$orders->currency->name." has been refunded to your wallet.");
                 }
             }

@@ -207,8 +207,10 @@ class UserController extends Controller
 			$users->first_name = $postData['first_name'];
 			$users->last_name = $postData['last_name'];
 			$users->user_detail->mobile = $postData['mobile'];
-            if($request->has('currency_id'))
-			$users->currency_id = jsdecode_userdata($postData['currency_id']);
+            if($request->has('currency_id')){
+                $users->currency_id = jsdecode_userdata($postData['currency_id']);
+                $users->currency_updated = 1;
+            }
             $users->push();  
 
             return $this->apiResponse('success', '200', 'Users details '.config('constants.SUCCESS.UPDATE_DONE'));

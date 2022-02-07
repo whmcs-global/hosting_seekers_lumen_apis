@@ -3,7 +3,7 @@
 namespace App\Traits;
 Use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
-use App\Models\{Categories, Region, Language, User, User_detail, Plan};
+use App\Models\{Categories, Region, Language, User, User_detail, Plan, CurrencyExchangeRate};
 use DB;
 trait GetDataTrait {
 
@@ -58,4 +58,16 @@ trait GetDataTrait {
     //     $token = app('hash')->make(Str::random(15));
     //     return md5($token);
     // }
+    
+    public function getCurrency($currnecyName = null, $value = null, $currencyTo = null) {
+        try{
+            $currencyExchangeRate = CurrencyExchangeRate::first();
+            $currencies = unserialize($currencyExchangeRate['rates']);
+            $currentValue = $value/ $currencies[$currnecyName];
+            $currency = Currency::where('name', $currencyTo)->first();
+            return [$currency->icon, number_format($currentValue*$currencies[$currencyTo], 2)];
+        } catch(\Exception $e){
+            return ['rupee-sign', 0.00];
+        }
+    }
 }
