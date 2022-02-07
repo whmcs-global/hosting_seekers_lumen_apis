@@ -65,9 +65,9 @@ trait GetDataTrait {
             $currencies = unserialize($currencyExchangeRate['rates']);
             $currentValue = $value/ $currencies[$currnecyName];
             $currency = Currency::where('name', $currencyTo)->first();
-            return [$currency->icon, number_format($currentValue*$currencies[$currencyTo], 2)];
+            return number_format($currentValue*$currencies[$currencyTo], 2);
         } catch(\Exception $e){
-            return ['rupee-sign', 0.00];
+            return 0;
         }
     }
 }
