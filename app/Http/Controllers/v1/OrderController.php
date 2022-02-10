@@ -59,7 +59,10 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => 'https://dev.hostingseekers.com/invoice/'.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
+                    $invoiceUrl = 'https://dev.hostingseekers.com/invoice/';
+                    if($order->order->place_for == 'Wallet')
+                    $invoiceUrl = 'https://dev.hostingseekers.com/user/wallet-credit-invoice';
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => $invoiceUrl.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
@@ -95,7 +98,7 @@ class OrderController extends Controller
                 $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
             })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
-            })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
+            })->where(['user_id' => $request->userid, 'place_for' => 'Product'])->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
             if($request->has('page'))
