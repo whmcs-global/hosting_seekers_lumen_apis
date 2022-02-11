@@ -3,7 +3,7 @@
 namespace App\Traits;
 Use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
-use App\Models\{Categories, Region, Language, User, User_detail, Plan, CurrencyExchangeRate};
+use App\Models\{Categories, Region, Language, User, User_detail, Plan, CurrencyExchangeRate, Currency};
 use DB;
 trait GetDataTrait {
 

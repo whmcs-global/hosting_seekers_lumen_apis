@@ -64,8 +64,8 @@ class ServiceController extends Controller
                                     ]);
                                 }
                             }
-                            UserTerminatedAccount::create(['user_id' => $serverPackage->user_id, 'name' => $serverPackage->name, 'domain' => $serverPackage->domain ]);
-                            $serverPackage->delete();
+                            $serverPackage->status = 2;
+                            $serverPackage->save();
                             $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
                         }
                     }
@@ -109,10 +109,10 @@ class ServiceController extends Controller
                         'status' => 1
                     ]);
                     $usersDetail = User::where('id', $request->userid)->first();
-                    $amount = $this->getCurrency($orders->currency->name, $orders->payable_amount, $usersDetail->currency_id);
+                    $amount = $this->getCurrency($orders->currency->name, $orders->payable_amount, $usersDetail->currency->name);
                     $usersDetail->amount = $usersDetail->amount+$amount;
                     $usersDetail->save();
-                    return $this->apiResponse('success', '200', "An amount of ".$orders->payable_amount." ".$orders->currency->name." has been refunded to your wallet.");
+                    return $this->apiResponse('success', '200', "An amount of ".$amount." ".$usersDetail->currency->name." has been refunded to your wallet.");
                 }
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
