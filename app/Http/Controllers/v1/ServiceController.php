@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount, User};
+use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount, User, DelegateDomainAccess};
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait, GetDataTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
@@ -66,6 +66,7 @@ class ServiceController extends Controller
                             }
                             $serverPackage->status = 2;
                             $serverPackage->save();
+                            DelegateDomainAccess::where('user_server_id', $serverPackage->id)->delete();
                             $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
                         }
                     }
