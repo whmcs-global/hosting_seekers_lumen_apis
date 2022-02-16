@@ -146,6 +146,10 @@ class User extends Model implements Authenticatable
 	{
 	   return $this->hasMany(DelegateAccount::class, 'delegate_user_id', 'id');
 	}
+    public function order()
+	{
+		return $this->hasMany(Order::class)->where(['place_for' => 'Product', 'status' => 1])->whereHas('company');
+	}
     public function company_order()
 	{
 		return $this->hasMany(Order::class, 'company_id', 'id');

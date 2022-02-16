@@ -82,6 +82,7 @@ $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
     'cors' => App\Http\Middleware\CorsMiddleware::class,
     'checktoken' => App\Http\Middleware\CheckTokenMiddleware::class,
+    'ticket' => App\Http\Middleware\TicketMiddleware::class,
     'delegateAccess' => App\Http\Middleware\DelegateMiddleware::class,
     'emailAccess' => App\Http\Middleware\EmailAccessMiddleware::class,
     'cpanelAccess' => App\Http\Middleware\CpanelAccessMiddleware::class,

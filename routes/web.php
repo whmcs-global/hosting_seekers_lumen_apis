@@ -34,9 +34,12 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1'], function () use ($router
     
 });
 
-$router->group(['prefix' => 'v1', 'namespace' => 'v1', 'middleware'=> ['checktoken', 'auth']], function () use ($router) {
+$router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($router) {
     
-	// $router->group(['prefix' => 'user'], function () use ($router) {
+	$router->group(['middleware'=> ['ticket']], function () use ($router) {
+        $router->get('ticketDetail', 'TicketController@getDetails');
+    });
+	$router->group(['middleware'=> ['checktoken', 'auth']], function () use ($router) {
         $router->post('update/password', 'UserController@updatePassword');
         $router->get('detail', 'UserController@getDetails');
         $router->get('countries[/{id}]', 'UserController@getCountries');
@@ -147,7 +150,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', 'middleware'=> ['checktok
         $router->post('create-image', 'CpanelController@createImage');
         //Terminate cPanel Account
         $router->get('delete-account/{id}', 'CpanelController@deleteAccount');
-    // });
+    });
     
 	$router->group(['prefix' => 'delegate-access', 'namespace' => 'delegate', 'middleware'=> ['delegateAccess', 'cors']], function () use ($router) {
         //Email Account Routes emailAccess
