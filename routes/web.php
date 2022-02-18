@@ -38,6 +38,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
     
 	$router->group(['middleware'=> ['ticket']], function () use ($router) {
         $router->get('ticketDetail', 'TicketController@getDetails');
+        $router->post('userDetail', 'TicketController@getUserDetails');
     });
 	$router->group(['middleware'=> ['checktoken', 'auth']], function () use ($router) {
         $router->post('update/password', 'UserController@updatePassword');

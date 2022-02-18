@@ -5,7 +5,7 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Traits\SendResponseTrait;
-use App\Models\User;
+use App\Models\{User, Role};
 
 class TicketController extends Controller
 {
@@ -42,6 +42,38 @@ class TicketController extends Controller
                 $userArray['services'] = $serviceArray;
             }
             return $this->apiResponse('success', '200', 'Data fetched', $userArray);
+        }
+        return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+    }
+    public function getUserDetails(Request $request) {
+        $userIdArray = [];
+        if($request->userTicket){
+            array_push($userIdArray, jsdecode_userdata($request->userTicket));
+        }
+        if($request->companyTicket){
+            array_push($userIdArray, jsdecode_userdata($request->companyTicket));
+        }
+        if(count($userIdArray) > 0){
+            try{
+            $companies = User::join('model_has_roles as role', 'role.model_id', '=', 'users.id')->whereIn('id', $userIdArray)->get();
+            } catch ( \Exception $e ) {
+                return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            }
+            $userDetails = [];
+            foreach($companies as $company){
+                $role = Role::where('id', $company->role_id)->first();
+                $userArray = [
+                    'name' => $company->first_name.' '.$company->last_name,
+                    'email' => $company->email,
+                    'role' => $role->name,
+                ];
+                if($role->name == 'Company'){
+                    $userArray['name'] = $company->company_detail->company_name;
+                    $userArray['companySlug'] = $company->company_detail->slug;
+                }
+                array_push($userDetails, $userArray);
+            }
+            return $this->apiResponse('success', '200', 'Data fetched', $userDetails);
         }
         return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
     }
