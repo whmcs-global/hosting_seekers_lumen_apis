@@ -20,6 +20,7 @@ class TicketController extends Controller
                 'role' => $request->role,
                 'currency' => $user->currency->icon,
                 'currencyName' => $user->currency->name,
+                'amount' => $user->amount,
                 'currencyId' => jsencode_userdata($user->currency_id),
                 'currencyUpdated' => $user->currency_updated,
             ];
