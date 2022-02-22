@@ -20,6 +20,7 @@ class TicketMiddleware
         if ($request->header('Authorization')) {
             $key = explode(' ',$request->header('Authorization'));
             $user = UserToken::where('access_token', $key[1])->first();
+            return $user;
             if($user){
                 $company = User::join('model_has_roles as role', 'role.model_id', '=', 'users.id')->where('id', $user->user_id)->first();
                 $role = Role::where('id', $company->role_id)->first();
