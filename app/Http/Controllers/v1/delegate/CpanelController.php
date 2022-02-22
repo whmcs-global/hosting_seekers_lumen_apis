@@ -12,7 +12,6 @@ class CpanelController extends Controller
 {
     use CpanelTrait, CommonTrait, SendResponseTrait;
     public function orderedServers(Request $request, $id = null){
-        
         try {
             $sortBy = 'id';
             $orderBy = 'DESC';

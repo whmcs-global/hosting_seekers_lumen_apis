@@ -35,8 +35,8 @@ class OrderController extends Controller
                 $q->where(function ($quer) use ($request) {
                     $quer->whereHas('order', function( $qu ) use($request){
                         $qu->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
-                    });
-                })->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
+                    })->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
+                });
             })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
             })->when($id, function($q) use($id){
@@ -168,8 +168,8 @@ class OrderController extends Controller
                     })->orWhereHas('invoice', function( $qu ) use($request){
                         $qu->where('id', 'LIKE', '%'.$request->search_keyword.'%')
                         ->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
-                    });
-                })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
+                    })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
+                });
             })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
