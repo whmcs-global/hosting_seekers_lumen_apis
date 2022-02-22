@@ -20,11 +20,11 @@ class TicketMiddleware
         if ($request->header('Authorization')) {
             $key = explode(' ',$request->header('Authorization'));
             $user = UserToken::where('access_token', $key[1])->first();
-            return $user;
             if($user){
                 $company = User::join('model_has_roles as role', 'role.model_id', '=', 'users.id')->where('id', $user->user_id)->first();
                 $role = Role::where('id', $company->role_id)->first();
                 if($role->name == 'User' || $role->name == 'Company'){
+                    return $user;
                     if($this->validateToken($key[1], unserialize($request->header('requestDetail')))){
                         $request->request->add(['user_id' => $company->id]);
                         $request->request->add(['role' => $role->name]);
