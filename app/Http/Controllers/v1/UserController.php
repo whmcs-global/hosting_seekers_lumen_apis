@@ -161,7 +161,7 @@ class UserController extends Controller
         $delegateUsers = DelegateAccount::where('delegate_user_id', $request->userid)->get();
         $delegateUserArray = [];
         foreach($delegateUsers as $user){
-            array_push($delegateUserArray, ['id' => jsencode_userdata($user->id), 'name' => $user->user->first_name.' '.$user->user->last_name]);
+            array_push($delegateUserArray, ['id' => jsencode_userdata($user->id), 'name' => $user->user->first_name.' '.$user->user->last_name, 'created_at' => $user->updated_at]);
         }
         $userArray['delegateUsers'] = $delegateUserArray;
         $dataArray = $userArray;
