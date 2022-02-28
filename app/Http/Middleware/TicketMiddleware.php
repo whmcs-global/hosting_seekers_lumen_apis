@@ -23,13 +23,11 @@ class TicketMiddleware
             if($user){
                 $company = User::join('model_has_roles as role', 'role.model_id', '=', 'users.id')->where('id', $user->user_id)->first();
                 $role = Role::where('id', $company->role_id)->first();
-                if($role->name == 'User' || $role->name == 'Company'){
-                    if($this->validateToken($key[1], unserialize($request->header('requestDetail')))){
-                        $request->request->add(['user_id' => $company->id]);
-                        $request->request->add(['role' => $role->name]);
-                        $request->request->add(['role_id' => $company->role_id]);
-                        return $next($request);
-                    }
+                if($this->validateToken($key[1], unserialize($request->header('requestDetail')))){
+                    $request->request->add(['user_id' => $company->id]);
+                    $request->request->add(['role' => $role->name]);
+                    $request->request->add(['role_id' => $company->role_id]);
+                    return $next($request);
                 }
             }
         }
