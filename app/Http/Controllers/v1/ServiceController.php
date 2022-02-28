@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
+use Illuminate\Support\Str;
 use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount, User, DelegateDomainAccess};
 use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait, GetDataTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -81,7 +82,8 @@ class ServiceController extends Controller
                     }
                     $orders->is_cancelled = 1;
                     $orders->cancelled_on = date('Y-m-d H:i:s');
-                    $orders->save();
+                    $orders->user_server->comments = $request->comments;
+                    $orders->push();
                     $browseDetail = $this->getUserBrowseDetail();
                     $ordersTransaction = OrderTransaction::create([
                         'payment_mode' => 'Wallet',
@@ -92,7 +94,7 @@ class ServiceController extends Controller
                         'amount' => $orders->payable_amount,
                         'payable_amount' => $orders->payable_amount,
                         'ipn_id' => 'Wallet', 
-                        'trans_id' => "Wallet_Refunds",
+                        'trans_id' => Str::random(12).time().Str::random(12),
                         'trans_detail' => serialize($browseDetail),
                         'trans_status' => 'Refunded',
                         'status' => 3,
@@ -118,6 +120,7 @@ class ServiceController extends Controller
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
+            return $e;
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         }
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\{Order, OrderTransaction, Invoice, WalletPayment};
 use App\Traits\{AutoResponderTrait, SendResponseTrait, GetDataTrait, CommonTrait};
 use DB;
@@ -168,7 +169,7 @@ class OrderController extends Controller
                     })->orWhereHas('invoice', function( $qu ) use($request){
                         $qu->where('id', 'LIKE', '%'.$request->search_keyword.'%')
                         ->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
-                    })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
+                    })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%')->orWhere('payment_mode', 'LIKE', '%'.$request->search_keyword.'%');
                 });
             })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
                 $q->where('status', array_search($request->status, $statusArray));
@@ -190,7 +191,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice->invoice_id, 'order_id' => $order->order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->updated_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice->invoice_id, 'order_id' => $order->order->order_id, 'trans_id' => $order->trans_id, 'currency_icon' => $order->currency->icon, 'payment_mode' => $order->payment_mode??'Direct Pay', 'payable_amount' => $order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->updated_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
@@ -218,7 +219,7 @@ class OrderController extends Controller
                 $debitAmount = $amounts['total'];
             }
             $totalAmount = $creditAmount - $debitAmount;
-            $start = $end = $daterange = '';
+            $start = $end = $daterange = $paymentMode = '';
             if ($request->has('daterange_filter') && $request->daterange_filter != '') {
                 $daterange = $request->daterange_filter;
                 $daterang = explode(' / ', $daterange);
@@ -234,6 +235,9 @@ class OrderController extends Controller
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
+            if($request->has('payment_mode')){
+                $paymentMode = $request->payment_mode;
+            }
             $statusArray = ['Failed', 'Completed', 'Cancelled', 'Refunded'];
             $orders = WalletPayment::when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
@@ -241,16 +245,15 @@ class OrderController extends Controller
                 $q->where(function ($quer) use ($request) {
                     $quer->whereHas('order', function( $qu ) use($request){
                         $qu->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
-                    })->orWhereHas('invoice', function( $qu ) use($request){
+                    })->orWhereHas('order_transaction', function( $qu ) use($request){
                         $qu->where('id', 'LIKE', '%'.$request->search_keyword.'%')
-                        ->orWhere('invoice_id', 'LIKE', '%'.$request->search_keyword.'%');
+                        ->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
                     });
-                })->orWhere('trans_id', 'LIKE', '%'.$request->search_keyword.'%');
-            })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
-                $q->where('status', array_search($request->status, $statusArray))
-                ->orWhereHas('order_transaction', function( $qu ) use($request, $statusArray){
-                    $qu->where('status', array_search($request->status, $statusArray));
                 });
+            })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
+                $q->where('status', array_search($request->status, $statusArray));
+            })->when(($request->has('payment_mode') && $paymentMode != ''), function($q) use($paymentMode){
+                $q->where('payment_mode', $paymentMode);
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
@@ -271,7 +274,7 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'payment_mode' => $order->payment_mode, 'comments' => $order->comments, 'currency_icon' => $order->currency->icon, 'amount' => $order->amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'payment_mode' => $order->payment_mode, 'comments' => $order->comments, 'currency_icon' => $order->currency->icon, 'amount' => $order->amount, 'order_id' => $order->order ? $order->order->order_id : null, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
                 }
                 
                 $ordersData['data'] = $orderData;
