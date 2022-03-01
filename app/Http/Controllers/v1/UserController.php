@@ -149,6 +149,7 @@ class UserController extends Controller
             {
                 $currency  = Currency::where('id', $user)->first();
                 $userArray[$key] = $currency ? $currency->icon : null;
+                $userArray['currency_name'] = $currency ? $currency->name : null;
             }
             else{
                 $userArray[$key] = $user;

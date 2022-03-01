@@ -29,58 +29,58 @@ class ServiceController extends Controller
                 $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
                 $diff_in_days = $to->diffInDays($from) + 1;
                 if($diff_in_days <= $cancelDays){
-                    try
-                    {
-                        if(!is_null($orders->user_server)){
-                            $serverId = $orders->user_server->id;
-                            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-                            if(!$serverPackage)
-                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                    // try
+                    // {
+                    //     if(!is_null($orders->user_server)){
+                    //         $serverId = $orders->user_server->id;
+                    //         $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+                    //         if(!$serverPackage)
+                    //         return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
                             
-                            $linkserver = $serverPackage->company_server_package->company_server->link_server ? unserialize($serverPackage->company_server_package->company_server->link_server) : 'N/A';
-                            $controlPanel = null;
-                            if('N/A' == $linkserver)
-                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-                            $controlPanel = $linkserver['controlPanel'];
-                            if('cPanel' == $controlPanel){
-                                $accCreated = $this->terminateCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-                                if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-                                }
-                                if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
-                                    $error = $accCreated['metadata']["reason"];
-                                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account terminating error', 'message' => $error]);
-                                }
-                            }
-                            if('Plesk' == $controlPanel){
-                                $packageName = $serverPackage->package;                
-                                try{
+                    //         $linkserver = $serverPackage->company_server_package->company_server->link_server ? unserialize($serverPackage->company_server_package->company_server->link_server) : 'N/A';
+                    //         $controlPanel = null;
+                    //         if('N/A' == $linkserver)
+                    //         return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                    //         $controlPanel = $linkserver['controlPanel'];
+                    //         if('cPanel' == $controlPanel){
+                    //             $accCreated = $this->terminateCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+                    //             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
+                    //                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                    //             }
+                    //             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
+                    //                 $error = $accCreated['metadata']["reason"];
+                    //                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account terminating error', 'message' => $error]);
+                    //             }
+                    //         }
+                    //         if('Plesk' == $controlPanel){
+                    //             $packageName = $serverPackage->package;                
+                    //             try{
 
-                                    $this->client = new Client($serverPackage->company_server_package->company_server->ip_address);
-                                    $this->client->setCredentials($linkserver['username'], $linkserver['apiToken']);
-                                    $this->client->Webspace()->delete("name",$request->domain);
-                                }catch(\Exception $e){
-                                    return response()->json([
-                                        'api_response' => 'error', 'status_code' => 400, 'message' => $e->getMessage()
-                                    ]);
-                                }
-                            }
-                            $serverPackage->status = 2;
-                            $serverPackage->save();
-                            DelegateDomainAccess::where('user_server_id', $serverPackage->id)->delete();
-                            $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
-                        }
-                    }
-                    catch(Exception $ex){
-                        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-                    }
-                    catch(\GuzzleHttp\Exception\ConnectException $e){
-                        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-                    }
-                    catch(\GuzzleHttp\Exception\ServerException $e){
-                        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
-                    }
-                    $orders->is_cancelled = 1;
+                    //                 $this->client = new Client($serverPackage->company_server_package->company_server->ip_address);
+                    //                 $this->client->setCredentials($linkserver['username'], $linkserver['apiToken']);
+                    //                 $this->client->Webspace()->delete("name",$request->domain);
+                    //             }catch(\Exception $e){
+                    //                 return response()->json([
+                    //                     'api_response' => 'error', 'status_code' => 400, 'message' => $e->getMessage()
+                    //                 ]);
+                    //             }
+                    //         }
+                    //         $serverPackage->status = 2;
+                    //         $serverPackage->save();
+                    //         DelegateDomainAccess::where('user_server_id', $serverPackage->id)->delete();
+                    //         $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
+                    //     }
+                    // }
+                    // catch(Exception $ex){
+                    //     return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                    // }
+                    // catch(\GuzzleHttp\Exception\ConnectException $e){
+                    //     return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+                    // }
+                    // catch(\GuzzleHttp\Exception\ServerException $e){
+                    //     return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+                    // }
+                    // $orders->is_cancelled = 1;
                     $orders->cancelled_on = date('Y-m-d H:i:s');
                     $orders->user_server->comments = $request->comments;
                     $orders->push();
