@@ -97,8 +97,10 @@ class OrderController extends Controller
                 $q->whereBetween('created_at', [$start, $end]);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where('order_id', 'LIKE', '%'.$request->search_keyword.'%');
-            })->when(($request->has('status') && $request->status != ''), function($q) use($request, $statusArray){
-                $q->where('status', array_search($request->status, $statusArray));
+            })->when(($request->has('status') && $request->status != '' && $request->status != 'Cancelled'), function($q) use($request, $statusArray){
+                $q->where('status', array_search($request->status, $statusArray))->where('is_cancelled', 0);
+            })->when(($request->has('status') && $request->status != '' && $request->status == 'Cancelled'), function($q) use($request, $statusArray){
+                $q->where('is_cancelled', 1);
             })->where(['user_id' => $request->userid, 'place_for' => 'Product'])->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
