@@ -47,7 +47,7 @@ class UserController extends Controller
 			$users->user_detail->country_id = jsdecode_userdata($postData['country']);
 			$users->user_detail->state_id = jsdecode_userdata($postData['state']);
             $users->push();       
-            return $this->apiResponse('success', '200', 'Users address '.config('constants.SUCCESS.UPDATE_DONE'));
+            return $this->apiResponse('success', '200', 'User address '.config('constants.SUCCESS.UPDATE_DONE'));
 
         } catch ( \Exception $e ) {
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
@@ -214,7 +214,7 @@ class UserController extends Controller
             }
             $users->push();  
 
-            return $this->apiResponse('success', '200', 'Users details '.config('constants.SUCCESS.UPDATE_DONE'));
+            return $this->apiResponse('success', '200', 'User details '.config('constants.SUCCESS.UPDATE_DONE'));
         }
         catch(\Exception $e){
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
