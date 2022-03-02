@@ -82,7 +82,9 @@ class ServiceController extends Controller
                     }
                     $orders->is_cancelled = 1;
                     $orders->cancelled_on = date('Y-m-d H:i:s');
-                    $orders->user_server->comments = $request->comments;
+                    if($orders->user_server){
+                        $orders->user_server->comments = $request->comments;
+                    }
                     $orders->push();
                     $browseDetail = $this->getUserBrowseDetail();
                     $ordersTransaction = OrderTransaction::create([
