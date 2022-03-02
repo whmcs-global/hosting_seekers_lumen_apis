@@ -42,6 +42,8 @@ class OrderController extends Controller
                 $q->where('status', array_search($request->status, $statusArray));
             })->when($id, function($q) use($id){
                 $q->where('order_id', jsdecode_userdata($id));
+            })->whereHas('order', function( $qu ) use($request){
+                $qu->where('place_for', 'Product');
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
