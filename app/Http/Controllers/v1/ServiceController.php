@@ -29,9 +29,9 @@ class ServiceController extends Controller
                 $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
                 $diff_in_days = $to->diffInDays($from) + 1;
                 if($diff_in_days <= $cancelDays){
-                    try
-                    {
-                        if(!is_null($orders->user_server)){
+                    if(!is_null($orders->user_server)){
+                        try
+                        {
                             $serverId = $orders->user_server->id;
                             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
                             if(!$serverPackage)
@@ -70,15 +70,15 @@ class ServiceController extends Controller
                             DelegateDomainAccess::where('user_server_id', $serverPackage->id)->delete();
                             $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
                         }
-                    }
-                    catch(Exception $ex){
-                        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-                    }
-                    catch(\GuzzleHttp\Exception\ConnectException $e){
-                        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
-                    }
-                    catch(\GuzzleHttp\Exception\ServerException $e){
-                        return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+                        catch(Exception $ex){
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                        }
+                        catch(\GuzzleHttp\Exception\ConnectException $e){
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+                        }
+                        catch(\GuzzleHttp\Exception\ServerException $e){
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+                        }
                     }
                     $orders->is_cancelled = 1;
                     $orders->cancelled_on = date('Y-m-d H:i:s');
