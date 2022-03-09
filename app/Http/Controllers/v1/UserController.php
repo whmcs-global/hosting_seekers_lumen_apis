@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Traits\AutoResponderTrait;
 use App\Traits\SendResponseTrait;
 use hisorange\BrowserDetect\Parser;
-use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order, DelegateAccount, Currency};
+use App\Models\{UserProfile, User, UserToken, ContactDetail, Company_review, Country, State, Order, Invoice, DelegateAccount, Currency};
 use App\Traits\GetDataTrait;
 
 class UserController extends Controller
@@ -155,10 +155,14 @@ class UserController extends Controller
                 $userArray[$key] = $user;
             }
         }
-        $ratingCount = Company_review::where('user_id', $request->userid)->count();
-        $userArray['total_reviews'] = $ratingCount;
-        $orderCount = Order::where('user_id', $request->userid)->count();
+        $ratingCount = Invoice::where(['user_id' => $request->userid, 'status' => 0])->whereHas('order', function( $qu ) use($request){
+            $qu->where('place_for', 'product');
+        })->count();
+        $userArray['invoices'] = $ratingCount;
+        $orderCount = Order::where(['user_id' => $request->userid, 'place_for' => 'product'])->count();
         $userArray['total_orders'] = $orderCount;
+        $orderCount = Order::whereHas('ordered_product')->where('user_id', $request->userid)->count();
+        $userArray['services'] = $orderCount;
         $delegateUsers = DelegateAccount::where('delegate_user_id', $request->userid)->get();
         $delegateUserArray = [];
         foreach($delegateUsers as $user){
