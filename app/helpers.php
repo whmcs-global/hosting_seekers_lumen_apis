@@ -22,7 +22,7 @@ if (!function_exists('add_days_to_date')) {
         elseif($days =='Quaterly'){
             $no_of_days = 91;
         }
-        elseif($days =='HalfYearly'){
+        elseif($days =='SemiAnnually'){
             $no_of_days = 182;
         }
         elseif($days =='Annually'){

@@ -26,7 +26,7 @@ trait CommonTrait {
         }
     }
     public function billingCycleName($id) {
-        $billingCycle =  ['Monthly', 'Quarterly', 'Halfyearly', 'Annually', 'Onetime', 'Trial'];
+        $billingCycle =  ['Monthly', 'Quarterly', 'SemiAnnually', 'Annually', 'Onetime', 'Trial'];
  		return $billingCycle[$id];
     }
 }
