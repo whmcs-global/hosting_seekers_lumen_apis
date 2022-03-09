@@ -39,6 +39,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
 	$router->group(['middleware'=> ['ticket']], function () use ($router) {
         $router->get('ticketDetail', 'TicketController@getDetails');
         $router->get('tickets', 'TicketController@getTickets');
+        $router->get('tickets-create', 'TicketController@createTicket');
         $router->post('userDetail', 'TicketController@getUserDetails');
     });
 	$router->group(['middleware'=> ['auth']], function () use ($router) {

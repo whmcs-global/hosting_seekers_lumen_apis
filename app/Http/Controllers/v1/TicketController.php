@@ -74,12 +74,27 @@ class TicketController extends Controller
 
         $response = hitCurl($apiUrl, 'GET', null, $headers);
         $response = json_decode($response, true);
-        return $response;
         $tickets = null;
         if($response && $response['success']){ 
             $data = [];
             $tickets = $response['data'];
         }
         return $this->apiResponse('success', '200', 'Data fetched', $tickets);
+    }
+    
+    public function createTicket(Request $request) {
+        try {
+            $apiUrl = config('constants.TICKET_URL').'createTicket';
+            // dd($apiUrl);
+            $headers = ['Content-Type: application/json']; 
+            $response = hitCurl($apiUrl, 'POST', $request->all() , $headers);
+            $response = json_decode($response, true);
+            if($response && $response['success']){
+                return $this->apiResponse('success', '200', 'Ticket is created ');
+            }
+            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+        } catch ( \Exception $e ) { 
+            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+        }
     }
 }
