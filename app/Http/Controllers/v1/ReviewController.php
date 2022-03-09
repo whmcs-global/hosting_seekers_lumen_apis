@@ -71,7 +71,7 @@ class ReviewController extends Controller
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class ReviewController extends Controller
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 
@@ -151,7 +151,7 @@ class ReviewController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 
@@ -169,7 +169,7 @@ class ReviewController extends Controller
             $dataArray = $ratings;
             return $this->apiResponse('success', '200', 'Data fetched', $dataArray);
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 }

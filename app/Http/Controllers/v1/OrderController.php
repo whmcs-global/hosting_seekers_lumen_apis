@@ -73,7 +73,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
     public function ordersHistory(Request $request){
@@ -141,7 +141,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
     public function ordersTransactions(Request $request){
@@ -203,7 +203,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
     public function walletTransactions(Request $request){
@@ -287,7 +287,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 }

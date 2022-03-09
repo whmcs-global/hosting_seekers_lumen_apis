@@ -66,7 +66,7 @@ class CpanelController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
     
@@ -97,13 +97,13 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'SSL has been successfully installed', 'message' => 'SSL has been successfully installed']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
         }
     }
     public function loginAccount(Request $request, $id) {
@@ -124,13 +124,13 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['data'], 'message' => 'Account is ready for login']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
         }
     }
     public function getUserInfo(Request $request, $id) {
@@ -169,13 +169,13 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
         }
     }
     public function dnsInfo(Request $request, $id) {
@@ -211,13 +211,13 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
         }
     }
     public function getDomains(Request $request, $id) {
@@ -240,13 +240,13 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']["data"], 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => 'Linked server connection test failed. Connection Timeout']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => 'Server internal error. Check your server and server licence']);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
         }
     }
 }
