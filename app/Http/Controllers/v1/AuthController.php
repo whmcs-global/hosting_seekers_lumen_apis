@@ -88,7 +88,7 @@ class AuthController extends Controller
         }
         catch(\Exception $e){
             DB::rollback();
-            return $this->apiResponse('error', '404', 'Not Found!');
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method login */

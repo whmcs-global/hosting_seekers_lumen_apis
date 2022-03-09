@@ -54,7 +54,7 @@ class TicketController extends Controller
             try{
             $companies = Order::whereIn('id', $userIdArray)->first();
             } catch ( \Exception $e ) {
-                return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+                return $this->apiResponse('error', '400', $e->getMessage());
             }
             $userDetails = null;
             if($companies){
@@ -96,7 +96,7 @@ class TicketController extends Controller
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) { 
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 }

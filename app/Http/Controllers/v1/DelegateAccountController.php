@@ -33,7 +33,7 @@ class DelegateAccountController extends Controller
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method permissionList */
@@ -66,7 +66,7 @@ class DelegateAccountController extends Controller
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method domainList */
@@ -101,7 +101,7 @@ class DelegateAccountController extends Controller
             }
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method accountList */
@@ -136,7 +136,7 @@ class DelegateAccountController extends Controller
             $ratingArray = $permissionData;
             return $this->apiResponse('success', '200', 'Data fetched', $ratingArray);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method searchUser */
@@ -162,7 +162,7 @@ class DelegateAccountController extends Controller
             }
             return $this->apiResponse('success', '200', 'Delegate account has been deleted', $ratingArray);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method deleteAccount */
@@ -188,7 +188,7 @@ class DelegateAccountController extends Controller
             }
             return $this->apiResponse('error', '404', 'Sorry! You canot delete single delegate domain access');
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method deleteDomain */
@@ -265,7 +265,7 @@ class DelegateAccountController extends Controller
             return $this->apiResponse('success', '200', 'Delegate account has been created successfully.');
         }  catch(\Exception $e){
             DB::rollBack();
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method createAccount */
@@ -324,7 +324,7 @@ class DelegateAccountController extends Controller
             return $this->apiResponse('success', '200', 'Delegate account has been updated successfully.');
         }  catch(\Exception $e){
             DB::rollBack();
-            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
+            return $this->apiResponse('error', '404', $e->getMessage());
         }
     }
     /* End Method updateAccount */

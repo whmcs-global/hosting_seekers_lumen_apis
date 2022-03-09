@@ -50,7 +50,7 @@ class UserController extends Controller
             return $this->apiResponse('success', '200', 'User address '.config('constants.SUCCESS.UPDATE_DONE'));
 
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 
@@ -221,7 +221,7 @@ class UserController extends Controller
             return $this->apiResponse('success', '200', 'User details '.config('constants.SUCCESS.UPDATE_DONE'));
         }
         catch(\Exception $e){
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
         
     }
@@ -266,7 +266,7 @@ class UserController extends Controller
             return $this->apiResponse('success', '200',  'Password '.config('constants.SUCCESS.UPDATE_DONE'));
         
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
     
@@ -283,7 +283,7 @@ class UserController extends Controller
             UserToken::where(['user_id' => $request->userid, 'access_token' => $request->access_token])->delete();
             return $this->apiResponse('success', '200', 'You has been Logout Successfully');
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
 
@@ -299,7 +299,7 @@ class UserController extends Controller
             UserToken::where(['user_id' => $request->userid])->delete();
             return $this->apiResponse('success', '200', 'You has been Successfully Logout  from all active sessions');
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+            return $this->apiResponse('error', '400', $e->getMessage());
         }
     }
     
