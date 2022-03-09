@@ -474,6 +474,7 @@ class CpanelController extends Controller
         try
         {
             $serverId = jsdecode_userdata($id);
+            return ['user_id' => $request->userid, 'id' => $serverId];
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection errors', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
