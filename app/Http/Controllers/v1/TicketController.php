@@ -88,7 +88,9 @@ class TicketController extends Controller
             // dd($apiUrl);
             $headers = ['Content-Type: application/json']; 
             $response = hitCurl($apiUrl, 'POST', $request->all() , $headers);
+            return $response;
             $response = json_decode($response, true);
+
             if($response && $response['success']){
                 return $this->apiResponse('success', '200', 'Ticket is created ');
             }
