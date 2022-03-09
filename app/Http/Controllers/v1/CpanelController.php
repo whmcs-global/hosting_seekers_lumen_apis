@@ -476,8 +476,9 @@ class CpanelController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection errors', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+
             if(!is_array($cpanelStats) ){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
