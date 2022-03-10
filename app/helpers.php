@@ -19,7 +19,7 @@ if (!function_exists('add_days_to_date')) {
         if($days =='Monthly'){
             $no_of_days = 30;
         }
-        elseif($days =='Quaterly'){
+        elseif($days =='Quarterly'){
             $no_of_days = 91;
         }
         elseif($days =='SemiAnnually'){
