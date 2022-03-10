@@ -65,7 +65,7 @@ class OrderController extends Controller
                     $invoiceUrl = 'https://dev.hostingseekers.com/invoice/';
                     if($order->order->place_for == 'Wallet')
                     $invoiceUrl = 'https://dev.hostingseekers.com/user/wallet-credit-invoice/';
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => $invoiceUrl.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
+                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'invoice_id' => $order->invoice_id, 'order_id' => $order->order->order_id, 'currency_icon' => $order->order->currency->icon, 'invoice_url' => $invoiceUrl.jsencode_userdata($order->id),  'payable_amount' => $order->order->payable_amount, 'status' => ($order->order->is_cancelled == 1) ? 'Refunded' :$statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
                 }
                 $ordersData['data'] = $orderData;
                 $orderArray = $ordersData;
