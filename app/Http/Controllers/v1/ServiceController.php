@@ -5,16 +5,17 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use Illuminate\Support\Str;
+use Illuminate\Support\Str; 
+use hisorange\BrowserDetect\Parser as Browser;
 use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount, User, DelegateDomainAccess};
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait, GetDataTrait};
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait, GetDataTrait, AutoResponderTrait };
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
 use Carbon\Carbon;
 
 class ServiceController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait, SendResponseTrait, CommonTrait, GetDataTrait;
+    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait, SendResponseTrait, CommonTrait, GetDataTrait, AutoResponderTrait ;
 
     public function cancelService(Request $request){
         try {
@@ -80,10 +81,12 @@ class ServiceController extends Controller
                             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
                         }
                     }
+                    $domain ="";
                     $orders->is_cancelled = 1;
                     $orders->cancelled_on = date('Y-m-d H:i:s');
                     if($orders->user_server){
                         $orders->user_server->comments = $request->comments;
+                        $domain = '<strong>Domain : </strong>'.$request->domain;
                     }
                     $orders->push();
                     $browseDetail = $this->getUserBrowseDetail();
@@ -117,6 +120,34 @@ class ServiceController extends Controller
                     $amount = $this->getCurrency($orders->currency->name, $orders->payable_amount, $usersDetail->currency->name);
                     $usersDetail->amount = $usersDetail->amount+$amount;
                     $usersDetail->save();
+
+                    /*Send Email*/
+                    $userEmail = $usersDetail->email;  
+                    $userid = $usersDetail->id;   
+                    $service = $orders->ordered_product->product->name;  
+                    $companyName = $orders->ordered_product->product->user->company_detail->company_name;
+                    $name = $usersDetail->first_name.' '.$usersDetail->last_name; 
+                    $logtoken = Str::random(12);
+                    $logtokenUrl = 'https://www.hostingseekers.com/footer/image/'.$logtoken.'.png'; 
+                    $unsubscribeUrl = route('unsubscribe', ['email' => jsencode_userdata($userEmail), 'c' => jsencode_userdata('Company')]);
+                    $unsubscribe = 'If you prefer not to receive emails, you may
+                    <a href="'.$unsubscribeUrl.'" target="_blank" style="color:#ee1c2ab5;text-decoration:underline;">
+                    unsubscribe
+                    </a>';
+
+                    $template = $this->get_template_by_name('CANCELLATION_REQUEST_CONFIRMATION');
+                    $string_to_replace = array('{{client_name}}', '{{$service}}', '{{domain_name}}', '{{$company_name}} ', '{{$logToken}}', '{{$unsubscribe}}');
+                    $string_replace_with = array($name, $service, $domain, $companyName, $logtokenUrl, $unsubscribe);
+                    $newval = str_replace($string_to_replace, $string_replace_with, $template->template);
+                    
+                    $emailArray = [];
+                    array_push($emailArray, ['user_id' => $userid, 'templateId' => $template->id, 'templateName' => $template->name, 'email' => $userEmail, 'subject' => $template->subject, 'body' => $newval, 'logtoken' => $logtoken, 'raw_data' => null, 'bcc' => null]);
+                    $emailData = ['emails' => $emailArray];
+                    $routesUrl = Config::get('constants.SMTP_URL');
+                    $response = hitCurl($routesUrl, 'POST', $emailData);
+                    
+                    /*End Send Email*/ 
+
                     return $this->apiResponse('success', '200', "An amount of ".$amount." ".$usersDetail->currency->name." has been refunded to your wallet.");
                 }
             }

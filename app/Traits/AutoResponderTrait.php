@@ -28,32 +28,6 @@ trait AutoResponderTrait {
  		return $smtp;
     }
 
-    public function email_log_create($to, $template_id, $template_name, $token = 0) {
-        $data = array(
-            'to_email' => $to,
-            'auto_responder_id' => $template_id,
-            'template_name' => $template_name,
-            'token' => $token
-        );
-        $record = EmailLog::create($data);
-        return $record->id;
-   }
-
-   public function email_log_update($id) {
-       $data = array(
-           'status' => 1,
-       );
-       $record = EmailLog::where('id', $id)->update($data);
-  }
-
-  public function checkToken($token) {
-      $token = explode('.', $token);
-      $data = array(
-          'is_read' => 1,
-      );
-      $record = EmailLog::where('token', $token[0])->update($data);
- }
-
     public function send_mail($to, $subject, $email_body){
         $to_cc = Config::get('constants.CC_EMAIL');
         $smtp = $this->get_smtp_info();
