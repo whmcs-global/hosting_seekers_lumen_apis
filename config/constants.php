@@ -46,7 +46,7 @@ return [
     'DESIGNATION' => 'Marketing Executive',
     'HOMEPAGE_AD_EXPIRE_TIME' => 86400000,
     'NODE_URL' => "https://www.hostingseekers.com/c-review",
-    'TICKET_URL' => "http://192.168.0.129:8001/",
+    'TICKET_URL' => "https://support.hostingseekers.com",
     'SES_URL' => "https://www.hostingseekers.com/c-review/send/emails-ses",
     'SMTP_URL' => "https://www.hostingseekers.com/c-review/send/emails-smtp",
     'SENT_THROUGH_SMTP' => TRUE
