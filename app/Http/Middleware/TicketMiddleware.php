@@ -31,6 +31,6 @@ class TicketMiddleware
                 }
             }
         }
-        return $this->apiResponse('error', '401', 'Invalid access token 5');
+        return $this->apiResponse('error', '401', 'Invalid access token');
     }
 }
