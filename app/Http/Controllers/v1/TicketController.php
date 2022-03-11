@@ -88,11 +88,10 @@ class TicketController extends Controller
             // dd($apiUrl);
             $headers = ['Content-Type: application/json']; 
             $response = hitCurl($apiUrl, 'POST', $request->all() , $headers);
-            return $response;
             $response = json_decode($response, true);
 
             if($response && $response['success']){
-                return $this->apiResponse('success', '200', 'Ticket is created ');
+                return $this->apiResponse('success', '200', 'Feedback has been submitted successfully.');
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) { 
