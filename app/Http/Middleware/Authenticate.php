@@ -38,7 +38,7 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         if ($this->auth->guard($guard)->guest()) {
-            return $this->apiResponse('error', '400', 'Invalid access token');
+            return $this->apiResponse('error', '400', 'Invalid access token s');
         }
 
         return $next($request);
