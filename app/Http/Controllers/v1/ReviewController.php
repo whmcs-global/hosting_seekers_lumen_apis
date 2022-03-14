@@ -48,7 +48,7 @@ class ReviewController extends Controller
             );
             $userip = 0 ;
             if(!$request->has('reviewId')){
-                $userip = User::where(['id' => $companyId, 'ip_address' => request()->ip()])->count();
+                $userip = User::where(['id' => $companyId, 'ip_address' => $this->getClientIp()])->count();
                 if($userip > 0)
                 return $this->apiResponse('error', '400', config('constants.ERROR.IP_ISSUE'));
             }

@@ -16,7 +16,7 @@ trait CommonTrait {
         ]);
         if($id){
             $lastLoginData = serialize([
-                'ip_address' => request()->ip(),
+                'ip_address' => $this->get_ClientIp(),
                 'Browser Name' => $browser->browserName(),
                 'Operating System' => $browser->platformName(),
                 'Agent' => $browser->userAgent(),
@@ -28,5 +28,23 @@ trait CommonTrait {
     public function billingCycleName($id) {
         $billingCycle =  ['Monthly', 'Quarterly', 'SemiAnnually', 'Annually', 'Onetime', 'Trial'];
  		return $billingCycle[$id];
+    }
+    public function get_ClientIp() {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if(isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
     }
 }

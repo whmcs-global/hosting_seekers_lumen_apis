@@ -69,7 +69,7 @@ class AuthController extends Controller
             $insert = new UserToken;
             $insert->user_id = $user_id;
             $insert->access_token = $access_token;
-            $insert->device_id = request()->ip() ? :'postman';
+            $insert->device_id = $this->getClientIp();
             $insert->device_name = $browser->platformFamily() ? :'postman';
             $insert->status = 1;
             $insert->save();
@@ -145,7 +145,7 @@ class AuthController extends Controller
             {
                 $rowData = serialize([
                     'created_date' => time(),
-                    'ip_address' => request()->ip() ? :'postman',
+                    'ip_address' => $this->getClientIp(),
                     'Browser Name' => $browser->browserName() ? :'postman',
                     'Operating System' => $browser->platformName() ? :'postman',
                     'last_login' => '',
