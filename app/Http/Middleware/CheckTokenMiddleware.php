@@ -38,8 +38,8 @@ class CheckTokenMiddleware
             elseif($diff_in_minutes > 30)
                 return $this->apiResponse('error', '401', 'Invalid access token');
                 
-            // if(!$this->validateToken($key[1]))
-            //     return $this->apiResponse('error', '401', 'Invalid access token');
+            if(!$this->validateToken($key[1]))
+                return $this->apiResponse('error', '401', 'Invalid access token');
             return $next($request);
         }
         else{
