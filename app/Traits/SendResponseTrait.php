@@ -39,8 +39,8 @@ trait SendResponseTrait {
         $browse_detail = $requestDetail;
         $dectypy_token = jsdecode_api($token);
         $token_array = explode('#', $dectypy_token);
-        $ipAddress = explode(',', $browse_detail['ip']);
-        return [$ipAddress,  $browse_detail['ip'].'=='.$token_array[0], $browse_detail['os'].'=='.$token_array[2], $browse_detail['browser'].'=='.$token_array[1]];
+        $ipAddress = explode(', ', $browse_detail['ip']);
+        // return [$ipAddress,  $browse_detail['ip'].'=='.$token_array[0], $browse_detail['os'].'=='.$token_array[2], $browse_detail['browser'].'=='.$token_array[1]];
         if( in_array($token_array[0], $ipAddress) && $browse_detail['os'] == $token_array[2] && $browse_detail['browser'] == $token_array[1])
         return TRUE;
         else
