@@ -69,7 +69,7 @@ class TicketController extends Controller
         return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
     }
     public function getTickets(Request $request){
-        $apiUrl = config('constants.TICKET_URL').'usertickets/'.jsencode_userdata($request->user_id);
+        $apiUrl = config('constants.TICKET_URL').'/usertickets/'.jsencode_userdata($request->user_id);
         $headers = ['Content-Type: application/json'];
 
         $response = hitCurl($apiUrl, 'GET', null, $headers);
@@ -84,7 +84,7 @@ class TicketController extends Controller
     
     public function createTicket(Request $request) {
         try {
-            $apiUrl = config('constants.TICKET_URL').'createTicket';
+            $apiUrl = config('constants.TICKET_URL').'/createTicket';
             // dd($apiUrl);
             $headers = ['Content-Type: application/json']; 
             $response = hitCurl($apiUrl, 'POST', $request->all() , $headers);
