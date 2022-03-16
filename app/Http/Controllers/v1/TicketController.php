@@ -68,6 +68,22 @@ class TicketController extends Controller
         }
         return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
     }
+
+    public function getUserData(Request $request) {
+        try { 
+            $userId = jsdecode_userdata($request->user_id);
+            $userData = User::where('id',$userId)->first(); 
+            if($userData){
+                $userArray['name'] = $userData->company_detail ? $userData->company_detail->company_name :  $userData->first_name.' '.$user->last_name;
+                $userArray['email'] = $userData->email;
+                return $this->apiResponse('success', '200', 'Data fetched', $userArray);
+            }
+            return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
+        } catch ( \Exception $e ) {
+            return $this->apiResponse('error', '400', $e->getMessage());
+        }
+    }
+
     public function getTickets(Request $request){
         $apiUrl = config('constants.TICKET_URL').'/usertickets/'.jsencode_userdata($request->user_id);
         $headers = ['Content-Type: application/json'];

@@ -36,6 +36,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1'], function () use ($router
 
 $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($router) {
     
+    $router->get('userData', 'TicketController@getUserData');
 	$router->group(['middleware'=> ['ticket']], function () use ($router) {
         $router->get('ticketDetail', 'TicketController@getDetails');
         $router->get('tickets', 'TicketController@getTickets');
