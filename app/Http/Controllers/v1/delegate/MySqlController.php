@@ -65,7 +65,17 @@ class MySqlController extends Controller
                 $error = $dbList['result']['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql User and databases fetching error', 'message' => $error]);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['users' => $userList['result']['data'], 'databases' => $dbList['result']['data']], 'message' => 'MySql User and databases has been successfully fetched']);
+            
+            $restrictions = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($restrictions) || !array_key_exists("result", $restrictions)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($restrictions["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql Name Restrictions fetching error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['users' => $userList['result']['data'], 'databases' => $dbList['result']['data'], 'restrictions' => $restrictions], 'message' => 'MySql User and databases has been successfully fetched']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
