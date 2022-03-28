@@ -5,12 +5,12 @@ namespace App\Http\Controllers\v1\delegate;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Traits\{PowerDnsTrait};
+use App\Traits\{PowerDnsTrait, CpanelTrait};
 use App\Models\{UserServer};
 
 class PowerDnsController extends Controller
 {
-    use PowerDnsTrait;
+    use PowerDnsTrait, CpanelTrait;
 
     public function getListing(Request $request, $id) {
         try
@@ -21,9 +21,20 @@ class PowerDnsController extends Controller
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             $nameserver = $serverPackage->company_server_package->company_server->name_servers ? unserialize($serverPackage->company_server_package->company_server->name_servers) : [];
             $userList = $this->wgsReturnDomainData(strtolower($serverPackage->domain), $serverPackage->company_server_package->company_server->ip_address, $nameserver);
+            
+            $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
+            
+            if(!is_array($domainList) || !array_key_exists("result", $domainList)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($domainList["result"]['status'] == "0") {
+                $error = $domainList["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
             if($userList['status'] == 'success')
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $userList['data'], 'message' => 'Zone records has been successfully fetched']);
-            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => $userList['data'], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['records' => $userList['data'], 'domains' => $domainList['result']["data"]], 'message' => 'Zone records has been successfully fetched']);
+            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['records' => $userList['data'], 'domains' => $domainList['result']["data"]], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
