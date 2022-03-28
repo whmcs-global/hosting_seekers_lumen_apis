@@ -28,7 +28,18 @@ class EmailAccountController extends Controller
                 $error = $accCreated["result"]['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']["data"], 'message' => 'Accounts has been successfully fetched']);
+            
+            $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
+            
+            if(!is_array($domainList) || !array_key_exists("result", $domainList)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            
+            if ($domainList["result"]['status'] == "0") {
+                $error = $domainList["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['emails' => $accCreated['result']["data"], 'domains' => $domainList['result']["data"]], 'message' => 'Accounts has been successfully fetched']);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
