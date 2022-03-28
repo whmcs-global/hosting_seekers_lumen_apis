@@ -500,8 +500,14 @@ class CpanelController extends Controller
                     $max = $cpanelStat['_max'];
                     array_push($cpanelStatArray, ['item' => $cpanelStat['item'], 'name' => $cpanelStat['name'], 'count' => $count, 'max' => $max, 'percent' => $cpanelStat['percent'], 'value' => $value, 'units' => $units]);
             }
+            $phpVesion = null;
+            $accCreated = $this->phpVersions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->version);
+            if(is_array($accCreated) && array_key_exists("metadata", $accCreated) && array_key_exists("result", $accCreated['metadata']) && 0 != $accCreated['metadata']["result"]){
+                $phpVesion = 1;
+            }
             $domainInfo = [
-                "accountStats" => $cpanelStatArray
+                "accountStats" => $cpanelStatArray,
+                'phpVersion' => $phpVesion
             ];
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }
