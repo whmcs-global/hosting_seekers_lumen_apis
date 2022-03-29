@@ -129,7 +129,7 @@ class ServiceController extends Controller
                     $name = $usersDetail->first_name.' '.$usersDetail->last_name; 
                     $logtoken = Str::random(12);
                     $logtokenUrl = 'https://www.hostingseekers.com/footer/image/'.$logtoken.'.png'; 
-                    $unsubscribeUrl = route('unsubscribe', ['email' => jsencode_userdata($userEmail), 'c' => jsencode_userdata('Company')]);
+                    $unsubscribeUrl = 'https://www.hostingseekers.com/unsubscribe?email='.jsencode_userdata($userEmail).'&c='.jsencode_userdata('Company');
                     $unsubscribe = 'If you prefer not to receive emails, you may
                     <a href="'.$unsubscribeUrl.'" target="_blank" style="color:#ee1c2ab5;text-decoration:underline;">
                     unsubscribe
