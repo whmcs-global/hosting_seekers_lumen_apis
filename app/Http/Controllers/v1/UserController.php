@@ -161,7 +161,7 @@ class UserController extends Controller
         $userArray['invoices'] = $ratingCount;
         $orderCount = Order::where(['user_id' => $request->userid, 'place_for' => 'product'])->count();
         $userArray['total_orders'] = $orderCount;
-        $orderCount = Order::whereHas('ordered_product')->where(['user_id' => $request->userid, 'status' => '1'])->count();
+        $orderCount = Order::whereHas('ordered_product')->where(['user_id' => $request->userid, 'status' => '1', 'is_cancelled' => 0])->count();
         $userArray['services'] = $orderCount;
         $delegateUsers = DelegateAccount::where('delegate_user_id', $request->userid)->get();
         $delegateUserArray = [];
