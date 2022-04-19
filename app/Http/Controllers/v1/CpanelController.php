@@ -29,14 +29,28 @@ class CpanelController extends Controller
             }
             $sortBy = 'id';
             $orderBy = 'DESC';
+            $cancelled = null;
             if($request->has('sort_by')){
                 $sortBy = $request->sort_by;
+            }
+            if($request->has('cancelled')){
+                $cancelled = 1;
             }
             if($request->has('dir')){
                 $orderBy = $request->dir;
             }
             $orders = Order::whereHas('ordered_product')->when(($request->has('daterange_filter') && $request->daterange_filter != ''), function($q) use($start, $end){
                 $q->whereBetween('created_at', [$start, $end]);
+            })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
+                $q->where(function ($quer) use ($request) {
+                    $quer->whereHas('user_server', function( $qu ) use($request){
+                        $qu->where('name', 'LIKE', '%'.$request->search_keyword.'%')->orWhere('domain', 'LIKE', '%'.$request->search_keyword.'%');
+                    });
+                });
+            })->when(!$cancelled, function($q) use($request){
+                $q->where('is_cancelled', 0);
+            })->when($cancelled, function($q) use($request){
+                $q->where('is_cancelled', 1);
             })->when(($request->has('search_keyword') && $request->search_keyword != ''), function($q) use($request){
                 $q->where(function ($quer) use ($request) {
                     $quer->whereHas('user_server', function( $qu ) use($request){
