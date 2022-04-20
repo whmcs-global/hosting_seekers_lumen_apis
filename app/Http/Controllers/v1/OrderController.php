@@ -43,7 +43,7 @@ class OrderController extends Controller
             })->when($id, function($q) use($id){
                 $q->where('order_id', jsdecode_userdata($id));
             })->whereHas('order', function( $qu ) use($request){
-                $qu->where('place_for', 'Product');
+                // $qu->where('place_for', 'Product');
             })->where('user_id', $request->userid)->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
@@ -103,7 +103,7 @@ class OrderController extends Controller
                 $q->where('status', array_search($request->status, $statusArray))->where('is_cancelled', 0);
             })->when(($request->has('status') && $request->status != '' && $request->status == 'Cancelled'), function($q) use($request, $statusArray){
                 $q->where('is_cancelled', 1);
-            })->where(['user_id' => $request->userid, 'place_for' => 'Product'])->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
+            })->where(['user_id' => $request->userid])->orderBy($sortBy, $orderBy)->paginate(config('constants.PAGINATION_NUMBER'));
             $orderArray = [];
             $page = 1;
             if($request->has('page'))
@@ -122,7 +122,7 @@ class OrderController extends Controller
                 $orderData = [];
                 foreach($orders as $order){
                     $cancelService = false;
-                    if($order->status == 1 && $order->is_cancelled == 0){
+                    if($order->place_for == 'Product' && $order->status == 1 && $order->is_cancelled == 0){
                         $billingCycle = $this->billingCycleName($order->ordered_product->billing_cycle);
                         $cancelDays = config('constants.DAYS_FOR_MONTHLY_BILLING');
                         if($billingCycle == 'Annually')
