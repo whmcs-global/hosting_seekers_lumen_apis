@@ -27,16 +27,16 @@ class CheckTokenMiddleware
             $role = Role::find($company->role_id);
             if($role->name != 'User')
                 return $this->apiResponse('error', '401', 'Invalid access token');
-            $to = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user->updated_at);
-            $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
+            // $to = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user->updated_at);
+            // $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
 
 
-            $diff_in_minutes = $to->diffInMinutes($from);
-            $diffToCheck = 30 - $diff_in_minutes;
-            if($diffToCheck < 5 && $diffToCheck > 0)
-                UserToken::where('access_token', $key[1])->update(['updated_at' => date('Y-m-d H:i:s')]);
-            elseif($diff_in_minutes > 30)
-                return $this->apiResponse('error', '401', 'Invalid access token');
+            // $diff_in_minutes = $to->diffInMinutes($from);
+            // $diffToCheck = 30 - $diff_in_minutes;
+            // if($diffToCheck < 5 && $diffToCheck > 0)
+            //     UserToken::where('access_token', $key[1])->update(['updated_at' => date('Y-m-d H:i:s')]);
+            // elseif($diff_in_minutes > 30)
+            //     return $this->apiResponse('error', '401', 'Invalid access token');
                 
             if(!$this->validateToken($key[1]))
                 return $this->apiResponse('error', '401', 'Invalid access token');
