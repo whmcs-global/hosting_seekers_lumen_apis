@@ -4,17 +4,17 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Order, OrderTransaction, OrderedProduct, Invoice, CompanyServerPackage, UserServer, UserTerminatedAccount, DomainBandwidthStat};
+use App\Models\{Order, OrderTransaction, OrderedProduct, Invoice, CompanyServerPackage, UserServer, UserTerminatedAccount, DomainBandwidthStat, CloudfareUser};
 use Illuminate\Support\Facades\{DB, Config, Validator};
 use Illuminate\Support\Str;
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait};
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, CloudfareTrait};
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
 use Carbon\Carbon;
 
 class CpanelController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait;
+    use CpanelTrait, CommonTrait, SendResponseTrait, CloudfareTrait;
     
     private $client;
     public function orderedServers(Request $request){
@@ -329,12 +329,36 @@ class CpanelController extends Controller
                 }
             }
             try{
+                $this->createZoneSet($domainName);
+                $zoneInfo = $this->getSingleZone($domainName);
+                if($zoneInfo['success']){
+                    
+                    $cloudfareUser = CloudfareUser::where('status', 1)->first();
+                    $accountCreate['cloudfare_id'] = $zoneInfo['result'][0]['id'];
+                    $userCount = UserServer::where(['cloudfare_user_id' => $cloudfareUser->id ])->count();
+                    $updateData = ['domain_count' => $userCount+1];
+                    if($userCount == 100){
+                        $updateData = ['domain_count' => $userCount, 'status' => 0];
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                        $cloudfareUser = CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                    } else{
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                    }
+                    $accountCreate['cloudfare_user_id'] = $cloudfareUser->id;
+                    $dnsData = [
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'www',
+                            'cfdnsvalue' => $serverPackage->company_server->ip_address,
+                            'cfdnsttl' => '120',
+                        ]
+                    ];
+                    foreach ($dnsData as $dnsVal) {
+                        $createDns = $this->createDNSRecord($dnsVal, $zoneInfo['result'][0]['id'], $cloudfareUser->email, $cloudfareUser->user_api);
+                    }
+                }
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
-                $accountCreate['ipaddress'] = $serverPackage->company_server->ip_address;
-                $accountCreate['nameserver'] = $serverPackage->company_server->name_servers ? unserialize($serverPackage->company_server->name_servers) : [];
-                $response = $this->WgsCreateDomain($accountCreate);
-                if($response['status'] == 'error')
-                    return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['cpanel_server_id' => jsencode_userdata($userAccount->id), 'name' => $userAccount->name, 'domain' => $userAccount->domain, 'company_name' => $serverPackage->company_server->user->company_detail->company_name, 'server_ip' => $serverPackage->company_server->ip_address, 'server_type' => $controlPanel], 'message' => 'Account has been successfully created'.' '.$response['data']]);
             } catch(\Exception $ex){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'DB error', 'message' => $ex->getMessage()]);
             }

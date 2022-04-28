@@ -15,6 +15,8 @@ class UserServer extends Model
         'company_server_package_id',
 		'name',
 		'domain',
+        'cloudfare_user_id',
+        'cloudfare_id',
 		'screenshot',
 		'status',
 	    'created_at',
@@ -23,6 +25,10 @@ class UserServer extends Model
     public function user()
 	{
 		return $this->belongsTo(User::class, 'user_id', 'id');
+	}
+    public function cloudfare_user()
+	{
+		return $this->belongsTo(CloudfareUser::class, 'cloudfare_user_id', 'id');
 	}
     public function company()
 	{

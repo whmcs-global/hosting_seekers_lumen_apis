@@ -4,6 +4,7 @@ return [
 
     'secrect' => env('ENC_DEC_SECRET', ''),
     'encryptionMethod' => env('ENC_DEC_METHOD', ''),
+    'hostKey' => env('HOST_KEY', ''),
     //Error message
     'ERROR' => [
         'OOPS_ERROR' => 'Oops!! Something went wrong.',

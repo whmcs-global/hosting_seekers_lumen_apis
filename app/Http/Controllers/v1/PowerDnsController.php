@@ -5,12 +5,12 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Traits\{PowerDnsTrait, CpanelTrait};
-use App\Models\{UserServer};
+use App\Traits\{CloudfareTrait, CpanelTrait};
+use App\Models\{UserServer, CloudfareUser};
 
 class PowerDnsController extends Controller
 {
-    use PowerDnsTrait, CpanelTrait;
+    use CloudfareTrait, CpanelTrait;
 
     public function getListing(Request $request, $id) {
         try
@@ -19,9 +19,48 @@ class PowerDnsController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $nameserver = $serverPackage->company_server_package->company_server->name_servers ? unserialize($serverPackage->company_server_package->company_server->name_servers) : [];
-            $userList = $this->wgsReturnDomainData(strtolower($serverPackage->domain), $serverPackage->company_server_package->company_server->ip_address, $nameserver);
-            
+            $cloudfareUser = true;
+            if(!$serverPackage->cloudfare_user_id){
+                $domainName = $serverPackage->domain;
+                $cloudFare = $this->createZoneSet($domainName);
+                $zoneInfo = $this->getSingleZone($domainName);
+                $accountCreate = [];
+                $cloudfareUser = null;
+                if($zoneInfo['success']){
+                    
+                    $cloudfareUser = CloudfareUser::where('status', 1)->first();
+                    $accountCreate['cloudfare_id'] = $zoneInfo['result'][0]['id'];
+                    $userCount = UserServer::where(['cloudfare_user_id' => $cloudfareUser->id ])->count();
+                    $updateData = ['domain_count' => $userCount+1];
+                    if($userCount == 100){
+                        $updateData = ['domain_count' => $userCount, 'status' => 0];
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                        $cloudfareUser = CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                    } else{
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                    }
+                    $accountCreate['cloudfare_user_id'] = $cloudfareUser->id;
+                    $dnsData = [
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'www',
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '120',
+                        ]
+                    ];
+                    foreach ($dnsData as $dnsVal) {
+                        $createDns = $this->createDNSRecord($dnsVal, $zoneInfo['result'][0]['id'], $cloudfareUser->email, $cloudfareUser->user_api);
+                    }
+                }
+                $serverPackage = UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+            }
+            if($cloudfareUser){
+
+                $userList = $this->listDNSRecords($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            } else{
+                $userList = ['result' => 'error', 'data' => ['apierror' => config('constants.ERROR.FORBIDDEN_ERROR')]];
+            }
             
             $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
             
@@ -33,9 +72,14 @@ class PowerDnsController extends Controller
                 $error = $domainList["result"]['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
-            if($userList['status'] == 'success')
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['records' => $userList['data'], 'domains' => $domainList['result']["data"]], 'message' => 'Zone records has been successfully fetched']);
-            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['records' => $userList['data'], 'domains' => $domainList['result']["data"]], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if($userList['result'] != 'error' && $userList['success'])
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['records' => $userList['result'], 'domains' => $domainList['result']["data"]], 'message' => 'Zone records has been successfully fetched']);
+            if($userList['result'] == 'error'){
+                $errormsg = $userList['data']['apierror'];
+            } else{
+                $errormsg = $userList['result'];
+            }
+            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['records' => [], 'domains' => $domainList['result']["data"]], 'message' => $errormsg]);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
@@ -60,7 +104,7 @@ class PowerDnsController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
-            $domainId = $this->wgsReturnDomainId($serverPackage->domain); 
+            $domainId = $this->createDNSRecord($serverPackage->domain); 
             if($domainId['status'] == 'error')
             return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => 'Zone Record adding error', 'message' => $domainId['data']]);
 			$stringErrpr = '';
