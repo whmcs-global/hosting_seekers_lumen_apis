@@ -112,6 +112,15 @@ trait CloudfareTrait {
         return $result;
     }
 
+    public function deleteZone($zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier;
+        $action = "delete";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $result = $this->sendCloudRequest($url, $action, $extra);
+        return $result;
+    }
+
     public function listDNSRecords($zoneidentifier, $ApiEmail, $ApiKey)
     {
         $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/dns_records?per_page=100";
@@ -148,6 +157,29 @@ trait CloudfareTrait {
             }
         }
         $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
+        return $result;
+    } 
+    public function editDNSRecord($dnsdata, $zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/dns_records/" . $dnsdata["dnsrecordid"];
+        $action = "put";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $post = array(
+            "id" => $dnsdata["dnsrecordid"],
+            "type" => $dnsdata["cfdnstype"],
+            "name" => $dnsdata["cfdnsname"],
+            "content" => $dnsdata["cfdnsvalue"],
+            "ttl" => intval($dnsdata["cfdnsttl"])
+        );
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
+        return $result;
+    }
+    public function deleteDNSRecord($dnsdata, $zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/dns_records/" . $dnsdata["dnsrecordid"];
+        $action = "delete";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $result = $this->sendCloudRequest($url, $action, $extra);
         return $result;
     }
 }

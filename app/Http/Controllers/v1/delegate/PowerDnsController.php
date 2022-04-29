@@ -5,12 +5,12 @@ namespace App\Http\Controllers\v1\delegate;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Traits\{PowerDnsTrait, CpanelTrait};
+use App\Traits\{CloudfareTrait, CpanelTrait};
 use App\Models\{UserServer};
 
 class PowerDnsController extends Controller
 {
-    use PowerDnsTrait, CpanelTrait;
+    use CloudfareTrait, CpanelTrait;
 
     public function getListing(Request $request, $id) {
         try
@@ -19,8 +19,83 @@ class PowerDnsController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            $nameserver = $serverPackage->company_server_package->company_server->name_servers ? unserialize($serverPackage->company_server_package->company_server->name_servers) : [];
-            $userList = $this->wgsReturnDomainData(strtolower($serverPackage->domain), $serverPackage->company_server_package->company_server->ip_address, $nameserver);
+            if(!$serverPackage->cloudfare_user_id){
+                $domainName = $serverPackage->domain;
+                $cloudFare = $this->createZoneSet($domainName);
+                $zoneInfo = $this->getSingleZone($domainName);
+                $accountCreate = [];
+                $cloudfareUser = null;
+                if($zoneInfo['success']){
+                    
+                    $cloudfareUser = CloudfareUser::where('status', 1)->first();
+                    $accountCreate['cloudfare_id'] = $zoneInfo['result'][0]['id'];
+                    $userCount = UserServer::where(['cloudfare_user_id' => $cloudfareUser->id ])->count();
+                    $updateData = ['domain_count' => $userCount+1];
+                    if($userCount == 100){
+                        $updateData = ['domain_count' => $userCount, 'status' => 0];
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                        $cloudfareUser = CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                    } else{
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                    }
+                    $accountCreate['cloudfare_user_id'] = $cloudfareUser->id;
+                    $dnsVal = [
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => $domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'www.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'mail.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                        'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'webmail.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'cpanel.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'ftp.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ]
+                        ];
+                    foreach ($dnsData as $dnsVal) {
+                        $createDns = $this->createDNSRecord($dnsVal, $zoneInfo['result'][0]['id'], $cloudfareUser->email, $cloudfareUser->user_api);
+                    }
+                }
+                $serverPackage = UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+            }
+            if($cloudfareUser){
+
+                $userList = $this->listDNSRecords($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            } else{
+                $userList = ['result' => 'error', 'data' => ['apierror' => config('constants.ERROR.FORBIDDEN_ERROR')]];
+            }
+            
             
             $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
             
@@ -32,9 +107,14 @@ class PowerDnsController extends Controller
                 $error = $domainList["result"]['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
-            if($userList['status'] == 'success')
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['records' => $userList['data'], 'domains' => $domainList['result']["data"]], 'message' => 'Zone records has been successfully fetched']);
-            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['records' => $userList['data'], 'domains' => $domainList['result']["data"]], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if($userList['result'] != 'error' && $userList['success'])
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['records' => $userList['result'], 'domains' => $domainList['result']["data"]], 'message' => 'Zone records has been successfully fetched']);
+            if($userList['result'] == 'error'){
+                $errormsg = $userList['data']['apierror'];
+            } else{
+                $errormsg = $userList['errors'];
+            }
+            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['records' => [], 'domains' => $domainList['result']["data"]], 'message' => $errormsg]);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
@@ -59,35 +139,32 @@ class PowerDnsController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
-            $domainId = $this->wgsReturnDomainId($serverPackage->domain); 
-            if($domainId['status'] == 'error')
-            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => 'Zone Record adding error', 'message' => $domainId['data']]);
-			$stringErrpr = '';
-			$response = [];
 			$fullHostName = $request->name.'.'.$serverPackage->domain; 
-            $data = [
-                'domain_id' => strval($domainId['data']),
-                'name' => $fullHostName,
-                'type' => $request->type,
-                'content' => $request->content,
-                'ttl' => $request->ttl,
-                'change_date' => time()
+            $data =[
+                'zone_id' => $serverPackage->cloudfare_id,
+                'cfdnstype' => $request->type,
+                'cfdnsname' => $fullHostName,
+                'cfdnsvalue' => $request->content,
+                'cfdnsttl' => $request->ttl,
             ];
-            if($request->priority)
-            $data['prio'] = $request->priority;
-            try{
-                $resultQuery = DB::connection('mysql3')->table('records')->insert($data);
-            } catch(Exception $ex){
-                $stringErrpr =  $ex->get_message();
+            $createDns = $this->createDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($createDns['result'] == 'error'){
+                $errormsg = $createDns['data']['apierror'];
+            } else{
+                $errormsg = $createDns['errors'];
             }
-			if(!empty($stringErrpr)){
-                return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => 'Zone Record adding error', 'message' => $stringErrpr]);
-			}		
-            $nameserver = $serverPackage->company_server_package->company_server->name_servers ? unserialize($serverPackage->company_server_package->company_server->name_servers) : [];
-            $userList = $this->wgsReturnDomainData(strtolower($serverPackage->domain), $serverPackage->company_server_package->company_server->ip_address, $nameserver);
-            if($userList['status'] == 'success')
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $userList['data'], 'message' => 'Zone records has been successfully added']);
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Zone records has been successfully added']);
+            if($createDns['result'] == 'error' || !$createDns['success']){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Zone Record adding error', 'message' => $errormsg]);
+            }
+            $userList = $this->listDNSRecords($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($userList['result'] != 'error' && $userList['success'])
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $userList['result'], 'message' => 'Zone records has been successfully added']);
+            if($userList['result'] == 'error'){
+                $errormsg = $userList['data']['apierror'];
+            } else{
+                $errormsg = $userList['errors'];
+            }
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => [], 'message' => $errormsg]);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Zone Record adding error', 'message' => $ex->getMessage()]);
@@ -113,49 +190,57 @@ class PowerDnsController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
-			$stringErrpr = '';
-			$response = [];
 			$fullHostName = $request->name.'.'.$serverPackage->domain; 
-            $data = [
-                'name' => $fullHostName,
-                'type' => $request->type,
-                'content' => $request->content,
-                'ttl' => $request->ttl,
-                'change_date' => time()
+            $data =[
+                'dnsrecordid' => $request->id,
+                'cfdnstype' => $request->type,
+                'cfdnsname' => $fullHostName,
+                'cfdnsvalue' => $request->content,
+                'cfdnsttl' => $request->ttl,
             ];
-            if($request->priority)
-            $data['prio'] = $request->priority;
-            try{
-                $resultQuery = DB::connection('mysql3')->table('records')->where('id', jsdecode_userdata($request->id))->update($data);
-            } catch(Exception $ex){
-                $stringErrpr =  $ex->get_message();
+            $createDns = $this->editDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($createDns['result'] == 'error'){
+                $errormsg = $createDns['data']['apierror'];
+            } else{
+                $errormsg = $createDns['errors'];
             }
-			if(!empty($stringErrpr)){
-                return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => 'Zone Record adding error', 'message' => $stringErrpr]);
-			}		
-            $nameserver = $serverPackage->company_server_package->company_server->name_servers ? unserialize($serverPackage->company_server_package->company_server->name_servers) : [];
-            $userList = $this->wgsReturnDomainData(strtolower($serverPackage->domain), $serverPackage->company_server_package->company_server->ip_address, $nameserver);
-            if($userList['status'] == 'success')
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $userList['data'], 'message' => 'Zone records has been successfully added']);
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Zone records has been successfully added']);
+            if($createDns['result'] == 'error' || !$createDns['success']){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Zone Record adding error', 'message' => $errormsg]);
+            }
+            $userList = $this->listDNSRecords($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($userList['result'] != 'error' && $userList['success'])
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $userList['result'], 'message' => 'Zone records has been successfully added']);
+            if($userList['result'] == 'error'){
+                $errormsg = $userList['data']['apierror'];
+            } else{
+                $errormsg = $userList['errors'];
+            }
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => [], 'message' => $errormsg]);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Zone Record adding error', 'message' => $ex->getMessage()]);
         }
     }
     
-    public function deleteRecord(Request $request, $id) {
+    public function deleteRecord(Request $request) {
         try
         {
-            $id = jsdecode_userdata($id);
-            try{
-                $resultQuery = DB::connection('mysql3')->table('records')->where('id', $id)->delete();
-            } catch(Exception $ex){
-                $stringErrpr =  $ex->get_message();
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $data =[
+                'dnsrecordid' => $request->id,
+            ];
+            $createDns = $this->deleteDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($createDns['result'] == 'error'){
+                $errormsg = $createDns['data']['apierror'];
+            } else{
+                $errormsg = $createDns['errors'];
             }
-			if(!empty($stringErrpr)){
-                return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => 'Zone Record adding error', 'message' => $stringErrpr]);
-			}		
+            if($createDns['result'] == 'error' || !$createDns['success']){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Zone Record deleting error', 'message' => $errormsg]);
+            }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Zone records has been successfully deleted']);
         }
         catch(Exception $ex){

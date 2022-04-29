@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{BlockedIp, UserServer};
 use Illuminate\Support\Facades\{DB, Config, Validator};
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait};
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, CloudfareTrait};
 
 class SubDomainController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait;
+    use CpanelTrait, CommonTrait, SendResponseTrait, CloudfareTrait;
     public function getSubDomain(Request $request, $id) {
         try
         {
@@ -65,13 +65,113 @@ class SubDomainController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
             }   
 
-            $accountCreate = [];
-            $accountCreate['subdomain'] = $request->subdomain;
-            $accountCreate['domain'] = $request->domain;
-            $accountCreate['ipaddress'] = $serverPackage->company_server_package->company_server->ip_address;
-            $response = $this->WgsCreateDomain($accountCreate);
-            if($response['status'] == 'error')
-                return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created.'.' '.$response['data']]);
+            $zoneId = $serverPackage->cloudfare_id;
+            if(!$serverPackage->cloudfare_user_id){
+                $domainName = $serverPackage->domain;
+                $cloudFare = $this->createZoneSet($domainName);
+                $zoneInfo = $this->getSingleZone($domainName);
+                $accountCreate = [];
+                $cloudfareUser = null;
+                if($zoneInfo['success']){
+                    
+                    $cloudfareUser = CloudfareUser::where('status', 1)->first();
+                    $accountCreate['cloudfare_id'] = $zoneId = $zoneInfo['result'][0]['id'];
+                    $userCount = UserServer::where(['cloudfare_user_id' => $cloudfareUser->id ])->count();
+                    $updateData = ['domain_count' => $userCount+1];
+                    if($userCount == 100){
+                        $updateData = ['domain_count' => $userCount, 'status' => 0];
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                        $cloudfareUser = CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                    } else{
+                        CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
+                    }
+                    $accountCreate['cloudfare_user_id'] = $cloudfareUser->id;
+                    $dnsData = [
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => $domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'www.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'mail.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'webmail.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'cpanel.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'ftp.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ]
+                    ];
+                    foreach ($dnsData as $dnsVal) {
+                        $createDns = $this->createDNSRecord($dnsVal, $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
+                    }
+                }
+                $serverPackage = UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+            } 
+            if($zoneId){
+                $subDomain = $request->subdomain;
+                $dnsData = [
+                    [
+                        'zone_id' => $zoneId,
+                        'cfdnstype' => 'A',
+                        'cfdnsname' => $subDomain,
+                        'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                        'cfdnsttl' => '14400',
+                    ],
+                    [
+                        'zone_id' => $zoneId,
+                        'cfdnstype' => 'A',
+                        'cfdnsname' => 'webmail.'.$subDomain,
+                        'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                        'cfdnsttl' => '14400',
+                    ],
+                    [
+                        'zone_id' => $zoneId,
+                        'cfdnstype' => 'A',
+                        'cfdnsname' => 'cpanel.'.$subDomain,
+                        'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                        'cfdnsttl' => '14400',
+                    ],
+                    [
+                        'zone_id' => $zoneId,
+                        'cfdnstype' => 'A',
+                        'cfdnsname' => 'ftp.'.$subDomain,
+                        'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
+                        'cfdnsttl' => '14400',
+                    ]
+                ];
+                foreach ($dnsData as $dnsVal) {
+                    $createDns = $this->createDNSRecord($dnsVal, $zoneId, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+                }
+            }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created']);
         }
         catch(Exception $ex){
@@ -146,7 +246,6 @@ class SubDomainController extends Controller
                 $error = $accCreated['cpanelresult']['data'][0]["reason"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => 'Failed to find the domain(s): "'.$request->subdomain.'"']);
             }
-            $this->wgsDeleteDomain(['domain' => $serverPackage->domain, 'subdomain' => $request->subdomain]);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully deleted']);
         }
         catch(Exception $ex){

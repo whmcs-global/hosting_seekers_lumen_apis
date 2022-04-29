@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\{DB, Config, Validator};
 use Illuminate\Support\Str; 
 use hisorange\BrowserDetect\Parser as Browser;
 use App\Models\{Order, OrderTransaction, WalletPayment, Invoice, UserServer, UserTerminatedAccount, User, DelegateDomainAccess};
-use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, PowerDnsTrait, GetDataTrait, AutoResponderTrait };
+use App\Traits\{CpanelTrait, SendResponseTrait, CommonTrait, CloudfareTrait, GetDataTrait, AutoResponderTrait };
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PleskX\Api\Client;
 use Carbon\Carbon;
 
 class ServiceController extends Controller
 {
-    use CpanelTrait, CommonTrait, SendResponseTrait, PowerDnsTrait, SendResponseTrait, CommonTrait, GetDataTrait, AutoResponderTrait ;
+    use CpanelTrait, CommonTrait, SendResponseTrait, CloudfareTrait, SendResponseTrait, CommonTrait, GetDataTrait, AutoResponderTrait ;
 
     public function cancelService(Request $request){
         try {
@@ -69,7 +69,8 @@ class ServiceController extends Controller
                             $serverPackage->status = 2;
                             $serverPackage->save();
                             DelegateDomainAccess::where('user_server_id', $serverPackage->id)->delete();
-                            $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
+                            if($serverPackage->cloudfare_user_id)
+                                $this->deleteZone($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email,  $serverPackage->cloudfare_user->user_api);
                         }
                         catch(Exception $ex){
                             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);

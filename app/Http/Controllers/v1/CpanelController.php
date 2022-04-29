@@ -228,7 +228,8 @@ class CpanelController extends Controller
             }
             UserTerminatedAccount::create(['user_id' => $serverPackage->user_id, 'name' => $serverPackage->name, 'domain' => $serverPackage->domain ]);
             $serverPackage->delete();
-            $this->wgsDeleteDomain(['domain' => $serverPackage->domain]);
+            if($serverPackage->cloudfare_user_id)
+                $this->deleteZone($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email,  $serverPackage->cloudfare_user->user_api);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['metadata']["reason"], 'message' => 'Account has been successfully terminated']);
         }
         catch(Exception $ex){
@@ -334,7 +335,7 @@ class CpanelController extends Controller
                 if($zoneInfo['success']){
                     
                     $cloudfareUser = CloudfareUser::where('status', 1)->first();
-                    $accountCreate['cloudfare_id'] = $zoneInfo['result'][0]['id'];
+                    $accountCreate['cloudfare_id'] = $zoneId =  $zoneInfo['result'][0]['id'];
                     $userCount = UserServer::where(['cloudfare_user_id' => $cloudfareUser->id ])->count();
                     $updateData = ['domain_count' => $userCount+1];
                     if($userCount == 100){
@@ -347,15 +348,50 @@ class CpanelController extends Controller
                     $accountCreate['cloudfare_user_id'] = $cloudfareUser->id;
                     $dnsData = [
                         [
-                            'zone_id' => $zoneInfo['result'][0]['id'],
+                            'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
-                            'cfdnsname' => 'www',
+                            'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server->ip_address,
-                            'cfdnsttl' => '120',
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'www.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'mail.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'webmail.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'cpanel.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server->ip_address,
+                            'cfdnsttl' => '86400',
+                        ],
+                        [
+                            'zone_id' => $zoneId,
+                            'cfdnstype' => 'A',
+                            'cfdnsname' => 'ftp.'.$domainName,
+                            'cfdnsvalue' => $serverPackage->company_server->ip_address,
+                            'cfdnsttl' => '86400',
                         ]
                     ];
                     foreach ($dnsData as $dnsVal) {
-                        $createDns = $this->createDNSRecord($dnsVal, $zoneInfo['result'][0]['id'], $cloudfareUser->email, $cloudfareUser->user_api);
+                        $createDns = $this->createDNSRecord($dnsVal, $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                     }
                 }
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
