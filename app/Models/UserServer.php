@@ -15,6 +15,7 @@ class UserServer extends Model
         'company_server_package_id',
 		'name',
 		'domain',
+		'ns_detail',
         'cloudfare_user_id',
         'cloudfare_id',
 		'screenshot',
