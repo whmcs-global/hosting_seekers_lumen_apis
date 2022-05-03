@@ -549,7 +549,7 @@ class CpanelController extends Controller
     public function getUserInfo(Request $request, $id) {
         try
         {
-            $serverId = jsdecode_userdata('8bDHSo2hEKrw^VOXxpm6HA==');
+            $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             return ['server_id' => $serverId, 'user_id' => $request->userid, $serverPackage];
             if(!$serverPackage)
