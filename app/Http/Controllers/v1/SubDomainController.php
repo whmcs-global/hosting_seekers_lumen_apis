@@ -82,6 +82,7 @@ class SubDomainController extends Controller
                         $updateData = ['domain_count' => $userCount, 'status' => 0];
                         CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
                         $cloudfareUser = CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                        $cloudfareUser = CloudfareUser::where('status', 1)->first();
                     } else{
                         CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
                     }
@@ -134,7 +135,8 @@ class SubDomainController extends Controller
                         $createDns = $this->createDNSRecord($dnsVal, $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                     }
                 }
-                $serverPackage = UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+                UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+                $serverPackage = UserServer::where(['id' => $serverPackage->id])->first();
             } 
             if($zoneId){
                 $subDomain = $request->subdomain;

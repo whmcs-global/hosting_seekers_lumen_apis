@@ -35,12 +35,13 @@ class PowerDnsController extends Controller
                     if($userCount == 100){
                         $updateData = ['domain_count' => $userCount, 'status' => 0];
                         CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
-                        $cloudfareUser = CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                        CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                        $cloudfareUser = CloudfareUser::where(['status' =>  1])->first();
                     } else{
                         CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
                     }
                     $accountCreate['cloudfare_user_id'] = $cloudfareUser->id;
-                    $dnsVal = [
+                    $dnsData = [
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
@@ -88,7 +89,8 @@ class PowerDnsController extends Controller
                         $createDns = $this->createDNSRecord($dnsVal, $zoneInfo['result'][0]['id'], $cloudfareUser->email, $cloudfareUser->user_api);
                     }
                 }
-                $serverPackage = UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+                UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
+                $serverPackage = UserServer::where(['id' => $serverPackage->id])->first();
             }
             if($cloudfareUser){
                 $userList = $this->listDNSRecords($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
