@@ -72,7 +72,7 @@ if (!function_exists('jsencode_userdata')) {
         try {
             $iv = substr($secret, 0, 16);
             $jsencodeUserdata = str_replace('/', '!', openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
-            $jsencodeUserdata = str_replace('+', '^', $jsencodeUserdata);
+            $jsencodeUserdata = str_replace('+', '~', $jsencodeUserdata);
             return $jsencodeUserdata;
         } catch (\Exception $e) {
             abort('403');
@@ -87,7 +87,7 @@ if (!function_exists('jsdecode_userdata')) {
         try {
             $iv = substr($secret, 0, 16);
             $data = str_replace('!', '/', $data);
-            $data = str_replace('^', '+', $data);
+            $data = str_replace('~', '+', $data);
             $jsencodeUserdata = openssl_decrypt($data, $encryptionMethod, $secret, 0, $iv);
             return $jsencodeUserdata;
         } catch (\Exception $e) {
