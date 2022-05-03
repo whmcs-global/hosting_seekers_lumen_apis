@@ -349,6 +349,7 @@ class DomainController extends Controller
                 $accountCreate = [];
                 $cloudfareUser = null;
                 if($zoneInfo['success']){
+                    $accountCreate['ns_detail'] = serialize($zoneInfo['result'][0]['name_servers']);
                     
                     $cloudfareUser = CloudfareUser::where('status', 1)->first();
                     $accountCreate['cloudfare_id'] = $zoneId = $zoneInfo['result'][0]['id'];
