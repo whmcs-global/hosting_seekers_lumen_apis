@@ -197,7 +197,13 @@ class PowerDnsController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
-			$fullHostName = $request->name.'.'.$serverPackage->domain; 
+            if($request->type != 'TXT' &&  $request->type != 'MX')
+            {
+                $fullHostName = $request->name.'.'.$serverPackage->domain; 
+            } 
+            else {
+                $fullHostName = $request->name; 
+            }
             $data =[
                 'dnsrecordid' => $request->id,
                 'cfdnstype' => $request->type,
