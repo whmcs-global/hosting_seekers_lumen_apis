@@ -370,42 +370,48 @@ class DomainController extends Controller
                             'cfdnstype' => 'A',
                             'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'www.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'mail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'webmail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'cpanel.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'ftp.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ]
                     ];
                     foreach ($dnsData as $dnsVal) {
@@ -423,28 +429,32 @@ class DomainController extends Controller
                         'cfdnstype' => 'A',
                         'cfdnsname' => $subDomain,
                         'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '14400',
+                        'cfdnsttl' => '1',
+                        'proxied' => 'true'
                     ],
                     [
                         'zone_id' => $zoneId,
                         'cfdnstype' => 'A',
                         'cfdnsname' => 'webmail.'.$subDomain,
                         'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '14400',
+                        'cfdnsttl' => '1',
+                        'proxied' => 'true'
                     ],
                     [
                         'zone_id' => $zoneId,
                         'cfdnstype' => 'A',
                         'cfdnsname' => 'cpanel.'.$subDomain,
                         'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '14400',
+                        'cfdnsttl' => '1',
+                        'proxied' => 'true'
                     ],
                     [
                         'zone_id' => $zoneId,
                         'cfdnstype' => 'A',
                         'cfdnsname' => 'ftp.'.$subDomain,
                         'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '14400',
+                        'cfdnsttl' => '1',
+                        'proxied' => 'true'
                     ]
                 ];
                 foreach ($dnsData as $dnsVal) {

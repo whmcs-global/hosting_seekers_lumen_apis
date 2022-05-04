@@ -47,42 +47,42 @@ class PowerDnsController extends Controller
                             'cfdnstype' => 'A',
                             'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'www.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'mail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '0',
+                        'cfdnsttl' => '1',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'webmail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'cpanel.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'ftp.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '0',
+                            'cfdnsttl' => '1',
                         ]
                     ];
                     foreach ($dnsData as $dnsVal) {
@@ -153,6 +153,7 @@ class PowerDnsController extends Controller
                 'cfdnsvalue' => $request->content,
                 'cfdnsttl' => $request->ttl,
                 'cfmxpriority' => $request->priority??0,
+                'proxied' => $request->proxied
             ];
             $createDns = $this->createDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             if($createDns['result'] == 'error'){
@@ -211,6 +212,7 @@ class PowerDnsController extends Controller
                 'cfdnsvalue' => $request->content,
                 'cfdnsttl' => $request->ttl,
                 'cfmxpriority' => $request->priority??0,
+                'proxied' => $request->proxied
             ];
             $createDns = $this->editDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             if($createDns['result'] == 'error'){
@@ -233,6 +235,69 @@ class PowerDnsController extends Controller
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Zone Record updating error', 'message' => $ex->getMessage()]);
+        }
+    }
+    
+    public function developementMode(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'developement_mode' => 'required',
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $createDns = $this->changeDevelopmentModeSetting($request->developement_mode, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($createDns['result'] == 'error'){
+                $errormsg = $createDns['data']['apierror'];
+            } else{
+                $errormsg = $createDns['errors'];
+            }
+            if($createDns['result'] == 'error' || !$createDns['success']){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Developement mode updating error', 'message' => $errormsg]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Developement mode has been successfully updated']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Developement mode updating error', 'message' => $ex->getMessage()]);
+        }
+    }
+    
+    public function securityLevelMode(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'security_level' => 'required',
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $data =[
+                'dnsrecordid' => $request->id,
+            ];
+            $createDns = $this->changeSecurityLevelSetting($request->security_level, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+            if($createDns['result'] == 'error'){
+                $errormsg = $createDns['data']['apierror'];
+            } else{
+                $errormsg = $createDns['errors'];
+            }
+            if($createDns['result'] == 'error' || !$createDns['success']){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Under attack mode updating error', 'message' => $errormsg]);
+            }
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Under attack mode has been successfully updated']);
+        }
+        catch(Exception $ex){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Under attack mode updating error', 'message' => $ex->getMessage()]);
         }
     }
     

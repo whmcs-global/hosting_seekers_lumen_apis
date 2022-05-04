@@ -175,6 +175,16 @@ trait CloudfareTrait {
             $dnsdata["cfmxpriority"] = intval($dnsdata["cfmxpriority"]);
             $post['priority'] = $dnsdata["cfmxpriority"];
         }
+        if ($dnsdata["cfdnstype"] == "A" || $dnsdata["cfdnstype"] == "AAAA" || $dnsdata["cfdnstype"] == "CNAME") {
+            switch ($dnsdata["proxied"]) {
+                case "false":
+                    $post = array_merge($post, array('proxied' => false));
+                    break;
+                case "true":
+                    $post = array_merge($post, array('proxied' => true));
+                    break;
+            }
+        }
         $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
         return $result;
     }
@@ -182,6 +192,35 @@ trait CloudfareTrait {
     {
         $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/dns_records/" . $dnsdata["dnsrecordid"];
         $action = "delete";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $result = $this->sendCloudRequest($url, $action, $extra);
+        return $result;
+    }
+
+    public function changeDevelopmentModeSetting($value, $zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/settings/development_mode";
+        $action = "patch";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $post = array("value" => $value);
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
+        return $result;
+    }
+    
+    public function changeSecurityLevelSetting($value, $zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/settings/security_level";
+        $action = "patch";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $post = array("value" => $value);
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
+        return $result;
+    }
+
+    public function getModeSetting($value, $zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/settings/".$value;
+        $action = "get";
         $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
         $result = $this->sendCloudRequest($url, $action, $extra);
         return $result;

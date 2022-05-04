@@ -131,6 +131,8 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             $router->get('zone-record-list/{id}', 'PowerDnsController@getListing');
             $router->post('zone-record-add', 'PowerDnsController@createRecord');
             $router->post('zone-record-update', 'PowerDnsController@updateRecord');
+            $router->post('developement-mode', 'PowerDnsController@developementMode');
+            $router->post('security-level-mode', 'PowerDnsController@securityLevelMode');
             $router->post('zone-record-delete', 'PowerDnsController@deleteRecord');
             //Get zone records api
             $router->get('cron-job-list/{id}', 'CronJobController@getListing');
@@ -233,6 +235,8 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
                 $router->post('zone-record-add', 'PowerDnsController@createRecord');
                 $router->post('zone-record-update', 'PowerDnsController@updateRecord');
                 $router->post('zone-record-delete', 'PowerDnsController@deleteRecord');
+                $router->post('developement-mode', 'PowerDnsController@developementMode');
+                $router->post('security-level-mode', 'PowerDnsController@securityLevelMode');
             });
 
             //Get zone records api
