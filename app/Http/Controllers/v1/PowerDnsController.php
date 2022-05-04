@@ -139,8 +139,13 @@ class PowerDnsController extends Controller
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-            
-			$fullHostName = $request->name.'.'.$serverPackage->domain; 
+            if($request->type != 'TXT' &&  $request->type != 'MX')
+            {
+                $fullHostName = $request->name.'.'.$serverPackage->domain; 
+            } 
+            else {
+                $fullHostName = $request->name; 
+            }
             $data =[
                 'zone_id' => $serverPackage->cloudfare_id,
                 'cfdnstype' => $request->type,
