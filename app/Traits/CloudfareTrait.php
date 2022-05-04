@@ -171,7 +171,7 @@ trait CloudfareTrait {
             "content" => $dnsdata["cfdnsvalue"],
             "ttl" => intval($dnsdata["cfdnsttl"])
         );
-        if ($type == "MX") {
+        if ($dnsdata["cfdnstype"] == "MX") {
             $dnsdata["cfmxpriority"] = intval($dnsdata["cfmxpriority"]);
             $post['priority'] = $dnsdata["cfmxpriority"];
         }
