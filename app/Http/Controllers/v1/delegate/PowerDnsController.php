@@ -47,42 +47,42 @@ class PowerDnsController extends Controller
                             'cfdnstype' => 'A',
                             'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'www.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'mail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '86400',
+                        'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'webmail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'cpanel.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneInfo['result'][0]['id'],
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'ftp.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ]
                         ];
                     foreach ($dnsData as $dnsVal) {
@@ -143,7 +143,13 @@ class PowerDnsController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
-			$fullHostName = $request->name.'.'.$serverPackage->domain; 
+            if($request->name != '@')
+            {
+                $fullHostName = $request->name.'.'.$serverPackage->domain; 
+            } 
+            else {
+                $fullHostName = $request->name; 
+            }
             $data =[
                 'zone_id' => $serverPackage->cloudfare_id,
                 'cfdnstype' => $request->type,
@@ -195,7 +201,13 @@ class PowerDnsController extends Controller
             if(!$serverPackage)
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             
-			$fullHostName = $request->name.'.'.$serverPackage->domain; 
+            if($request->name != '@')
+            {
+                $fullHostName = $request->name.'.'.$serverPackage->domain; 
+            } 
+            else {
+                $fullHostName = $request->name; 
+            }
             $data =[
                 'dnsrecordid' => $request->id,
                 'cfdnstype' => $request->type,

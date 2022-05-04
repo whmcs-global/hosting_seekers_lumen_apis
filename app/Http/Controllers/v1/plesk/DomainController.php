@@ -369,42 +369,42 @@ class DomainController extends Controller
                             'cfdnstype' => 'A',
                             'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'www.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'mail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'webmail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'cpanel.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'ftp.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                            'cfdnsttl' => '86400',
+                            'cfdnsttl' => '0',
                         ]
                     ];
                     foreach ($dnsData as $dnsVal) {
