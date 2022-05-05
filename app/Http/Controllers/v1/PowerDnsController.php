@@ -153,10 +153,11 @@ class PowerDnsController extends Controller
                 'cfdnsvalue' => $request->content,
                 'cfdnsttl' => $request->ttl,
                 'cfmxpriority' => $request->priority??0,
-                'proxied' => $request->proxied
+                'proxied' => ($request->proxied == 1 || $request->proxied == 'true') ? 'true' : 'false'
             ];
             $createDns = $this->createDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             if($createDns['result'] == 'error'){
+                return [$createDns['data']];
                 $errormsg = $createDns['data']['apierror'];
             } else{
                 $errormsg = $createDns['errors'];
@@ -212,7 +213,7 @@ class PowerDnsController extends Controller
                 'cfdnsvalue' => $request->content,
                 'cfdnsttl' => $request->ttl,
                 'cfmxpriority' => $request->priority??0,
-                'proxied' => $request->proxied
+                'proxied' => ($request->proxied == 1 || $request->proxied == 'true') ? 'true' : 'false'
             ];
             $createDns = $this->editDNSRecord($data, $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             if($createDns['result'] == 'error'){
