@@ -94,7 +94,7 @@ class CpanelController extends Controller
                     $from = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
                     $cancelService = false;
                     $diff_in_days = $to->diffInDays($from) + 1;
-                    if($diff_in_days <= $cancelDays && $order->is_cancelled == 0)
+                    if($order->hosting_claim == 0 && $diff_in_days <= $cancelDays && $order->is_cancelled == 0)
                     $cancelService = true;
                     $orderDataArray = ['id'=> jsencode_userdata($order->id), 'company_name' => $order->ordered_product->product->user->company_detail->company_name, 'product_name' => $order->ordered_product->product->name, 'product_detail' => html_entity_decode(substr(strip_tags($order->ordered_product->product->features), 0, 50)), 'currency_icon' => $order->currency->icon, 'payable_amount' => $order->payable_amount, 'is_cancelled' => $order->is_cancelled, 'cancelled_on' => $order->cancelled_on ? change_date_format($order->cancelled_on) : null, 'created_at' => change_date_format($order->created_at), 'expiry' => change_date_format(add_days_to_date($order->created_at, $billingCycle)), 'cancel_service' => $cancelService, 'servers' => $packageArray];
                     $cpanelAccount = null;

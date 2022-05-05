@@ -122,7 +122,7 @@ class OrderController extends Controller
                 $orderData = [];
                 foreach($orders as $order){
                     $cancelService = false;
-                    if($order->place_for == 'Product' && $order->status == 1 && $order->is_cancelled == 0){
+                    if($order->hosting_claim == 0 && $order->place_for == 'Product' && $order->status == 1 && $order->is_cancelled == 0){
                         $billingCycle = $this->billingCycleName($order->ordered_product->billing_cycle);
                         $cancelDays = config('constants.DAYS_FOR_MONTHLY_BILLING');
                         if($billingCycle == 'Annually')
