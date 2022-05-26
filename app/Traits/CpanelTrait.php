@@ -304,7 +304,7 @@ trait CpanelTrait {
     API Method Name:    loginPhpMyAdminAccount
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To create new email account
+    Purpose:            To login phpmyadmin account
     */
     public function loginPhpMyAdminAccount($id, $username)
     {
@@ -317,7 +317,7 @@ trait CpanelTrait {
     API Method Name:    loginWebmail
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To create new email account
+    Purpose:            To login email account with webmail
     */
     public function loginWebmail($id, $username)
     {
@@ -330,7 +330,7 @@ trait CpanelTrait {
     API Method Name:    loginCpanelAccount
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To create new email account
+    Purpose:            To login into cpanel account
     */
     public function loginCpanelAccount($id, $username)
     {
@@ -343,7 +343,7 @@ trait CpanelTrait {
     API Method Name:    getBlockIp
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To create new cpanel account
+    Purpose:            To get list of black listed ip addresses
     */
     public function getBlockIp($id, $username)
     {
@@ -355,7 +355,7 @@ trait CpanelTrait {
     API Method Name:    blockIp
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To create new cpanel account
+    Purpose:            To black list any ip address
     */
     public function blockIp($id, $username, $ip) 
     {
@@ -367,13 +367,79 @@ trait CpanelTrait {
     API Method Name:    unblockIp
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To create new cpanel account
+    Purpose:            To whitelist any ip address
     */
     public function unblockIp($id, $username, $ip)
     {
         return $this->runQuery($id, 'cgi/addon_csf.cgi', ['action' => 'kill', 'ip' => $ip], false, true);
     }
     /* End Method unblockIp */
+    
+    /*
+    API Method Name:    extractFile
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To extract file on cpanel
+    */
+    public function extractFile($id, $username, $dir)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'fileop',
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_user' => $username,
+            'doubledecode' => 0,
+            'op' => 'extract',
+            'sourcefiles' => '/public_html/wordpress.zip',
+            'destfiles' => $dir
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method extractFile */
+    
+    /*
+    API Method Name:    deleteCpanelFile
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To delete file from cpanel
+    */
+    public function deleteCpanelFile($id, $username, $file = '/public_html/wordpress.zip')
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'fileop',
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_user' => $username,
+            'op' => 'unlink',
+            'sourcefiles' => $file,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method deleteCpanelFile */
+    
+    /*
+    API Method Name:    uploadFile
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To upload new file on cpanel
+    */
+    public function uploadFile($id, $username, $dir, $contentText, $fileName)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 3,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'save_file_content',
+            'cpanel_jsonapi_user' => $username,
+            'dir' => $dir,
+            'file' => $fileName,
+            "content" => $contentText
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method uploadFile */
     
     /*
     API Method Name:    createAccount

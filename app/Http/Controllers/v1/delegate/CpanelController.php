@@ -144,6 +144,10 @@ class CpanelController extends Controller
             if(!is_array($cpanelStats) ){
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
+            if ((array_key_exists("data", $cpanelStats) && $cpanelStats["data"]['result'] == "0")) {
+                $error = $cpanelStats["data"]['reason'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
                 $error = $cpanelStats["result"]['errors'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);

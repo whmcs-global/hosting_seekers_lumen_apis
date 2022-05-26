@@ -567,6 +567,10 @@ class CpanelController extends Controller
                 $error = $cpanelStats["data"]['reason'];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
             }
+            if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
+                $error = $cpanelStats["result"]['errors'];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+            }
             $cpanelStatArray = [];
             foreach( $cpanelStats['result']['data'] as $cpanelStat){
                     $value = $units = null;
