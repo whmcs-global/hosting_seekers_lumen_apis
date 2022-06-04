@@ -131,6 +131,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             $router->get('logout-all', 'UserController@logoutAll');
             //Get zone records api
             $router->get('zone-record-list/{id}', 'PowerDnsController@getListing');
+            $router->get('zone-user-list/{id}', 'PowerDnsController@getUserStatus');
             $router->post('zone-record-add', 'PowerDnsController@createRecord');
             $router->post('zone-record-update', 'PowerDnsController@updateRecord');
             $router->post('developement-mode', 'PowerDnsController@developementMode');
@@ -234,6 +235,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             //Get zone records api
             $router->group(['middleware'=> ['powerdnsAccess']], function () use ($router) {
                 $router->get('zone-record-list/{id}', 'PowerDnsController@getListing');
+                $router->get('zone-user-list/{id}', 'PowerDnsController@getUserStatus');
                 $router->post('zone-record-add', 'PowerDnsController@createRecord');
                 $router->post('zone-record-update', 'PowerDnsController@updateRecord');
                 $router->post('zone-record-delete', 'PowerDnsController@deleteRecord');

@@ -76,11 +76,6 @@ trait CloudfareTrait {
         $ch = curl_init();
         $cfusername = $this->ApiEmail;
         $cfapikey = $this->ApiKey;
-        // $cfusername = 'hostingseekers1@gmail.com';
-        // $cfapikey = '0d679464f7b87ccd0921dae376ff3ce95dec8';
-        // $cfusername = 'harrybedi005@gmail.com';
-        // $cfapikey = 'bbd8a671d7213f0a3239d0ec7ead0020f8900';
-        // return [$cfusername , $cfapikey];
         $headers = array(
             "Content-Type: application/json",
             "X-Auth-Email: " . $cfusername,
@@ -133,7 +128,7 @@ trait CloudfareTrait {
         } 
         return json_decode($http_result);
     }
-    
+
     public function getSingleZone($zonename)
     {
         $url = $this->ApiUrl . "zones?name=" . $zonename;
