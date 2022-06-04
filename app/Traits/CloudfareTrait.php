@@ -73,30 +73,61 @@ trait CloudfareTrait {
     }
     
     public function createZoneSet($zone) {
-        $resolve_to = 'cloudflare-resolve-to.'.$zone;
-        $subdomains = 'www';
-        $data = array(
-            'act' => 'full_zone_set',
-            'host_key' => config('constants.hostKey'),
-            'user_key' => $this->userKey,
-            'zone_name' => $zone,
-            'resolve_to' => $resolve_to,
-            'subdomains' => $subdomains
-        );
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_VERBOSE, 0);
-        curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-        curl_setopt($ch, CURLOPT_URL, 'https://api.cloudflare.com/host-gw.html');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $cfusername = $this->ApiEmail;
+        $cfapikey = $this->ApiKey;
+        $cfusername = 'hostingseekers1@gmail.com';
+        $cfapikey = '0d679464f7b87ccd0921dae376ff3ce95dec8';
+        // $cfusername = 'harrybedi005@gmail.com';
+        // $cfapikey = 'bbd8a671d7213f0a3239d0ec7ead0020f8900';
+        // return [$cfusername , $cfapikey];
+        $headers = array(
+            "Content-Type: application/json",
+            "X-Auth-Email: " . $cfusername,
+            "X-Auth-Key: " . $cfapikey
+        );
+        curl_setopt($ch, CURLOPT_URL, 'https://api.cloudflare.com/client/v4/accounts');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_HTTPGET, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $http_result = curl_exec($ch);
         $error = curl_error($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_code != 200) {
+            return ['error' => $error];
+        } 
+        $accountDetail = json_decode($http_result, true);
         curl_close($ch);
+        if(!is_array($accountDetail) || !$accountDetail['success']){
+            return $accountDetail['errors'][0];
+        }
+        $accoutnId = $accountDetail['result'][0]['id'];
+        $resolve_to = 'cloudflare-resolve-to.'.$zone;
+        $subdomains = 'www';
+        $data = array(
+            'type' => 'full',
+            'account' => ['id' => 'b9a46e356cafc54f622a01f049d3de95'],
+            'name' => $zone,
+        );
+        $ch1 = curl_init();
+        $headers = array(
+            "Content-Type: application/json",
+            "X-Auth-Email: " . $cfusername,
+            "X-Auth-Key: " . $cfapikey
+        );
+        curl_setopt($ch1, CURLOPT_URL, 'https://api.cloudflare.com/client/v4/zones');
+        curl_setopt($ch1, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch1, CURLOPT_POST, 1);
+        curl_setopt($ch1, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch1, CURLOPT_TIMEOUT, 300);
+        curl_setopt($ch1, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch1, CURLOPT_RETURNTRANSFER, 1);
+        $http_result = curl_exec($ch1);
+        $error = curl_error($ch1);
+        $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
+        curl_close($ch1);
         if ($http_code != 200) {
             return ['error' => $error];
         } 

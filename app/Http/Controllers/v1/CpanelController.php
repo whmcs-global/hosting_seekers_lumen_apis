@@ -285,17 +285,17 @@ class CpanelController extends Controller
             $accountCreate['domain'] = $domainName;
             $accountCreate['password'] = 'G@ur@v123';
             if('cPanel' == $controlPanel){
-                $packageName = str_replace(" ", "_", $serverPackage->package);
-                $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
-                if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
-                }
+                // $packageName = str_replace(" ", "_", $serverPackage->package);
+                // $accCreated = $this->createAccount($serverPackage->company_server_id, $domainName, $request->account_name, 'G@ur@v123', $packageName);
+                // if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
+                //     return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                // }
                 
-                if ($accCreated['metadata']["result"] == "0") {
-                    $error = $accCreated['metadata']['reason'];
-                    $error = substr($error, strpos($error, ")")+1);
-                    return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
-                }
+                // if ($accCreated['metadata']["result"] == "0") {
+                //     $error = $accCreated['metadata']['reason'];
+                //     $error = substr($error, strpos($error, ")")+1);
+                //     return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                // }
             }
             if('Plesk' == $controlPanel){
                 $packageName = $serverPackage->package;                
@@ -330,9 +330,9 @@ class CpanelController extends Controller
                 }
             }
             try{
-                $this->createZoneSet($domainName);
+                $createZone = $this->createZoneSet($domainName);
                 $zoneInfo = $this->getSingleZone($domainName);
-                if($zoneInfo['success']){
+                if($zoneInfo['success'] && $zoneInfo['result']){
                     $accountCreate['ns_detail'] = serialize($zoneInfo['result'][0]['name_servers']);
                     
                     $cloudfareUser = CloudfareUser::where('status', 1)->first();
