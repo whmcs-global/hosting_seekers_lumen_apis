@@ -76,8 +76,8 @@ trait CloudfareTrait {
         $ch = curl_init();
         $cfusername = $this->ApiEmail;
         $cfapikey = $this->ApiKey;
-        $cfusername = 'hostingseekers1@gmail.com';
-        $cfapikey = '0d679464f7b87ccd0921dae376ff3ce95dec8';
+        // $cfusername = 'hostingseekers1@gmail.com';
+        // $cfapikey = '0d679464f7b87ccd0921dae376ff3ce95dec8';
         // $cfusername = 'harrybedi005@gmail.com';
         // $cfapikey = 'bbd8a671d7213f0a3239d0ec7ead0020f8900';
         // return [$cfusername , $cfapikey];
@@ -108,7 +108,7 @@ trait CloudfareTrait {
         $subdomains = 'www';
         $data = array(
             'type' => 'full',
-            'account' => ['id' => 'b9a46e356cafc54f622a01f049d3de95'],
+            'account' => ['id' => $accoutnId],
             'name' => $zone,
         );
         $ch1 = curl_init();
