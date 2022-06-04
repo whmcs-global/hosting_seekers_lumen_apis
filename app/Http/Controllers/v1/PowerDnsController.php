@@ -98,7 +98,6 @@ class PowerDnsController extends Controller
             } else{
                 $userList = ['result' => 'error', 'data' => ['apierror' => config('constants.ERROR.FORBIDDEN_ERROR')]];
             }
-            return $userList;
             $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
             
             if(!is_array($domainList) || !array_key_exists("result", $domainList)){
