@@ -281,6 +281,11 @@ class UserController extends Controller
     public function logout(Request $request) {
         try {
             UserToken::where(['user_id' => $request->userid, 'access_token' => $request->access_token])->delete();
+            
+            $data = array(
+                'first_login' => 0
+            );
+            User::where('id', $request->userid)->update($data); 
             return $this->apiResponse('success', '200', 'You has been Logout Successfully');
         } catch ( \Exception $e ) {
             return $this->apiResponse('error', '400', $e->getMessage());

@@ -29,7 +29,7 @@ trait GetDataTrait {
     public function getUserDetail($id = NULL,$bool = 0) {
 
         if($bool == 0) {
-            $user_data = DB::table('users')->select('users.first_name','users.last_name','users.email','users.currency_id','users.currency_updated','users.amount','user_details.mobile','user_details.address','user_details.city','user_details.state_id','user_details.country_id','user_details.zipcode', 'users.last_login', 'users.last_login_data')->join('user_details','user_details.user_id','=','users.id')->where(['users.id' => $id])->get()->toArray();
+            $user_data = DB::table('users')->select('users.first_name','users.last_name','users.first_login','users.email','users.currency_id','users.currency_updated','users.amount','user_details.mobile','user_details.address','user_details.city','user_details.state_id','user_details.country_id','user_details.zipcode', 'users.last_login', 'users.last_login_data')->join('user_details','user_details.user_id','=','users.id')->where(['users.id' => $id])->get()->toArray();
             return $user_data;
         }
         else{
