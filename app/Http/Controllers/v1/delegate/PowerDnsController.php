@@ -211,13 +211,13 @@ class PowerDnsController extends Controller
                 $userList = ['result' => 'error', 'data' => ['apierror' => config('constants.ERROR.FORBIDDEN_ERROR')]];
             }
             if($userList['result'] != 'error' && $userList['success'])
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['name' => $userList['result'][0]['name'], 'status' => $userList['result'][0]['status'], 'name_servers' => $userList['result'][0]['name_servers'], 'original_name_servers' => $userList['result'][0]['original_name_servers'], 'original_registrar' => $userList['result'][0]['original_registrar']], 'message' => 'Zone records has been successfully fetched']);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['name' => $userList['result'][0]['name'], 'status' => $userList['result'][0]['status'], 'hs_name_servers' => $userList['result'][0]['name_servers'], 'old_name_servers' => $userList['result'][0]['original_name_servers'], 'original_registrar' => $userList['result'][0]['original_registrar']], 'message' => 'Zone records has been successfully fetched']);
             if($userList['result'] == 'error'){
                 $errormsg = $userList['data']['apierror'];
             } else{
                 $errormsg = $userList['errors'];
             }
-            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['name' => null, 'status' => null, 'name_servers' => $serverPackage->ns_detail ? unserialize($serverPackage->ns_detail) : null, 'original_name_servers' => null, 'original_registrar' => null], 'message' => $errormsg]);
+            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['name' => null, 'status' => null, 'hs_name_servers' => $serverPackage->ns_detail ? unserialize($serverPackage->ns_detail) : null, 'old_name_servers' => null, 'original_registrar' => null], 'message' => $errormsg]);
         }
         catch(Exception $ex){
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
