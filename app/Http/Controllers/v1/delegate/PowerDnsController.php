@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Config, Validator};
 use App\Traits\{CloudfareTrait, CpanelTrait};
-use App\Models\{UserServer};
+use App\Models\{UserServer, CloudfareUser};
 
 class PowerDnsController extends Controller
 {
