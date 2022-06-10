@@ -256,6 +256,7 @@ class CpanelController extends Controller
         {
             $serverId = jsdecode_userdata($request->server_location);
             $orderId = jsdecode_userdata($request->order_id);
+            $domainName = $this->getDomain($request->domain_name);
             $orders = Order::where(['user_id' => $request->userid, 'id' => $orderId, 'status' => 1, 'is_cancelled' => 0])->first();
             if(!$orders || !in_array($serverId, $orders->ordered_product->product->company_server_package->pluck('id')->toArray()))
             return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
@@ -268,7 +269,11 @@ class CpanelController extends Controller
             {
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $e->getMessage()]);
             }
-            
+            $domainDetail = $this->domainDetail($domainName);
+
+            if(!$domainDetail){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => "No match found for ". $domainName]);
+            }
             $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
             $controlPanel = null;
             if('N/A' == $linkserver)
@@ -280,7 +285,6 @@ class CpanelController extends Controller
                 'company_id' =>  $serverPackage->user_id,
                 'company_server_package_id' => $serverPackage->id,
             ];
-            $domainName = $this->getDomain($request->domain_name);
             $accountCreate['name'] = $request->account_name;
             $accountCreate['domain'] = $domainName;
             $accountCreate['password'] = 'G@ur@v123';

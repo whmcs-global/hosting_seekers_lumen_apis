@@ -47,4 +47,25 @@ trait CommonTrait {
             $ipaddress = 'UNKNOWN';
         return $ipaddress;
     }
+    
+    public function domainDetail($domain = NULL){
+        if($domain){
+            try{
+                $response = hitCurl('https://api.promptapi.com/whois/query?apikey=H7jEwg0T1VTqd9SqURuyLq0eYeyThSbz&domain='.$domain, 'GET', '', array('Content-Type: text/plain'));
+                $domainInfo = (array)json_decode(json_decode(json_encode($response, true)));
+                if($domainInfo['result'] == 'error')
+                return FALSE;
+                $domainArray = (array) $domainInfo['result'];
+
+                if(!array_key_exists('creation_date', $domainArray ))
+                return FALSE;
+            } catch ( \Exception $e ) {
+                return FALSE;
+            }
+            return TRUE;
+        }
+        else{
+            return FALSE;
+        }
+    }
 }
