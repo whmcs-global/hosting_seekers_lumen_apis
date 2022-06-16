@@ -48,7 +48,7 @@ if (!function_exists('encode_userdata')) {
             $encodeData = base64_encode($data);
             return $encodeData;
         } catch (\Exception $e) {
-            abort('403');
+            return null;
         }
     }
 }
@@ -60,7 +60,7 @@ if (!function_exists('decode_userdata')) {
             $decodeData = substr($decodeData, 4, -4);
             return $decodeData;
         } catch (\Exception $e) {
-            abort('403');
+            return null;
         }
     }
 }
@@ -75,7 +75,7 @@ if (!function_exists('jsencode_userdata')) {
             $jsencodeUserdata = str_replace('+', '~', $jsencodeUserdata);
             return $jsencodeUserdata;
         } catch (\Exception $e) {
-            abort('403');
+            return null;
         }
     }
 }
@@ -91,7 +91,7 @@ if (!function_exists('jsdecode_userdata')) {
             $jsencodeUserdata = openssl_decrypt($data, $encryptionMethod, $secret, 0, $iv);
             return $jsencodeUserdata;
         } catch (\Exception $e) {
-            abort('403');
+            return null;
         }
     }
 }
@@ -104,7 +104,7 @@ if (!function_exists('jsencode_api')) {
             $iv = substr($secret, 0, 16);
             return base64_encode(openssl_encrypt($data, $encryptionMethod, $secret, 0, $iv));
         } catch (\Exception $e) {
-            abort('403');
+            return null;
         }
     }
 }
@@ -117,7 +117,7 @@ if (!function_exists('jsdecode_api')) {
             $iv = substr($secret, 0, 16);
             return openssl_decrypt(base64_decode($data), $encryptionMethod, $secret, 0, $iv);
         } catch (\Exception $e) {
-            abort('403');
+            return null;
         }
     }
 }
