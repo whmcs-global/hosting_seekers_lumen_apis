@@ -284,7 +284,7 @@ trait CpanelTrait {
     API Method Name:    backupFiles
     Developer:          Shine Dezign
     Created Date:       2021-11-24 (yyyy-mm-dd)
-    Purpose:            To delete ftp account
+    Purpose:            This function creates a full backup to the user's home directory
     */
     public function backupFiles($id, $username)
     {
@@ -296,9 +296,28 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
         ];
         return $this->runQuery($id, $action, $params);
-        return $this->runQuery($id, 'backup_destination_list', ['api.version' => '1', 'user' => $username]);
+
     }
     /* End Method backupFiles */ 
+    
+    /*
+    API Method Name:    listBackups
+    Developer:          Shine Dezign
+    Created Date:       2022-06-15 (yyyy-mm-dd)
+    Purpose:            This function lists the account's backup files.
+    */
+    public function listBackups($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Backups',
+            'cpanel_jsonapi_func' => 'listfullbackups',
+            'cpanel_jsonapi_user' => $username,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method listBackups */ 
     
     /*
     API Method Name:    loginPhpMyAdminAccount
@@ -440,6 +459,28 @@ trait CpanelTrait {
         return $this->runQuery($id, $action, $params);
     }
     /* End Method uploadFile */
+    
+    /*
+    API Method Name:    copyFile
+    Developer:          Shine Dezign
+    Created Date:       2022-06-15 (yyyy-mm-dd)
+    Purpose:            To copy a file on cpanel
+    */
+    public function copyFile($id, $username, $fileName = 'backup-6.9.2022_06-55-39_pkkchemicals.tar.gz')
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'fileop',
+            'cpanel_jsonapi_user' => $username,
+            'op' => 'copy',
+            'sourcefiles' => '/'.$fileName,
+            'destfiles' => 'public_html/',
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method copyFile */
     
     /*
     API Method Name:    createAccount
@@ -645,6 +686,25 @@ trait CpanelTrait {
         return $this->runQuery($id, $action, $params);
     }
     /* End Method getMySqlUsers */ 
+    
+    /*
+    API Method Name:    backUpMySqlDB
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of all mysql db backups
+    */
+    public function backUpMySqlDB($id, $username)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'MysqlFE',
+            'cpanel_jsonapi_func' => 'listdbsbackup',
+            'cpanel_jsonapi_user' => $username, 
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method backUpMySqlDB */ 
     
     /*
     API Method Name:    getMySqlUserRestrictions

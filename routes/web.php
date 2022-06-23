@@ -157,6 +157,8 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             $router->post('unblock-ip', 'BlockedIpController@deleteIpAddress');
             //Backup Routes
             $router->get('return-backup-files/{id}', 'BackUpController@getBackupFiles');
+            $router->post('download-backup-files', 'BackUpController@downloadtBackupFiles');
+            $router->post('create-backup-files', 'BackUpController@createBackup');
             $router->post('create-image', 'CpanelController@createImage');
             //Terminate cPanel Account
             $router->get('delete-account/{id}', 'CpanelController@deleteAccount');
