@@ -498,7 +498,7 @@ trait CpanelTrait {
             'op' => 'copy',
             'sourcefiles' => '/'.$fileName,
             'destfiles' => 'public_html/',
-            'metadata' => '0700'
+            'metadata' => '0755'
         ];
         return $this->runQuery($id, $action, $params);
     }
