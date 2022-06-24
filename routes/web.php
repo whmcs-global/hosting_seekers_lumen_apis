@@ -158,6 +158,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             //Backup Routes
             $router->get('return-backup-files/{id}', 'BackUpController@getBackupFiles');
             $router->post('download-backup-files', 'BackUpController@downloadtBackupFiles');
+            $router->post('delete-backup-files', 'BackUpController@deleteBackupFiles');
             $router->post('create-backup-files', 'BackUpController@createBackup');
             $router->post('create-image', 'CpanelController@createImage');
             //Terminate cPanel Account

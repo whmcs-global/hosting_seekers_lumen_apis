@@ -461,6 +461,27 @@ trait CpanelTrait {
     /* End Method uploadFile */
     
     /*
+    API Method Name:    removeFile
+    Developer:          Shine Dezign
+    Created Date:       2022-06-15 (yyyy-mm-dd)
+    Purpose:            To copy a file on cpanel
+    */
+    public function removeFile($id, $username, $fileName)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'fileop',
+            'cpanel_jsonapi_user' => $username,
+            'op' => 'trash',
+            'sourcefiles' => $fileName,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method removeFile */
+    
+    /*
     API Method Name:    copyFile
     Developer:          Shine Dezign
     Created Date:       2022-06-15 (yyyy-mm-dd)
@@ -477,10 +498,32 @@ trait CpanelTrait {
             'op' => 'copy',
             'sourcefiles' => '/'.$fileName,
             'destfiles' => 'public_html/',
+            'metadata' => '0700'
         ];
         return $this->runQuery($id, $action, $params);
     }
     /* End Method copyFile */
+    /*
+    API Method Name:    filePermission
+    Developer:          Shine Dezign
+    Created Date:       2022-06-15 (yyyy-mm-dd)
+    Purpose:            To copy a file on cpanel
+    */
+    public function filePermission($id, $username, $fileName = 'backup-6.9.2022_06-55-39_pkkchemicals.tar.gz')
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'fileop',
+            'cpanel_jsonapi_user' => $username,
+            'op' => 'chmod',
+            'sourcefiles' => 'public_html/'.$fileName,
+            'metadata' => '0700'
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method filePermission */
     
     /*
     API Method Name:    createAccount

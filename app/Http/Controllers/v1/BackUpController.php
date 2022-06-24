@@ -24,7 +24,7 @@ class BackUpController extends Controller
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup files fetching error', 'message' => $error]);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Backup files has been successfully fetched']);
         }  catch(\Exception $e){
@@ -59,9 +59,9 @@ class BackUpController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }            
             if ($emails['api_response'] == 'error') {
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $emails['message']]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup creating error', 'message' => $emails['message']]);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Account has been successfully created']);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Backup has been successfully created']);
             return $this->apiResponse('success', '200', 'Backup file listing');
         }  catch(\Exception $e){
             return $this->apiResponse('error', '404', $e->getMessage());
@@ -90,7 +90,43 @@ class BackUpController extends Controller
                 $error = $accCreated['cpanelresult']['data']["reason"];
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => $error]);
             }   
+            $accCreated = $this->filePermission($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->filename);
+            if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
+                $error = $accCreated['cpanelresult']['data']["reason"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => $error]);
+            }   
             return $this->apiResponse('success', '200', 'Download Backup file', 'https://'.$serverPackage->domain.'/'.$request->filename);
+        }  catch(\Exception $e){
+            return $this->apiResponse('error', '404', $e->getMessage());
+        }
+    }
+
+    public function deleteBackupFiles(Request $request) {
+		$validator = Validator::make($request->all(),[
+            'cpanel_server' => 'required',
+            'filename' => 'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
+        }
+        try
+        {
+            $serverId = jsdecode_userdata($request->cpanel_server);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage)
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $accCreated = $this->removeFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), '/'.$request->filename);
+            if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            }
+            if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
+                $error = $accCreated['cpanelresult']['data']["reason"];
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file deleting error', 'message' => $error]);
+            }   
+            return $this->apiResponse('success', '200', 'Backup file has been deleted successfully');
         }  catch(\Exception $e){
             return $this->apiResponse('error', '404', $e->getMessage());
         }
