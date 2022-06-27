@@ -519,7 +519,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'op' => 'chmod',
             'sourcefiles' => 'public_html/'.$fileName,
-            'metadata' => '0700'
+            'metadata' => '0755'
         ];
         return $this->runQuery($id, $action, $params);
     }
