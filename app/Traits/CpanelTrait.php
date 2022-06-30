@@ -1000,7 +1000,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "name" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Delete MySql DB');
     }
     /* End Method deleteMySqlDb */ 
     
@@ -1020,7 +1020,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "skip_main" => 1
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Email Account List');
     }
     /* End Method listEmailAccounts */ 
     
@@ -1043,7 +1043,7 @@ trait CpanelTrait {
             'domain' => $domainName,
             'login' => $account,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Login Web Mail Account');
     }
     /* End Method loginEmailAccount */ 
     
@@ -1068,7 +1068,7 @@ trait CpanelTrait {
             'password' => $password,
             'quota' => $quota,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Create Email Account');
     }
     /* End Method createEmailAccount */ 
     
@@ -1088,7 +1088,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'account' => $email
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Get Client Settings');
     }
     /* End Method getClientSetting */ 
     
@@ -1112,7 +1112,7 @@ trait CpanelTrait {
             'email' => $account,
             'password' => $password,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Change Email Password');
     }
     /* End Method changeEmailPassword */ 
     
@@ -1132,7 +1132,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Suspend Email Login');
     }
     /* End Method suspendEmailsLogin */
     
@@ -1152,7 +1152,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Unsuspend Email Login');
     }
     /* End Method unsuspendEmailsLogin */
     
@@ -1172,7 +1172,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Unsuspend Email Incoming');
     }
     /* End Method unsuspendEmailsIncoming */
     
@@ -1192,7 +1192,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Suspend Email Incoming');
     }
     /* End Method suspendEmailsIncoming */
     
@@ -1212,7 +1212,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Delete Email Account');
     }
     /* End Method deleteEmailsAccount */ 
     
@@ -1232,7 +1232,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'include_acct_types' => 'sub'
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'FTP Account List');
     }
     /* End Method listFtpAccounts */ 
     
@@ -1252,7 +1252,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "user" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Check FTP Account ');
     }
     /* End Method checkFtpAccount */ 
     
@@ -1271,7 +1271,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'get_ftp_daemon_info',
             'cpanel_jsonapi_user' => $username
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Get FTP Config');
     }
     /* End Method getFtpConfiguration */ 
     
@@ -1290,7 +1290,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'get_port',
             'cpanel_jsonapi_user' => $username
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'FTP Account List');
     }
     /* End Method getFtpPort */ 
     
@@ -1313,7 +1313,7 @@ trait CpanelTrait {
             "quota" => $quota,
             "homedir" => $homedir
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Create FTP Account');
     }
     /* End Method createFtpAccount */ 
     
@@ -1334,7 +1334,7 @@ trait CpanelTrait {
             "user" => $user,
             "destroy" => 1
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Delete FTP Account');
     }
     /* End Method deleteFtpUser */ 
     
@@ -1355,7 +1355,7 @@ trait CpanelTrait {
             "user" => $user,
             "quota" => $quota,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Change FTP Quota');
     }
     /* End Method changeFtpQuota */ 
     
@@ -1377,7 +1377,7 @@ trait CpanelTrait {
             "pass" => $password,
             "homedir" => "public_html"
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Test Connection');
+        return $this->runQuery($id, $action, $params, false,  null, 'Change FTP Password');
     }
     /* End Method changeFtpPassword */ 
     
