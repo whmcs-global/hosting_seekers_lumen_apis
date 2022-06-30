@@ -269,10 +269,11 @@ class CpanelController extends Controller
             {
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $e->getMessage()]);
             }
-            $domainDetail = $this->domainDetail($domainName);
-
+            $domainDetail = $this->domainDetail($domainName, $request->userid);
             if(!$domainDetail){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => "No match found for ". $domainName]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => "Oops, seems your domain is not registered, please try another domain or purchase ". $domainName." first"]);
+            } else if($domainDetail == 'TLD not supported'){
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => "Due to high spamming rate we don't allow free domain in our hosting, Please try another domain."]); 
             }
             $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
             $controlPanel = null;

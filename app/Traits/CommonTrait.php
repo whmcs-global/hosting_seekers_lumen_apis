@@ -48,13 +48,21 @@ trait CommonTrait {
         return $ipaddress;
     }
     
-    public function domainDetail($domain = NULL){
+    public function domainDetail($domain = NULL, $userId = null){
         if($domain){
             try{
                 $response = hitCurl('https://api.promptapi.com/whois/query?apikey=H7jEwg0T1VTqd9SqURuyLq0eYeyThSbz&domain='.$domain, 'GET', '', array('Content-Type: text/plain'));
+                
+                $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => 'https://api.promptapi.com/whois/query?apikey=H7jEwg0T1VTqd9SqURuyLq0eYeyThSbz&domain='.$domain, 'module' => 'Domain Check', 'response' => $response];
+                $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
                 $domainInfo = (array)json_decode(json_decode(json_encode($response, true)));
                 if($domainInfo['result'] == 'error')
-                return FALSE;
+                {
+                    if($domainInfo['message'] == 'TLD not supported'){
+                        return $domainInfo['message'];
+                    }
+                    return FALSE;
+                }
                 $domainArray = (array) $domainInfo['result'];
 
                 if(!array_key_exists('creation_date', $domainArray ))
@@ -62,7 +70,7 @@ trait CommonTrait {
             } catch ( \Exception $e ) {
                 return FALSE;
             }
-            return TRUE;
+            return $domainArray;
         }
         else{
             return FALSE;
