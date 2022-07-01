@@ -15,7 +15,6 @@ trait CpanelTrait {
     */
     public function runQuery($id, $action, $arguments = [], $throw = false, $csf = null, $moduleName = null)
     {
-        $userId = request()->userid;
         $records = CompanyServer::where('id', $id)->first();
         if(is_null($records))
             return config('constants.ERROR.FORBIDDEN_ERROR');
@@ -44,13 +43,8 @@ trait CpanelTrait {
                     'connect_timeout' => 2
                 ]);
                 if (($decodedBody = json_decode($response->getBody(), true)) === false) {
-                    
-                    $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => $hostUrl, 'module' => $moduleName, 'response' => json_last_error_msg()];
-                    $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
                     throw new \Exception(json_last_error_msg(), json_last_error());
                 }
-                $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => $hostUrl, 'module' => $moduleName, 'response' => $decodedBody];
-                $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
                 return $decodedBody;
             }
             catch(\GuzzleHttp\Exception\ClientException $e)
@@ -58,14 +52,10 @@ trait CpanelTrait {
                 if ($throw) {
                     throw $e; 
                 }
-                $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => $hostUrl, 'module' => $moduleName, 'response' => $e->getMessage()];
-                $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
                 return $e->getMessage();
             }
         }
         
-        $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => $records->host.'('.$records->ip_address.')', 'module' => $moduleName, 'response' => 'Linked server connection test failed'];
-        $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
         return 'Linked server connection test failed';
     }
     /* End Method addDevice */ 
@@ -79,7 +69,7 @@ trait CpanelTrait {
     public function testServerConnection($id) {
         try
         {
-            $testConnection = $this->runQuery($id, 'version', [], false,  null, 'Test Connection');
+            $testConnection = $this->runQuery($id, 'version', []);
             if(is_array($testConnection) && array_key_exists("version", $testConnection)){
                 return response()->json(['api_response' => 'success', 'status_code' => 200, 'message' => 'Connection success'], 200);
             }
@@ -114,7 +104,7 @@ trait CpanelTrait {
             'domain' => $domain,
             'engine' => 'analog'
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'List Stats By Domain');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method analogStats */ 
     /*
@@ -137,7 +127,7 @@ trait CpanelTrait {
         ];
         if($cabundle)
         $params['cabundle'] = $cabundle;
-        return $this->runQuery($id, $action, $params, false,  null, 'Install Certificate');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method installCertificate */ 
     
@@ -156,7 +146,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'listsubdomains',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'SubDomain List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getSubDomains */ 
 
@@ -168,7 +158,7 @@ trait CpanelTrait {
     */
     public function terminateCpanelAccount($id, $username)
     {
-        return $this->runQuery($id, 'removeacct', ['api.version' => '1', 'username' => $username], false,  null, 'Terminate Cpanel Account');
+        return $this->runQuery($id, 'removeacct', ['api.version' => '1', 'username' => $username]);
     }
     /* End Method terminateCpanelAccount */ 
 
@@ -180,7 +170,7 @@ trait CpanelTrait {
     */
     public function createSubDomain($id, $domain, $homedir)
     {
-        return $this->runQuery($id, 'create_subdomain', ['api.version' => '1', 'domain' => $domain, 'document_root' => $homedir], false,  null, 'Create SubDomain');
+        return $this->runQuery($id, 'create_subdomain', ['api.version' => '1', 'domain' => $domain, 'document_root' => $homedir]);
     }
     /* End Method createSubDomain */ 
     
@@ -202,7 +192,7 @@ trait CpanelTrait {
             'subdomain' => $subdomain,
             'dir' => $homedir
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Change SubDomain Root Dir');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method changeRootDir */ 
     
@@ -222,7 +212,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'domain' => $domain,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete SubDomain');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method delSubDomain */ 
     
@@ -241,7 +231,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'listaddondomains',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Addons Domain List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getAddonsDomains */ 
 
@@ -263,7 +253,7 @@ trait CpanelTrait {
             'subdomain' => $subdomain,
             'dir' => $homedir
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create Addons Domain');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method createAddonsDomain */ 
     
@@ -284,7 +274,7 @@ trait CpanelTrait {
             'domain' => $domain,
             'subdomain' => $subdomain,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete Addons Domain');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method delAddonsDomain */ 
     
@@ -304,7 +294,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'fullbackup_to_homedir',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create Backup file');
+        return $this->runQuery($id, $action, $params);
 
     }
     /* End Method backupFiles */ 
@@ -324,7 +314,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'listfullbackups',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Backup List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method listBackups */ 
     
@@ -337,7 +327,7 @@ trait CpanelTrait {
     public function loginPhpMyAdminAccount($id, $username)
     {
         
-        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Database_phpMyAdmin'], false,  null, 'Login PHPMYADMIN Account');
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Database_phpMyAdmin']);
     }
 
     /* End Method loginPhpMyAdminAccount */ 
@@ -350,7 +340,7 @@ trait CpanelTrait {
     public function loginWebmail($id, $username)
     {
         
-        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Email_Accounts'], false,  null, 'Login Webmail Account');
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld', 'app' => 'Email_Accounts']);
     }
     /* End Method loginWebmail */ 
 
@@ -363,7 +353,7 @@ trait CpanelTrait {
     public function loginCpanelAccount($id, $username)
     {
         
-        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld'], false,  null, 'Login Cpane Account');
+        return $this->runQuery($id, 'create_user_session', ['api.version' => '1', 'user' => $username, 'service' => 'cpaneld']);
     }
     /* End Method loginCpanelAccount */  
     
@@ -375,7 +365,7 @@ trait CpanelTrait {
     */
     public function getBlockIp($id, $username)
     {
-        return $this->runQuery($id, 'read_cphulk_records', ['api.version' => '1', 'user' => $username, 'list_name' => 'black'], false,  null, 'Block IP List');
+        return $this->runQuery($id, 'read_cphulk_records', ['api.version' => '1', 'user' => $username, 'list_name' => 'black']);
     }
     /* End Method getBlockIp */ 
     
@@ -387,7 +377,7 @@ trait CpanelTrait {
     */
     public function blockIp($id, $username, $ip) 
     {
-        return $this->runQuery($id, 'create_cphulk_record', ['api.version' => '1', 'user' => $username, 'list_name' => 'black', 'ip' => $ip], false,  null, 'Block IP');
+        return $this->runQuery($id, 'create_cphulk_record', ['api.version' => '1', 'user' => $username, 'list_name' => 'black', 'ip' => $ip]);
     }
     /* End Method blockIp */  
     
@@ -422,7 +412,7 @@ trait CpanelTrait {
             'sourcefiles' => '/public_html/wordpress.zip',
             'destfiles' => $dir
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Extract File');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method extractFile */
     
@@ -443,7 +433,7 @@ trait CpanelTrait {
             'op' => 'unlink',
             'sourcefiles' => $file,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete File');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method deleteCpanelFile */
     
@@ -465,7 +455,7 @@ trait CpanelTrait {
             'file' => $fileName,
             "content" => $contentText
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create File');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method uploadFile */
     
@@ -486,7 +476,7 @@ trait CpanelTrait {
             'op' => 'trash',
             'sourcefiles' => $fileName,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete File');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method removeFile */
     
@@ -509,7 +499,7 @@ trait CpanelTrait {
             'destfiles' => 'public_html/',
             'metadata' => '0755'
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Copy File');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method copyFile */
     /*
@@ -530,7 +520,7 @@ trait CpanelTrait {
             'sourcefiles' => 'public_html/'.$fileName,
             'metadata' => '0755'
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'File Permission');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method filePermission */
     
@@ -548,7 +538,7 @@ trait CpanelTrait {
             'domain' => $domain_name,
             'password' => $password,
             'plan' => $plan,
-        ], false,  null, 'Create Cpanel Account');
+        ]);
     }
     /* End Method createAccount */ 
     
@@ -560,7 +550,7 @@ trait CpanelTrait {
     */
     public function domainInfo($id, $domain_name)
     {
-        return $this->runQuery($id, 'domainuserdata', ['api.version' => '1', 'domain' => $domain_name], false,  null, 'Domain Info');
+        return $this->runQuery($id, 'domainuserdata', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method domainInfo */ 
     
@@ -572,7 +562,7 @@ trait CpanelTrait {
     */
     public function phpVersions($id, $domain_name)
     {
-        return $this->runQuery($id, 'php_get_installed_versions', ['api.version' => '1', 'domain' => $domain_name], false,  null, 'PHP Version');
+        return $this->runQuery($id, 'php_get_installed_versions', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method phpVersions */ 
     
@@ -584,7 +574,7 @@ trait CpanelTrait {
     */
     public function phpCurrentVersion($id, $domain_name)
     {
-        return $this->runQuery($id, 'php_get_system_default_version', ['api.version' => '1', 'domain' => $domain_name], false,  null, 'PHP Current Version');
+        return $this->runQuery($id, 'php_get_system_default_version', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method phpCurrentVersion */ 
     
@@ -596,7 +586,7 @@ trait CpanelTrait {
     */
     public function phpIniGetDirectives($id, $domain_name, $version)
     {
-        return $this->runQuery($id, 'php_ini_get_directives', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version], false,  null, 'PHP INI Get Directives');
+        return $this->runQuery($id, 'php_ini_get_directives', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version]);
     }
     /* End Method phpIniGetDirectives */ 
     
@@ -608,7 +598,7 @@ trait CpanelTrait {
     */
     public function phpIniUpdateDirectives($id, $domain_name, $version, $directive)
     {
-        return $this->runQuery($id, 'php_ini_set_directives', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version, 'directive' => $directive], false,  null, 'PHP INI Update Directives');
+        return $this->runQuery($id, 'php_ini_set_directives', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version, 'directive' => $directive]);
     }
     /* End Method phpIniUpdateDirectives */ 
     
@@ -621,7 +611,7 @@ trait CpanelTrait {
     */
     public function getPhpIniFile($id, $domain_name, $version)
     {
-        return $this->runQuery($id, 'php_ini_get_content', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version], false,  null, 'Get PHP INI File');
+        return $this->runQuery($id, 'php_ini_get_content', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version]);
     }
     /* End Method getPhpIniFile */ 
     
@@ -633,7 +623,7 @@ trait CpanelTrait {
     */
     public function updatePhpIniFile($id, $domain_name, $version, $content)
     {
-        return $this->runQuery($id, 'php_ini_set_content', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version, 'content' => $content], false,  null, 'Update PHP INI File');
+        return $this->runQuery($id, 'php_ini_set_content', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version, 'content' => $content]);
     }
     /* End Method updatePhpIniFile */ 
     
@@ -645,7 +635,7 @@ trait CpanelTrait {
     */
     public function updatePhpCurrentVersion($id, $domain_name, $version)
     {
-        return $this->runQuery($id, 'php_set_system_default_version', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version], false,  null, 'Update PHP Current Version');
+        return $this->runQuery($id, 'php_set_system_default_version', ['api.version' => '1', 'domain' => $domain_name, 'version' => $version]);
     }
     /* End Method updatePhpCurrentVersion */ 
     
@@ -657,7 +647,7 @@ trait CpanelTrait {
     */
     public function domainNameServersInfo($id, $domain_name)
     {
-        return $this->runQuery($id, 'get_nameserver_config', ['api.version' => '1', 'domain' => $domain_name], false,  null, 'Nameserver Info');
+        return $this->runQuery($id, 'get_nameserver_config', ['api.version' => '1', 'domain' => $domain_name]);
     }
     /* End Method domainNameServersInfo */ 
     
@@ -676,7 +666,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'list_domains',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Domain List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method domainList */ 
     
@@ -696,7 +686,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'display' => 'addondomains|bandwidthusage|cpanelversion|dedicatedip|diskusage|emailaccounts|ftpaccounts|hostname|mysqldatabases|mysqldiskusage|mysqlversion|subdomains|apacheversion|phpversion'
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get Cpanel Stats');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getCpanelStats */ 
 
@@ -716,7 +706,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'get_information',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get Server Info');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getServerInfo */ 
     
@@ -735,7 +725,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'list_users',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get MySql Users');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getMySqlUsers */ 
     
@@ -754,7 +744,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'listdbsbackup',
             'cpanel_jsonapi_user' => $username, 
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'BackUp MySql DB');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method backUpMySqlDB */ 
     
@@ -773,7 +763,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'get_restrictions',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get MySql User Restrictions');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getMySqlUserRestrictions */ 
     
@@ -794,7 +784,7 @@ trait CpanelTrait {
             'name' => $userName,
             'password' => $password
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create MySql USer');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method createMySqlUser */ 
     
@@ -815,7 +805,7 @@ trait CpanelTrait {
             'user' => $userName,
             'password' => $password
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Set MySql User Password');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method updateMySqlUserPassword */ 
     
@@ -836,7 +826,7 @@ trait CpanelTrait {
             'newname' => $userName,
             'oldname' => $oldName
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Rename MySql User');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method updateMySqlUser */ 
     
@@ -856,7 +846,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "name" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete MySql DB');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method deleteMySqlUser */ 
     
@@ -875,7 +865,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'list_databases',
             'cpanel_jsonapi_user' => $username,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'MySql DB list');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getMySqlDb */ 
     
@@ -895,7 +885,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'name' => $dbName
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create MySql DB');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method createMySqlDb */ 
     
@@ -916,7 +906,7 @@ trait CpanelTrait {
             'newname' => $userName,
             'oldname' => $oldName
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'TRename MySql Database');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method updateMySqlDb */ 
     
@@ -937,7 +927,7 @@ trait CpanelTrait {
             'database' => $dbName,
             'user' => $userName
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get MySql Privileges');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getMySqlDbPrivileges */ 
     
@@ -959,7 +949,7 @@ trait CpanelTrait {
             'user' => $userName,
             'privileges' => $privileges
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Set MySql Privileges');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method updateMySqlDbPrivileges */ 
     
@@ -980,7 +970,7 @@ trait CpanelTrait {
             'database' => $dbName,
             'user' => $userName,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Remove MySql Privileges');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method removeMySqlDbPrivileges */ 
     
@@ -1000,7 +990,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "name" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete MySql DB');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method deleteMySqlDb */ 
     
@@ -1020,7 +1010,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "skip_main" => 1
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Email Account List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method listEmailAccounts */ 
     
@@ -1043,7 +1033,7 @@ trait CpanelTrait {
             'domain' => $domainName,
             'login' => $account,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Login Web Mail Account');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method loginEmailAccount */ 
     
@@ -1068,7 +1058,7 @@ trait CpanelTrait {
             'password' => $password,
             'quota' => $quota,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create Email Account');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method createEmailAccount */ 
     
@@ -1088,7 +1078,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'account' => $email
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get Client Settings');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getClientSetting */ 
     
@@ -1112,7 +1102,7 @@ trait CpanelTrait {
             'email' => $account,
             'password' => $password,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Change Email Password');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method changeEmailPassword */ 
     
@@ -1132,7 +1122,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Suspend Email Login');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method suspendEmailsLogin */
     
@@ -1152,7 +1142,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Unsuspend Email Login');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method unsuspendEmailsLogin */
     
@@ -1172,7 +1162,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Unsuspend Email Incoming');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method unsuspendEmailsIncoming */
     
@@ -1192,7 +1182,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Suspend Email Incoming');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method suspendEmailsIncoming */
     
@@ -1212,7 +1202,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "email" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete Email Account');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method deleteEmailsAccount */ 
     
@@ -1232,7 +1222,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             'include_acct_types' => 'sub'
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'FTP Account List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method listFtpAccounts */ 
     
@@ -1252,7 +1242,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_user' => $username,
             "user" => $user
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Check FTP Account ');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method checkFtpAccount */ 
     
@@ -1271,7 +1261,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'get_ftp_daemon_info',
             'cpanel_jsonapi_user' => $username
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Get FTP Config');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getFtpConfiguration */ 
     
@@ -1290,7 +1280,7 @@ trait CpanelTrait {
             'cpanel_jsonapi_func' => 'get_port',
             'cpanel_jsonapi_user' => $username
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'FTP Account List');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method getFtpPort */ 
     
@@ -1313,7 +1303,7 @@ trait CpanelTrait {
             "quota" => $quota,
             "homedir" => $homedir
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Create FTP Account');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method createFtpAccount */ 
     
@@ -1334,7 +1324,7 @@ trait CpanelTrait {
             "user" => $user,
             "destroy" => 1
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Delete FTP Account');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method deleteFtpUser */ 
     
@@ -1355,7 +1345,7 @@ trait CpanelTrait {
             "user" => $user,
             "quota" => $quota,
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Change FTP Quota');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method changeFtpQuota */ 
     
@@ -1377,7 +1367,7 @@ trait CpanelTrait {
             "pass" => $password,
             "homedir" => "public_html"
         ];
-        return $this->runQuery($id, $action, $params, false,  null, 'Change FTP Password');
+        return $this->runQuery($id, $action, $params);
     }
     /* End Method changeFtpPassword */ 
     

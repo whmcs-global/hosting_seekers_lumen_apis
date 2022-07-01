@@ -107,50 +107,162 @@ class CpanelController extends Controller
         }
     }
     public function loginAccount(Request $request, $id) {
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $requestedFor = [
+            'name' => 'Login Cpanel Account'
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Login Cpanel Account',
+            'requestedFor' => serialize($requestedFor),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            $requestedFor['name'] = 'Login Cpanel Account from '.$serverPackage->domain;
+            $postData['requestedFor'] = serialize($requestedFor);
             $accCreated = $this->loginCpanelAccount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Account login error '.$serverPackage->domain,
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => [],
+                'message' => 'Account has been successfully loggedin'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['data'], 'message' => 'Account is ready for login']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server errorr',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
     }
     public function getUserInfo(Request $request, $id) {
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $requestedFor = [
+            'name' => 'Cpanel Stats'
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Cpanel Stats',
+            'requestedFor' => serialize($requestedFor),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            $requestedFor['name'] = 'Cpanel stats for '.$serverPackage->domain;
+            $postData['requestedFor'] = serialize($requestedFor);
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($cpanelStats) ){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             if ((array_key_exists("data", $cpanelStats) && $cpanelStats["data"]['result'] == "0")) {
                 $error = $cpanelStats["data"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Cpanel stats fetching error '.$serverPackage->domain,
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
                 $error = $cpanelStats["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Cpanel stats fetching error '.$serverPackage->domain,
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             $cpanelStatArray = [];
             foreach( $cpanelStats['result']['data'] as $cpanelStat){
@@ -172,42 +284,127 @@ class CpanelController extends Controller
             if(is_array($accCreated) && array_key_exists("metadata", $accCreated) && array_key_exists("result", $accCreated['metadata']) && 0 != $accCreated['metadata']["result"]){
                 $phpVesion = 1;
             }
+            $developementModeValue = $securityLevelValue = null;
+            if($serverPackage->cloudfare_user_id){
+
+                $developementMode = $this->getModeSetting('development_mode', $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+                $securityLevel = $this->getModeSetting('security_level', $serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
+                
+                if($developementMode['result'] != 'error' && $developementMode['success']){
+                    $developementModeValue = $developementMode['result']['value'];
+                }
+                if($securityLevel['result'] != 'error' && $securityLevel['success']){
+                    $securityLevelValue = $securityLevel['result']['value'];
+                }
+            }
             $domainInfo = [
                 "accountStats" => $cpanelStatArray,
-                'phpVersion' => $phpVesion
+                'phpVersion' => $phpVesion,
+                'developementMode' => $developementModeValue,
+                'securityLevel' => $securityLevelValue
             ];
+            
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server errorr',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
     }
     public function dnsInfo(Request $request, $id) {
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $requestedFor = [
+            'name' => 'Domain Information'
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Domain Information',
+            'requestedFor' => serialize($requestedFor),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            $requestedFor['name'] = 'Domain information for '.$serverPackage->domain;
+            $postData['requestedFor'] = serialize($requestedFor);
             $accCreated = $this->domainInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             $nameCreated = $this->domainNameServersInfo($serverPackage->company_server_package->company_server_id, $serverPackage->domain);
             if(!is_array($accCreated) || !is_array($nameCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             
             if ((array_key_exists("metadata", $accCreated) && $accCreated["metadata"]['result'] == "0")) {
                 $error = $accCreated["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Fetching error '.$serverPackage->domain,
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             if ((array_key_exists("metadata", $nameCreated) && $nameCreated["metadata"]['result'] == "0")) {
                 $error = $nameCreated["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Fetching error '.$serverPackage->domain,
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             $domainInfo = [
                 "user" => $accCreated["data"]['userdata']["user"],
@@ -221,42 +418,129 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server errorr',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
     }
     public function getDomains(Request $request, $id) {
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $requestedFor = [
+            'name' => 'Domain Information'
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Domain Information',
+            'requestedFor' => serialize($requestedFor),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            $requestedFor['name'] = 'Domain Information for '.$serverPackage->domain;
+            $postData['requestedFor'] = serialize($requestedFor);
             $accCreated = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
             
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Fetching error '.$serverPackage->domain,
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']["data"], 'message' => 'Domian information has been fetched']);
+            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'Domian information has been fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server errorr',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
         }
     }
 }

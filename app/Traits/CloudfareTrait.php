@@ -22,7 +22,6 @@ trait CloudfareTrait {
 
     public function sendCloudRequest($url, $action, $extra = NULL, $post = NULL, $moduleName = null)
     {
-        $userId = request()->userid;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         $cfusername = $this->ApiEmail;
@@ -63,8 +62,6 @@ trait CloudfareTrait {
         $error = curl_error($ch);
         $result = json_decode($json, true);
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200 && $error == '' && $result['result'] != '') {
-            $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => $url, 'module' => $moduleName, 'response' => 'Success'];
-            $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
             return $result;
         } else {
             $cferrorcode = $apierror = '';
@@ -73,15 +70,11 @@ trait CloudfareTrait {
                 $cferrorcode = $result['errors'][0]['code'];
             }
             $errorArray = array("info" => $info, "error" => $error, "cferrorcode" => $cferrorcode, "apierror" => $apierror);
-            
-            $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => $url, 'module' => $moduleName, 'response' => serialize($errorArray)];
-            $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
             return array("result" => "error", "data" => $errorArray);
         }
     }
     
     public function createZoneSet($zone) {
-        $userId = request()->userid;
         $ch = curl_init();
         $cfusername = $this->ApiEmail;
         $cfapikey = $this->ApiKey;
@@ -100,16 +93,11 @@ trait CloudfareTrait {
         $error = curl_error($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($http_code != 200) {
-            $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => 'https://api.cloudflare.com/client/v4/accounts', 'module' => 'Get Account Details', 'response' => $error];
-            $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
             return ['error' => $error];
         } 
         $accountDetail = json_decode($http_result, true);
         curl_close($ch);
         if(!is_array($accountDetail) || !$accountDetail['success']){
-            
-            $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => 'https://api.cloudflare.com/client/v4/accounts', 'module' => 'Get Account Details', 'response' => $accountDetail['errors'][0]];
-            $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
             return $accountDetail['errors'][0];
         }
         $accoutnId = $accountDetail['result'][0]['id'];
@@ -138,8 +126,6 @@ trait CloudfareTrait {
         $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         curl_close($ch1);
         if ($http_code != 200) {
-            $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => 'https://api.cloudflare.com/client/v4/zones', 'module' => 'Get Account Details', 'response' => $error];
-            $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
             return ['error' => $error];
         } 
         return json_decode($http_result);
@@ -150,7 +136,7 @@ trait CloudfareTrait {
         $url = $this->ApiUrl . "zones?name=" . $zonename;
         $action = "get";
         $extra = array("cfusername" => $this->ApiEmail, "cfapikey" => $this->ApiKey, "per_page" => "50");
-        $result = $this->sendCloudRequest($url, $action, $extra, null, 'Get Single Zone');        
+        $result = $this->sendCloudRequest($url, $action, $extra);        
         return $result;
     }
 
@@ -159,7 +145,7 @@ trait CloudfareTrait {
         $url = $this->ApiUrl . "zones/" . $zoneidentifier;
         $action = "delete";
         $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
-        $result = $this->sendCloudRequest($url, $action, $extra, null, 'Delete Zone');
+        $result = $this->sendCloudRequest($url, $action, $extra);
         return $result;
     }
 
@@ -168,7 +154,7 @@ trait CloudfareTrait {
         $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/dns_records?per_page=100";
         $action = "get";
         $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
-        $result = $this->sendCloudRequest($url, $action, $extra, null, 'DNS Record Listing');
+        $result = $this->sendCloudRequest($url, $action, $extra);
         return $result;
     }
 
@@ -198,7 +184,7 @@ trait CloudfareTrait {
                     break;
             }
         }
-        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post), 'Create Zone Record');
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
         return $result;
     } 
     public function editDNSRecord($dnsdata, $zoneidentifier, $ApiEmail, $ApiKey)
@@ -227,7 +213,7 @@ trait CloudfareTrait {
                     break;
             }
         }
-        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post), 'Update Zone Record');
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
         return $result;
     }
     public function deleteDNSRecord($dnsdata, $zoneidentifier, $ApiEmail, $ApiKey)
@@ -245,7 +231,7 @@ trait CloudfareTrait {
         $action = "patch";
         $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
         $post = array("value" => $value);
-        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post), 'Update Mode Setting');
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
         return $result;
     }
     
@@ -255,7 +241,7 @@ trait CloudfareTrait {
         $action = "patch";
         $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
         $post = array("value" => $value);
-        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post), 'Update Security Setting' );
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
         return $result;
     }
 
@@ -264,7 +250,7 @@ trait CloudfareTrait {
         $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/settings/".$value;
         $action = "get";
         $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
-        $result = $this->sendCloudRequest($url, $action, $extra, null , 'Get Mode Setting');
+        $result = $this->sendCloudRequest($url, $action, $extra);
         return $result;
     }
 }

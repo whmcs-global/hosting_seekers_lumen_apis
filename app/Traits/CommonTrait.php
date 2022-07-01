@@ -53,9 +53,20 @@ trait CommonTrait {
             try{
                 $response = hitCurl('https://api.promptapi.com/whois/query?apikey=H7jEwg0T1VTqd9SqURuyLq0eYeyThSbz&domain='.$domain, 'GET', '', array('Content-Type: text/plain'));
                 
-                $dataArray = ['userId' => jsencode_userdata($userId), 'logType' => 'cPanel', 'requestURL' => 'https://api.promptapi.com/whois/query?apikey=H7jEwg0T1VTqd9SqURuyLq0eYeyThSbz&domain='.$domain, 'module' => 'Domain Check', 'response' => $response];
-                $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $dataArray);
                 $domainInfo = (array)json_decode(json_decode(json_encode($response, true)));
+                $requestedFor = [
+                    'name' => 'Check Domain Name',
+                    'domain' => $domain
+                ];
+                $postData = [
+                    'userId' => jsencode_userdata($userId),
+                    'api_response' => 'success',
+                    'logType' => 'cPanel',
+                    'module' => 'Domain Check',
+                    'requestedFor' => serialize($requestedFor),
+                    'response' => serialize($domainInfo)
+                ];
+                $response1 = hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
                 if($domainInfo['result'] == 'error')
                 {
                     if($domainInfo['message'] == 'TLD not supported'){
