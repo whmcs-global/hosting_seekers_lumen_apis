@@ -49,7 +49,7 @@ class PowerDnsController extends Controller
                 $zoneInfo = $this->getSingleZone($domainName);
                 $accountCreate = [];
                 $cloudfareUser = null;
-                if($zoneInfo['success']){
+                if($zoneInfo['success'] && $zoneInfo['result']){
                     
                     $errorArray1 = [
                         'api_response' => 'success',
@@ -261,7 +261,7 @@ class PowerDnsController extends Controller
                 $zoneInfo = $this->getSingleZone($domainName);
                 $accountCreate = [];
                 $cloudfareUser = null;
-                if($zoneInfo['success']){
+                if($zoneInfo['success'] && $zoneInfo['result']){
                     $errorArray1 = [
                         'api_response' => 'success',
                         'status_code' => 200,

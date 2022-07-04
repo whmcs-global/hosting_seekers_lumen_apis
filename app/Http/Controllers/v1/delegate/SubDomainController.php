@@ -75,7 +75,7 @@ class SubDomainController extends Controller
                 $zoneInfo = $this->getSingleZone($domainName);
                 $accountCreate = [];
                 $cloudfareUser = null;
-                if($zoneInfo['success']){
+                if($zoneInfo['success'] && $zoneInfo['result']){
                     $accountCreate['ns_detail'] = serialize($zoneInfo['result'][0]['name_servers']);
                     
                     $cloudfareUser = CloudfareUser::where('status', 1)->first();
