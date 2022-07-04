@@ -125,9 +125,9 @@ trait CloudfareTrait {
         $error = curl_error($ch1);
         $http_code = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         curl_close($ch1);
-        if ($http_code != 200) {
-            return ['error' => $error];
-        } 
+        // if ($http_code != 200) {
+        //     return ['error' => $error];
+        // } 
         return json_decode($http_result);
     }
 

@@ -43,9 +43,31 @@ class PowerDnsController extends Controller
             $requestedFor['name'] = 'Cloudflare zone records for'.$serverPackage->domain;
             $postData['requestedFor'] = serialize($requestedFor);
             $cloudfareUser = true;
+            $createError = config('constants.ERROR.FORBIDDEN_ERROR');
             if(!$serverPackage->cloudfare_user_id){
                 $domainName = $serverPackage->domain;
-                $cloudFare = $this->createZoneSet($domainName);
+                $createZone = $this->createZoneSet($domainName);
+                if(!$createZone->success){
+
+                    $createError = $createZone->errors[0]->message;
+                    $errorArray12 = [
+                        'api_response' => 'success',
+                        'status_code' => 200,
+                        'data' => 'Create Zone Set',
+                        'message' => $createZone->errors[0]->message
+                    ];
+                    $postDat12 = [
+                        'userId' => jsencode_userdata($request->userid),
+                        'api_response' => 'success',
+                        'logType' => 'cPanel',
+                        'module' => 'Create zone set for '.$domainName,
+                        'requestedFor' => serialize(['name' => 'Create zone set', 'domain' => $domainName]),
+                        'response' => serialize($errorArray12)
+                    ];
+                    $postData12['response'] = serialize($errorArray12);
+                    //Hit node api to save logs
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData12); 
+                }
                 $zoneInfo = $this->getSingleZone($domainName);
                 $accountCreate = [];
                 $cloudfareUser = null;
@@ -89,6 +111,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -96,13 +119,15 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'www.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'mail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '1',
+                            'cfdnsttl' => '1',  
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -110,6 +135,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'webmail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -117,6 +143,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'cpanel.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -124,6 +151,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'ftp.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ]
                     ];
                     foreach ($dnsData as $dnsVal) {
@@ -137,7 +165,7 @@ class PowerDnsController extends Controller
             if($cloudfareUser){
                 $userList = $this->listDNSRecords($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             } else{
-                $userList = ['result' => 'error', 'data' => ['apierror' => config('constants.ERROR.FORBIDDEN_ERROR')]];
+                $userList = ['result' => 'error', 'data' => ['apierror' => $createError]];
             }
             $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
             
@@ -255,9 +283,31 @@ class PowerDnsController extends Controller
             $postData['requestedFor'] = serialize($requestedFor);
             $cloudfareUser = true;
             $domainName = $serverPackage->domain;
+            $createError = config('constants.ERROR.FORBIDDEN_ERROR');
             if(!$serverPackage->cloudfare_user_id){
                 
                 $cloudFare = $this->createZoneSet($domainName);
+                if(!$cloudFare->success){
+
+                    $createError = $cloudFare->errors[0]->message;
+                    $errorArray12 = [
+                        'api_response' => 'success',
+                        'status_code' => 200,
+                        'data' => 'Create Zone Set',
+                        'message' => $cloudFare->errors[0]->message
+                    ];
+                    $postDat12 = [
+                        'userId' => jsencode_userdata($request->userid),
+                        'api_response' => 'success',
+                        'logType' => 'cPanel',
+                        'module' => 'Create zone set for '.$domainName,
+                        'requestedFor' => serialize(['name' => 'Create zone set', 'domain' => $domainName]),
+                        'response' => serialize($errorArray12)
+                    ];
+                    $postData12['response'] = serialize($errorArray12);
+                    //Hit node api to save logs
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData12); 
+                }
                 $zoneInfo = $this->getSingleZone($domainName);
                 $accountCreate = [];
                 $cloudfareUser = null;
@@ -300,6 +350,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => $domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -307,13 +358,15 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'www.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
                             'cfdnstype' => 'A',
                             'cfdnsname' => 'mail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
-                        'cfdnsttl' => '1',
+                            'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -321,6 +374,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'webmail.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -328,6 +382,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'cpanel.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ],
                         [
                             'zone_id' => $zoneId,
@@ -335,6 +390,7 @@ class PowerDnsController extends Controller
                             'cfdnsname' => 'ftp.'.$domainName,
                             'cfdnsvalue' => $serverPackage->company_server_package->company_server->ip_address,
                             'cfdnsttl' => '1',
+                            'proxied' => 'true'
                         ]
                     ];
                     foreach ($dnsData as $dnsVal) {
@@ -348,7 +404,7 @@ class PowerDnsController extends Controller
             if($cloudfareUser){                
                 $userList = $this->getSingleZone($domainName);
             } else{
-                $userList = ['result' => 'error', 'data' => ['apierror' => config('constants.ERROR.FORBIDDEN_ERROR')]];
+                $userList = ['result' => 'error', 'data' => ['apierror' => $createError]];
             }
             if($userList['result'] != 'error' && $userList['success'])
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['name' => $userList['result'][0]['name'], 'status' => $userList['result'][0]['status'], 'hs_name_servers' => $userList['result'][0]['name_servers'], 'old_name_servers' => $userList['result'][0]['original_name_servers'], 'original_registrar' => $userList['result'][0]['original_registrar']], 'message' => 'Zone records has been successfully fetched']);
@@ -366,7 +422,7 @@ class PowerDnsController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            return response()->json(['api_response' => 'error', 'status_code' => 200, 'data' => ['name' => null, 'status' => null, 'hs_name_servers' => $serverPackage->ns_detail ? unserialize($serverPackage->ns_detail) : null, 'old_name_servers' => null, 'original_registrar' => null], 'message' => $errormsg]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => ['name' => null, 'status' => null, 'hs_name_servers' => $serverPackage->ns_detail ? unserialize($serverPackage->ns_detail) : null, 'old_name_servers' => null, 'original_registrar' => null], 'message' => $errormsg]);
         }
         catch(Exception $ex){
             $errorArray = [

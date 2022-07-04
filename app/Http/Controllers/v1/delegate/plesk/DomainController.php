@@ -344,11 +344,50 @@ class DomainController extends Controller
             $zoneId = $serverPackage->cloudfare_id;
             if(!$serverPackage->cloudfare_user_id){
                 $domainName = $serverPackage->domain;
-                $cloudFare = $this->createZoneSet($domainName);
+                $createZone = $this->createZoneSet($domainName);
+                if(!$createZone->success){
+
+                    $createError = $createZone->errors[0]->message;
+                    $errorArray12 = [
+                        'api_response' => 'success',
+                        'status_code' => 200,
+                        'data' => 'Create Zone Set',
+                        'message' => $createZone->errors[0]->message
+                    ];
+                    $postDat12 = [
+                        'userId' => jsencode_userdata($request->userid),
+                        'api_response' => 'success',
+                        'logType' => 'cPanel',
+                        'module' => 'Create zone set for '.$domainName,
+                        'requestedFor' => serialize(['name' => 'Create zone set', 'domain' => $domainName]),
+                        'response' => serialize($errorArray12)
+                    ];
+                    $postData12['response'] = serialize($errorArray12);
+                    //Hit node api to save logs
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData12); 
+                }
                 $zoneInfo = $this->getSingleZone($domainName);
                 $accountCreate = [];
                 $cloudfareUser = null;
                 if($zoneInfo['success'] && $zoneInfo['result']){
+                    
+                    $errorArray1 = [
+                        'api_response' => 'success',
+                        'status_code' => 200,
+                        'data' => 'Create Zone Set',
+                        'message' => 'Zone Set has been created on cloudflare'
+                    ];
+                    $postDat1 = [
+                        'userId' => jsencode_userdata($request->userid),
+                        'api_response' => 'success',
+                        'logType' => 'cPanel',
+                        'module' => 'Create zone set for '.$domainName,
+                        'requestedFor' => serialize(['name' => 'Create zone set', 'domain' => $domainName]),
+                        'response' => serialize($errorArray1)
+                    ];
+                    $postData1['response'] = serialize($errorArray1);
+                    //Hit node api to save logs
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData1); 
                     $accountCreate['ns_detail'] = serialize($zoneInfo['result'][0]['name_servers']);
                     
                     $cloudfareUser = CloudfareUser::where('status', 1)->first();

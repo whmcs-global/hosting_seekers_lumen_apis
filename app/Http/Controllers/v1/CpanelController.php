@@ -562,6 +562,28 @@ class CpanelController extends Controller
             }
             try{
                 $createZone = $this->createZoneSet($domainName);
+                $createError = config('constants.ERROR.FORBIDDEN_ERROR');
+                if(!$createZone->success){
+
+                    $createError = $createZone->errors[0]->message;
+                    $errorArray12 = [
+                        'api_response' => 'success',
+                        'status_code' => 200,
+                        'data' => 'Create Zone Set',
+                        'message' => $createZone->errors[0]->message
+                    ];
+                    $postDat12 = [
+                        'userId' => jsencode_userdata($request->userid),
+                        'api_response' => 'success',
+                        'logType' => 'cPanel',
+                        'module' => 'Create zone set for '.$domainName,
+                        'requestedFor' => serialize(['name' => 'Create zone set', 'domain' => $domainName]),
+                        'response' => serialize($errorArray12)
+                    ];
+                    $postData12['response'] = serialize($errorArray12);
+                    //Hit node api to save logs
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData12); 
+                }
                 $zoneInfo = $this->getSingleZone($domainName);
                 if($zoneInfo['success'] && $zoneInfo['result']){
                     
