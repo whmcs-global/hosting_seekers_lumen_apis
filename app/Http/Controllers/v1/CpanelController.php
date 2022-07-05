@@ -461,7 +461,7 @@ class CpanelController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-                return response()->json($errorArray);
+                // return response()->json($errorArray);
             } else if($domainDetail == 'TLD not supported'){
                 $errorArray = [
                     'api_response' => 'error',
@@ -472,7 +472,7 @@ class CpanelController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-                return response()->json($errorArray);
+                // return response()->json($errorArray);
             }
             $linkserver = $serverPackage->company_server->link_server ? unserialize($serverPackage->company_server->link_server) : 'N/A';
             $controlPanel = null;
