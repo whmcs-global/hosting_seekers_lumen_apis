@@ -572,7 +572,7 @@ class CpanelController extends Controller
                         'data' => 'Create Zone Set',
                         'message' => $createZone->errors[0]->message
                     ];
-                    $postDat12 = [
+                    $postData12 = [
                         'userId' => jsencode_userdata($request->userid),
                         'api_response' => 'success',
                         'logType' => 'cPanel',
@@ -593,7 +593,7 @@ class CpanelController extends Controller
                         'data' => 'Create Zone Set',
                         'message' => 'Zone Set has been created on cloudflare'
                     ];
-                    $postDat1 = [
+                    $postData1 = [
                         'userId' => jsencode_userdata($request->userid),
                         'api_response' => 'success',
                         'logType' => 'cPanel',
