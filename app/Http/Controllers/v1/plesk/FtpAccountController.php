@@ -44,6 +44,18 @@ class FtpAccountController extends Controller
                 'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
             ]);
         }
+        $requestedFor = [
+            'name' => 'Create FTP Account',
+            'user' => $request->username,
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'FTP Account',
+            'requestedFor' => serialize($requestedFor),
+            'response' => serialize($errorArray)
+        ];
         //$quota = $request->quota * 1024 * 1024;
         try{
             $quota = 0;
@@ -75,10 +87,30 @@ class FtpAccountController extends Controller
             </packet>
             EOL;
             $response = $this->client->request($api_request);
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Account creation error',
+                'message' => 'FTP Account has been successfully created'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'FTP account created successfully.' 
             ]);
         }catch(\Exception $e){
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Account creation error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json([
                 'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
             ]);
@@ -170,6 +202,18 @@ class FtpAccountController extends Controller
                 'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
             ]);
         }
+        $requestedFor = [
+            'name' => 'Update FTP Account',
+            'user' => $request->username,
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'FTP Account',
+            'requestedFor' => serialize($requestedFor),
+            'response' => ''
+        ];
         try{
             $api_request = <<<EOL
             <packet>
@@ -186,14 +230,45 @@ class FtpAccountController extends Controller
             </packet>
             EOL;
             $response_data = $this->client->request($api_request);
-            if($response_data->status == 'ok')
-            return response()->json([
-                'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'FTP account updated successfully.'
-            ]);
+            if($response_data->status == 'ok'){
+                
+                $errorArray = [
+                    'api_response' => 'success',
+                    'status_code' => 200,
+                    'data' => 'Account updation error',
+                    'message' => 'FTP Account has been successfully updated'
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['api_response'] = 'success';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json([
+                    'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'FTP account updated successfully.'
+                ]);
+            }
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Account updation error',
+                'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }catch(\Exception $e){
+            
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Account updation error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json([
                 'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
             ]);
@@ -217,6 +292,18 @@ class FtpAccountController extends Controller
                 'api_response' => 'error', 'status_code' => 422, 'data' => $validator->errors()->all() , 'message' => "Something went wrong."
             ]);
         }
+        $requestedFor = [
+            'name' => 'Delete FTP Account',
+            'user' => $request->username,
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'FTP Account',
+            'requestedFor' => serialize($requestedFor),
+            'response' => ''
+        ];
         try{
             $api_request = <<<EOF
             <packet>
@@ -230,10 +317,31 @@ class FtpAccountController extends Controller
             </packet>
             EOF;
             $response_data = $this->client->request($api_request);
+            
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Account deleting error',
+                'message' => 'FTP Account has been successfully deleted'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json([
                 'api_response' => 'success', 'status_code' => 200, 'data' => [] , 'message' => 'FTP account deleted successfully.'
             ]);
         }catch(\Exception $e){
+            
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Account deleting error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json([
                 'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
             ]);

@@ -242,7 +242,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
@@ -452,7 +452,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
@@ -598,7 +598,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
@@ -745,7 +745,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
@@ -852,7 +852,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
@@ -962,7 +962,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
@@ -1064,7 +1064,7 @@ class PowerDnsController extends Controller
             $errorArray = [
                 'api_response' => 'error',
                 'status_code' => 400,
-                'data' => 'Server errorr',
+                'data' => 'Server error',
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
