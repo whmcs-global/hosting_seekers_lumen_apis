@@ -278,7 +278,20 @@ class OrderController extends Controller
                 ];
                 $orderData = [];
                 foreach($orders as $order){
-                    array_push($orderData, ['id'=> jsencode_userdata($order->id), 'payment_mode' => $order->payment_mode, 'comments' => $order->comments, 'currency_icon' => $order->currency->icon, 'amount' => $order->amount, 'order_id' => $order->order ? $order->order->order_id : null, 'status' => $statusArray[$order->status], 'created_at' => change_date_format($order->created_at)]);
+                    $walletTrans = [
+                        'id'=> jsencode_userdata($order->id),
+                        'payment_mode' => $order->payment_mode,
+                        'comments' => $order->comments,
+                        'currency_icon' => $order->currency->icon,
+                        'debit' => $order->payment_mode == 'Debit' ? $order->amount : null ,
+                        'credit' => $order->payment_mode == 'Credit' ? $order->amount : null ,
+                        'balance_currency_icon' => $order->user->currency->icon,
+                        'balance' => $order->balance,
+                        'order_id' => $order->order ? $order->order->order_id : null,
+                        'status' => $statusArray[$order->status],
+                        'created_at' => change_date_format($order->created_at)
+                    ];
+                    array_push($orderData, $walletTrans);
                 }
                 
                 $ordersData['data'] = $orderData;

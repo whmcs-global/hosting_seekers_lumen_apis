@@ -105,20 +105,21 @@ class ServiceController extends Controller
                         'trans_status' => 'Refunded',
                         'status' => 3,
                     ]);
+                    $usersDetail = User::where('id', $request->userid)->first();
+                    $amount = $this->getCurrency($orders->currency->name, $orders->payable_amount, $usersDetail->currency->name);
                     WalletPayment::create([
                         'user_id' => $orders->user_id,
                         'credit_by' => $orders->company_id,
                         'payment_mode' => 'Credit',
                         'currency_id' => $orders->currency_id,
                         'amount' => $orders->payable_amount,
+                        'balance' => $usersDetail->amount+$amount,
                         'comments' => $request->comments,
                         'order_id' => $orders->id,
                         'order_transaction_id' => $ordersTransaction->id,
                         'raw_data' => serialize($browseDetail),
                         'status' => 1
                     ]);
-                    $usersDetail = User::where('id', $request->userid)->first();
-                    $amount = $this->getCurrency($orders->currency->name, $orders->payable_amount, $usersDetail->currency->name);
                     $usersDetail->amount = $usersDetail->amount+$amount;
                     $usersDetail->save();
 

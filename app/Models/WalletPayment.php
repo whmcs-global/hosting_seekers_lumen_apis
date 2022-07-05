@@ -14,6 +14,7 @@ class WalletPayment extends Model
         'payment_mode',
         'currency_id',
         'amount',
+        'balance',
         'comments',
         'order_id',
         'order_transaction_id',
