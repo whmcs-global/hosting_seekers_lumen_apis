@@ -584,7 +584,6 @@ class EmailAccountController extends Controller
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
             'email' => 'required',
-            'domain' => 'required',
             'password' => 'required'
         ]);
         if($validator->fails()){
@@ -617,7 +616,7 @@ class EmailAccountController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
-            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email.'@'.$request->domain,  $request->password);
+            $accCreated = $this->changeEmailPassword($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->email,  $request->password);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
