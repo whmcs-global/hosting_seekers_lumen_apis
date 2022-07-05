@@ -287,6 +287,7 @@ class OrderController extends Controller
                         'credit' => $order->payment_mode == 'Credit' ? $order->amount : null ,
                         'balance_currency_icon' => $order->user->currency->icon,
                         'balance' => $order->balance,
+                        'amount' => $order->amount,
                         'order_id' => $order->order ? $order->order->order_id : null,
                         'status' => $statusArray[$order->status],
                         'created_at' => change_date_format($order->created_at)
