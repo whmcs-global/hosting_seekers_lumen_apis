@@ -393,10 +393,10 @@ class DomainController extends Controller
                     $accountCreate['cloudfare_id'] = $zoneId = $zoneInfo['result'][0]['id'];
                     $userCount = UserServer::where(['cloudfare_user_id' => $cloudfareUser->id ])->count();
                     $updateData = ['domain_count' => $userCount+1];
-                    if($userCount == 100){
+                    if($userCount == 50){
                         $updateData = ['domain_count' => $userCount, 'status' => 0];
                         CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
-                        CloudfareUser::where('domain_count', '!=', 100)->where(['status' =>  0])->update(['status' => 1]);
+                        CloudfareUser::where('domain_count', '!=', 50)->where(['status' =>  0])->update(['status' => 1]);
                         $cloudfareUser = CloudfareUser::where('status', 1)->first();
                     } else{
                         CloudfareUser::where('id', $cloudfareUser->id)->update($updateData);
