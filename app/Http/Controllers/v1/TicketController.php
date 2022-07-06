@@ -20,6 +20,8 @@ class TicketController extends Controller
                 'role' => $request->role,
                 'currency' => $user->currency->icon,
                 'currencyName' => $user->currency->name,
+                'timezone' => $user->timezone,
+                'timezone_code' => $user->timezone_code,
                 'amount' => $user->amount,
                 'currencyId' => jsencode_userdata($user->currency_id),
                 'currencyUpdated' => $user->currency_updated,
