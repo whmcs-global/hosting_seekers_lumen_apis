@@ -61,7 +61,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             $router->post('cancel-service', 'ServiceController@cancelService');
             $router->post('add/domain', 'CpanelController@addDomain');
             $router->get('login-cpanel/{id}', 'CpanelController@loginAccount');
-            $router->post('upload-file', 'WordpressController@uploadFiles');
+            $router->post('install-wordpress', 'WordpressController@uploadFiles');
             $router->post('extract-file', 'WordpressController@extractFiles');
             //Sub Domains Routes
             $router->group(['prefix' => 'subdomain'], function () use ($router) {

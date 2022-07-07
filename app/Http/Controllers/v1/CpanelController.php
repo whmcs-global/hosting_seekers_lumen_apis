@@ -903,6 +903,13 @@ class CpanelController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
+            $isInstalled = 0;
+            $visit = null;
+            if($serverPackage->install_wordpress){
+
+                $isInstalled = 1;
+                $visit = 'https://'.$serverPackage->install_wordpress.'/wordpress';
+            }
             $requestedFor['name'] = 'Cpanel stats for '.$serverPackage->domain;
             $postData['requestedFor'] = serialize($requestedFor);
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
@@ -974,7 +981,8 @@ class CpanelController extends Controller
                 "accountStats" => $cpanelStatArray,
                 'phpVersion' => $phpVesion,
                 'developementMode' => $developementModeValue,
-                'securityLevel' => $securityLevelValue
+                'securityLevel' => $securityLevelValue,
+                'wordpress' => ['is_installed' => $isInstalled, 'visit' => $visit]
             ];
             
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $domainInfo, 'message' => 'Domian information has been fetched']);
