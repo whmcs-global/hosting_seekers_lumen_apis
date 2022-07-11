@@ -48,13 +48,13 @@ class WordpressController extends Controller
     public function uploadFiles(Request $request) {
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
-            'database' => 'required',
-            'db_user' => 'required',
-            'db_password' => 'required',
-            'username' => 'required',
-            'password' => 'required',
-            'sitename' => 'required',
-            'email' => 'required',
+            // 'database' => 'required',
+            // 'db_user' => 'required',
+            // 'db_password' => 'required',
+            // 'username' => 'required',
+            // 'password' => 'required',
+            // 'sitename' => 'required',
+            // 'email' => 'required',
         ]);
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
@@ -67,12 +67,12 @@ class WordpressController extends Controller
         ];
         $requestedFor = [
             'name' => 'Install Wordpress',
-            'database' => $request->database,
-            'db_user' => $request->db_user,
-            'db_password' => $request->db_password,
-            'username' => $request->username,
-            'sitename' => $request->sitename,
-            'email' => $request->email,
+            // 'database' => $request->database,
+            // 'db_user' => $request->db_user,
+            // 'db_password' => $request->db_password,
+            // 'username' => $request->username,
+            // 'sitename' => $request->sitename,
+            // 'email' => $request->email,
         ];
         $postData = [
             'userId' => jsencode_userdata($request->userid),
@@ -91,62 +91,185 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
-            // $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
-            // if(!is_array($cpanelStats) ){
-            //     hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            //     return response()->json($errorArray);
-            // }
-            // if ((array_key_exists("data", $cpanelStats) && $cpanelStats["data"]['result'] == "0")) {
-            //     $error = $cpanelStats["data"]['reason'];
-            //     $errorArray = [
-            //         'api_response' => 'error',
-            //         'status_code' => 400,
-            //         'data' => 'Fetching error',
-            //         'message' => $error
-            //     ];
-            //     $postData['response'] = serialize($errorArray);
-            //     //Hit node api to save logs
-            //     hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            //     return response()->json($errorArray);
-            // }
-            // if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
-            //     $error = $cpanelStats["result"]['errors'];
-            //     $errorArray = [
-            //         'api_response' => 'error',
-            //         'status_code' => 400,
-            //         'data' => 'Fetching error',
-            //         'message' => $error
-            //     ];
-            //     $postData['response'] = serialize($errorArray);
-            //     //Hit node api to save logs
-            //     hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            //     return response()->json($errorArray);
-            // }
-            // $count = $max = [];
-            // foreach( $cpanelStats['result']['data'] as $cpanelStat){
-            //     if($cpanelStat['item'] == 'MySQL Databases'){
-            //         $count = $cpanelStat['count'];
-            //         if(array_key_exists("_count", $cpanelStat))
-            //         $count = $cpanelStat['_count'];
-            //         $max = $cpanelStat['max'];
-            //         if(array_key_exists("_max", $cpanelStat))
-            //         $max = $cpanelStat['_max'];
-            //     } 
-            // }
-            // if($max != 'unlimited' && $max == $count && $count > 0){
-            //     $errorArray = [
-            //         'api_response' => 'error',
-            //         'status_code' => 400,
-            //         'data' => 'Database check',
-            //         'message' => 'you have exceeded the limit for adding database'
-            //     ];
-            //     $postData['response'] = serialize($errorArray);
-            //     //Hit node api to save logs
-            //     hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            //     return response()->json($errorArray);
-            // }
+            $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            if(!is_array($cpanelStats) ){
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            if ((array_key_exists("data", $cpanelStats) && $cpanelStats["data"]['result'] == "0")) {
+                $error = $cpanelStats["data"]['reason'];
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Fetching error',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
+                $error = $cpanelStats["result"]['errors'];
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Fetching error',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            $count = $max = [];
+            foreach( $cpanelStats['result']['data'] as $cpanelStat){
+                if($cpanelStat['item'] == 'MySQL Databases'){
+                    $count = $cpanelStat['count'];
+                    if(array_key_exists("_count", $cpanelStat))
+                    $count = $cpanelStat['_count'];
+                    $max = $cpanelStat['max'];
+                    if(array_key_exists("_max", $cpanelStat))
+                    $max = $cpanelStat['_max'];
+                } 
+            }
+            if($max != 'unlimited' && $max == $count && $count > 0){
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Database check',
+                    'message' => 'you have exceeded the limit for adding database'
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            
+            $userCreated = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
+            
+            if(is_array($userCreated) && array_key_exists("result", $userCreated) && $userCreated['result']['status'] == 0) {
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'MySql User Restrictions',
+                    'message' => $userCreated['result']['errors']
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+
+            }
+
+            $dbName = 'intlwordpress';
+            if($userCreated['result']['data']['prefix']){
+                $dbName = $userCreated['result']['data']['prefix'].$dbName;
+            }
+
+            // Create database to install wordpress
+            $accCreated = $this->createMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $dbName);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Create MySql Database',
+                    'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+                ];
+                $requestedFor['database'] = $dbName;
+                $postData['requestedFor'] = serialize($requestedFor);
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            if ($accCreated["result"]['status'] == "0" && !str_contains($accCreated['result']["errors"][0], 'already exists')) {
+                $error = $accCreated['result']["errors"][0];
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Create MySql Database',
+                    'message' => $error
+                ];
+                $requestedFor['database'] = $dbName;
+                $postData['requestedFor'] = serialize($requestedFor);
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+
+            // Create database user to install wordpress
+            $accCreated = $this->createMySqlUser($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $dbName,  $dbName);
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Create MySql User Connection Error',
+                    'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+                ];
+                $requestedFor['User'] = $dbName;
+                $requestedFor['password'] = $dbName;
+                $postData['requestedFor'] = serialize($requestedFor);
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            
+            if ($accCreated["result"]['status'] == "0" && !str_contains($accCreated['result']["errors"][0], 'already exists')) {
+                $error = $accCreated['result']["errors"][0];
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Create MySql User',
+                    'message' => $error
+                ];
+                $requestedFor['user'] = $dbName;
+                $requestedFor['password'] = $dbName;
+                $postData['requestedFor'] = serialize($requestedFor);
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+
+            $accCreated = $this->updateMySqlDbPrivileges($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $dbName,  $dbName,  'ALL');
+            if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Update MySql Database Privileges Connection Error',
+                    'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+                ];
+                $requestedFor['User'] = $dbName;
+                $requestedFor['password'] = $dbName;
+                $postData['requestedFor'] = serialize($requestedFor);
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+            
+            if ($accCreated["result"]['status'] == "0") {
+                $error = $accCreated['result']["errors"];
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Update MySql Database Privileges',
+                    'message' => $userCreated['result']['errors']
+                ];
+                $requestedFor['user'] = $dbName;
+                $requestedFor['password'] = $dbName;
+                $postData['requestedFor'] = serialize($requestedFor);
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }
+
             $contentText = '<?php
-            $mysqli = new mysqli("localhost", "'.$request->db_user.'", "'.$request->db_password.'", "'.$request->database.'");
+            $mysqli = new mysqli("localhost", "'.$dbName.'", "'.$dbName.'", "'.$dbName.'");
             if ($mysqli->connect_error) {
               die("Connection failed: " . $mysqli->connect_error);
             }
@@ -188,10 +311,10 @@ class WordpressController extends Controller
             curl_setopt($ch1, CURLOPT_FILE, $zipResource);            
             $page = curl_exec($ch1);   
             $siteUrl = "https://'.$serverPackage->domain.'/wordpress";
-            $userEmail = "'.$request->email.'";
-            $userName = "'.$request->username.'";
-            $userPassword = "'.md5($request->password).'";
-            $siteTitle = "'.$request->sitename.'";
+            $userEmail = "'.$serverPackage->user->email.'";
+            $userName = "admin";
+            $userPassword = "'.md5($serverPackage->name).'";
+            $siteTitle = "'.$serverPackage->domain.'";
             $sql = file_get_contents($sqlFile);
             $sql = str_replace("http://pkkchemical.com/wordpress/", $siteUrl, $sql);
             $sql = str_replace("gauravch.shinedezign@gmail.com", $userEmail, $sql);
@@ -323,13 +446,13 @@ class WordpressController extends Controller
             
             // ** Database settings - You can get this info from your web host ** //
             /** The name of the database for WordPress */
-            define( "DB_NAME", "'.$request->database.'" );
+            define( "DB_NAME", "'.$dbName.'" );
             
             /** Database username */
-            define( "DB_USER", "'.$request->db_user.'" );
+            define( "DB_USER", "'.$dbName.'" );
             
             /** Database password */
-            define( "DB_PASSWORD", "'.$request->db_password.'" );
+            define( "DB_PASSWORD", "'.$dbName.'" );
             
             /** Database hostname */
             define( "DB_HOST", "localhost" );
@@ -432,7 +555,12 @@ class WordpressController extends Controller
             $errorArray = [
                 'api_response' => 'success',
                 'status_code' => 200,
-                'data' => 'Install wordpress on server',
+                'data' => [
+                    'website_url' => 'https://'.$serverPackage->domain.'/wordpress',
+                    'admin_login_url' => 'https://'.$serverPackage->domain.'/wordpress/wp-admin',
+                    'admin_username' => 'admin',
+                    'admin_password' => $serverPackage->name
+                ],
                 'message' => 'Wordpress has been successfully installed on your server'
             ];
             $postData['response'] = serialize($errorArray);
