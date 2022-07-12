@@ -143,7 +143,7 @@ class ServiceController extends Controller
                     $newval = str_replace($string_to_replace, $string_replace_with, $template->template);
                     
                     $emailArray = [];
-                    array_push($emailArray, ['user_id' => $userid, 'templateId' => $template->id, 'templateName' => $template->name, 'email' => $userEmail, 'subject' => $template->subject, 'body' => $newval, 'logtoken' => $logtoken, 'raw_data' => null, 'bcc' => null]);
+                    array_push($emailArray, ['user_id' => $userid, 'templateId' => $template->id, 'templateName' => $template->template_name, 'email' => $userEmail, 'subject' => $template->subject, 'body' => $newval, 'logtoken' => $logtoken, 'raw_data' => null, 'bcc' => null]);
                     $emailData = ['emails' => $emailArray];
                     $routesUrl = Config::get('constants.SMTP_URL');
                     $response = hitCurl($routesUrl, 'POST', $emailData);

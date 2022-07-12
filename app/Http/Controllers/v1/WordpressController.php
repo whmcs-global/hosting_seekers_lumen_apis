@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{UserServer};
 use Illuminate\Support\Facades\{Config, Validator};
-use App\Traits\{CpanelTrait};
+use App\Traits\{CpanelTrait, AutoResponderTrait};
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 
 class WordpressController extends Controller
 {
-    use CpanelTrait;
+    use CpanelTrait, AutoResponderTrait;
     
     /*
     API Method Name:    createDatabase
@@ -1046,7 +1046,7 @@ class WordpressController extends Controller
             'message' => config('constants.ERROR.FORBIDDEN_ERROR')
         ];
         $requestedFor = [
-            'name' => 'Upload curl.php file',
+            'name' => 'Notify User',
             // 'database' => $request->database,
             // 'db_user' => $request->db_user,
             // 'db_password' => $request->db_password,
@@ -1076,7 +1076,7 @@ class WordpressController extends Controller
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
-                    'data' => 'Upload curl.php file',
+                    'data' => 'Notify User',
                     'message' => 'Database not Found'
                 ];
                 $postData['response'] = serialize($errorArray);
@@ -1102,9 +1102,8 @@ class WordpressController extends Controller
             $string_to_replace = array('{{name}}', '{{$url}}', '{{username}}', '{{$password}} ', '{{$logToken}}', '{{$unsubscribe}}');
             $string_replace_with = array($name, 'https://'.$serverPackage->domain.'wp-admin', 'admin', $dbDetail['password'], $logtokenUrl, $unsubscribe);
             $newval = str_replace($string_to_replace, $string_replace_with, $template->template);
-            
             $emailArray = [];
-            array_push($emailArray, ['user_id' => $userid, 'templateId' => $template->id, 'templateName' => $template->name, 'email' => $userEmail, 'subject' => $template->subject, 'body' => $newval, 'logtoken' => $logtoken, 'raw_data' => null, 'bcc' => null]);
+            array_push($emailArray, ['user_id' => $userid, 'templateId' => $template->id, 'templateName' => $template->template_name, 'email' => $userEmail, 'subject' => $template->subject, 'body' => $newval, 'logtoken' => $logtoken, 'raw_data' => null, 'bcc' => null]);
             $emailData = ['emails' => $emailArray];
             $routesUrl = Config::get('constants.SMTP_URL');
             $response = hitCurl($routesUrl, 'POST', $emailData);
@@ -1112,15 +1111,13 @@ class WordpressController extends Controller
             $errorArray = [
                 'api_response' => 'success',
                 'status_code' => 200,
-                'data' => 'Permission Assigned',
-                'message' => 'Permissions has been successfully assigned to install WordPress'
+                'data' => 'Notify User',
+                'message' => 'Notification has been successfully sent to user.'
             ];
             $postData['response'] = serialize($errorArray);
             $postData['api_response'] = 'success';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->update(['wordpress_detail' => serialize(['database' => $dbName, 'password' => $password])]);
-
             return response()->json($errorArray);
         }
         catch(Exception $ex){
