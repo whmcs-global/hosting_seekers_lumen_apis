@@ -131,8 +131,10 @@ trait CloudfareTrait {
         return json_decode($http_result);
     }
 
-    public function getSingleZone($zonename)
+    public function getSingleZone($zonename, $ApiEmail = null, $ApiKey = null)
     {
+        $ApiEmail = $ApiEmail??$this->ApiEmail; 
+        $ApiKey = $ApiKey??$this->ApiKey;
         $url = $this->ApiUrl . "zones?name=" . $zonename;
         $action = "get";
         $extra = array("cfusername" => $this->ApiEmail, "cfapikey" => $this->ApiKey, "per_page" => "50");

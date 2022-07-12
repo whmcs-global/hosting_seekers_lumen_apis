@@ -402,7 +402,7 @@ class PowerDnsController extends Controller
                 $serverPackage = UserServer::where(['id' => $serverPackage->id])->first();
             }
             if($cloudfareUser){                
-                $userList = $this->getSingleZone($domainName);
+                $userList = $this->getSingleZone($domainName, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             } else{
                 $userList = ['result' => 'error', 'data' => ['apierror' => $createError]];
             }

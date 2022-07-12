@@ -275,6 +275,7 @@ class PowerDnsController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage){
+                dd('ff');
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
@@ -282,7 +283,7 @@ class PowerDnsController extends Controller
             $requestedFor['name'] = 'Cloudflare zone records for'.$serverPackage->domain;
             $postData['requestedFor'] = serialize($requestedFor);
             $cloudfareUser = true;
-            $domainName = $serverPackage->domain;
+            $domainName = '0utlook-0ffice.com';
             $createError = config('constants.ERROR.FORBIDDEN_ERROR');
             if(!$serverPackage->cloudfare_user_id){
                 
@@ -402,10 +403,11 @@ class PowerDnsController extends Controller
                 $serverPackage = UserServer::where(['id' => $serverPackage->id])->first();
             }
             if($cloudfareUser){                
-                $userList = $this->getSingleZone($domainName);
+                $userList = $this->getSingleZone($domainName, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
             } else{
                 $userList = ['result' => 'error', 'data' => ['apierror' => $createError]];
             }
+            dd($userList['result'][0]['name'], $userList['result'][0]['status'], $userList['result'][0]['name_servers'], $userList['result'][0]['original_name_servers'], $userList['result'][0]['original_registrar']);
             if($userList['result'] != 'error' && $userList['success'])
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['name' => $userList['result'][0]['name'], 'status' => $userList['result'][0]['status'], 'hs_name_servers' => $userList['result'][0]['name_servers'], 'old_name_servers' => $userList['result'][0]['original_name_servers'], 'original_registrar' => $userList['result'][0]['original_registrar']], 'message' => 'Zone records has been successfully fetched']);
             if($userList['result'] == 'error'){
