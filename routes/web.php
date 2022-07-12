@@ -61,8 +61,16 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             $router->post('cancel-service', 'ServiceController@cancelService');
             $router->post('add/domain', 'CpanelController@addDomain');
             $router->get('login-cpanel/{id}', 'CpanelController@loginAccount');
-            $router->post('install-wordpress', 'WordpressController@uploadFiles');
-            $router->post('extract-file', 'WordpressController@extractFiles');
+            //Install Wordpress
+            $router->post('install-wordpress-files', 'WordpressController@uploadFiles');
+            $router->group(['prefix' => 'wordpress'], function () use ($router) {
+                $router->get('create-database/{id}', 'WordpressController@createDatabase');
+                $router->get('assign-permission/{id}', 'WordpressController@assignPermission');
+                $router->get('download-files/{id}', 'WordpressController@downloadFiles');
+                $router->get('install-wordpress/{id}', 'WordpressController@extractFiles');
+                $router->get('setup-config/{id}', 'WordpressController@updateConfigurations');
+            });
+
             //Sub Domains Routes
             $router->group(['prefix' => 'subdomain'], function () use ($router) {
                 $router->get('/{id}', 'SubDomainController@getSubDomain');
