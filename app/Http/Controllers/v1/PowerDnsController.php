@@ -407,7 +407,6 @@ class PowerDnsController extends Controller
             } else{
                 $userList = ['result' => 'error', 'data' => ['apierror' => $createError]];
             }
-            dd($userList['result'][0]['name'], $userList['result'][0]['status'], $userList['result'][0]['name_servers'], $userList['result'][0]['original_name_servers'], $userList['result'][0]['original_registrar']);
             if($userList['result'] != 'error' && $userList['success'])
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['name' => $userList['result'][0]['name'], 'status' => $userList['result'][0]['status'], 'hs_name_servers' => $userList['result'][0]['name_servers'], 'old_name_servers' => $userList['result'][0]['original_name_servers'], 'original_registrar' => $userList['result'][0]['original_registrar']], 'message' => 'Zone records has been successfully fetched']);
             if($userList['result'] == 'error'){
