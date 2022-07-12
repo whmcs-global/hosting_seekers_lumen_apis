@@ -137,7 +137,7 @@ trait CloudfareTrait {
         $ApiKey = $ApiKey??$this->ApiKey;
         $url = $this->ApiUrl . "zones?name=" . $zonename;
         $action = "get";
-        $extra = array("cfusername" => $this->ApiEmail, "cfapikey" => $this->ApiKey, "per_page" => "50");
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey, "per_page" => "50");
         $result = $this->sendCloudRequest($url, $action, $extra);        
         return $result;
     }
