@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\v1;
+namespace App\Http\Controllers\v1\delegate;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{UserServer};
+
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\{Config, Validator};
 use App\Traits\{CpanelTrait};
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 

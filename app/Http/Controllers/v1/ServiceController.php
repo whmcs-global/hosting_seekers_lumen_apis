@@ -130,7 +130,7 @@ class ServiceController extends Controller
                     $companyName = $orders->ordered_product->product->user->company_detail->company_name;
                     $name = $usersDetail->first_name.' '.$usersDetail->last_name; 
                     $logtoken = Str::random(12);
-                    $logtokenUrl = 'https://www.hostingseekers.com/footer/image/'.$logtoken.'.png'; 
+                    $logtokenUrl = config('app.nodeurl').'footer/image/'.$logtoken.'.png';
                     $unsubscribeUrl = 'https://www.hostingseekers.com/unsubscribe?email='.jsencode_userdata($userEmail).'&c='.jsencode_userdata('Company');
                     $unsubscribe = 'If you prefer not to receive emails, you may
                     <a href="'.$unsubscribeUrl.'" target="_blank" style="color:#ee1c2ab5;text-decoration:underline;">

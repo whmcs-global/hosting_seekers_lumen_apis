@@ -69,6 +69,7 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
                 $router->get('download-files/{id}', 'WordpressController@downloadFiles');
                 $router->get('install-wordpress/{id}', 'WordpressController@extractFiles');
                 $router->get('setup-config/{id}', 'WordpressController@updateConfigurations');
+                $router->get('notify-user/{id}', 'WordpressController@notifyUser');
             });
 
             //Sub Domains Routes
@@ -260,6 +261,15 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
                 $router->post('cron-job-add', 'CronJobController@createRecord');
                 $router->post('cron-job-update', 'CronJobController@updateRecord');
                 $router->post('cron-job-delete', 'CronJobController@deleteRecord');
+            });
+            //Install Wordpress
+            $router->group(['prefix' => 'wordpress'], function () use ($router) {
+                $router->get('create-database/{id}', 'WordpressController@createDatabase');
+                $router->get('assign-permission/{id}', 'WordpressController@assignPermission');
+                $router->get('download-files/{id}', 'WordpressController@downloadFiles');
+                $router->get('install-wordpress/{id}', 'WordpressController@extractFiles');
+                $router->get('setup-config/{id}', 'WordpressController@updateConfigurations');
+                $router->get('notify-user/{id}', 'WordpressController@notifyUser');
             });
 
             //Get Domain Info Route
