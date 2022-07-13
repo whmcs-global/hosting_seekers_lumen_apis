@@ -278,7 +278,6 @@ class PowerDnsController extends Controller
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
             if(!$serverPackage){
-                dd('ff');
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
@@ -286,7 +285,7 @@ class PowerDnsController extends Controller
             $requestedFor['name'] = 'Cloudflare zone records for'.$serverPackage->domain;
             $postData['requestedFor'] = serialize($requestedFor);
             $cloudfareUser = true;
-            $domainName = '0utlook-0ffice.com';
+            $domainName = $serverPackage->domain;
             $createError = config('constants.ERROR.FORBIDDEN_ERROR');
             if(!$serverPackage->cloudfare_user_id){
                 
