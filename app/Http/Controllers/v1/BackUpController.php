@@ -28,7 +28,7 @@ class BackUpController extends Controller
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Backup files has been successfully fetched']);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', $e->getMessage());
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 
@@ -64,7 +64,7 @@ class BackUpController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Backup has been successfully created']);
             return $this->apiResponse('success', '200', 'Backup file listing');
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', $e->getMessage());
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 
@@ -100,7 +100,7 @@ class BackUpController extends Controller
             }   
             return $this->apiResponse('success', '200', 'Download Backup file', 'https://'.$serverPackage->domain.'/'.$request->filename);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', $e->getMessage());
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 
@@ -128,7 +128,7 @@ class BackUpController extends Controller
             }   
             return $this->apiResponse('success', '200', 'Backup file has been deleted successfully');
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', $e->getMessage());
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
     
@@ -169,13 +169,13 @@ class BackUpController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ratingArray, 'message' => 'Ip address has been successfully blocked']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
     }
     
@@ -218,13 +218,13 @@ class BackUpController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ratingArray, 'message' => 'Ip address has been successfully unblocked']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
     }
 }

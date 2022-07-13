@@ -94,6 +94,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -106,6 +107,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -118,6 +120,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -235,6 +238,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -247,6 +251,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -259,6 +264,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -362,6 +368,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -374,6 +381,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -386,6 +394,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -458,6 +467,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -469,7 +479,8 @@ class EmailAccountController extends Controller
             ];
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -482,6 +493,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -563,7 +575,8 @@ class EmailAccountController extends Controller
             ];
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -576,6 +589,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -588,6 +602,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -669,6 +684,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -681,6 +697,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -693,6 +710,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -773,6 +791,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -785,6 +804,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -797,6 +817,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -877,6 +898,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -889,6 +911,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -901,6 +924,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -982,6 +1006,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -994,6 +1019,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -1006,6 +1032,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -1086,6 +1113,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -1098,6 +1126,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -1110,6 +1139,7 @@ class EmailAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }

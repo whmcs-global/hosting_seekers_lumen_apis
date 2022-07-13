@@ -97,13 +97,13 @@ class CpanelController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'SSL has been successfully installed', 'message' => 'SSL has been successfully installed']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
     }
     public function loginAccount(Request $request, $id) {
@@ -176,6 +176,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -188,6 +189,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -200,6 +202,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -316,6 +319,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -328,6 +332,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -340,6 +345,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -427,6 +433,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -439,6 +446,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -451,6 +459,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -516,6 +525,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -528,6 +538,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -540,6 +551,7 @@ class CpanelController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }

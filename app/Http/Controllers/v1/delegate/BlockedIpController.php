@@ -30,7 +30,7 @@ class BlockedIpController extends Controller
             }
             return $this->apiResponse('success', '200', 'Blocked IP Addresses listing', $ratingArray);
         }  catch(\Exception $e){
-            return $this->apiResponse('error', '404', $e->getMessage());
+            return $this->apiResponse('error', '404', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
     
@@ -70,13 +70,13 @@ class BlockedIpController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ratingArray, 'message' => 'Ip address has been successfully blocked']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
     }
     
@@ -118,13 +118,13 @@ class BlockedIpController extends Controller
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $ratingArray, 'message' => 'Ip address has been successfully unblocked']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
         }
     }
 }

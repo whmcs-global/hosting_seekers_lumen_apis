@@ -62,7 +62,7 @@ class ServiceController extends Controller
                                     $this->client->Webspace()->delete("name",$request->domain);
                                 }catch(\Exception $e){
                                     return response()->json([
-                                        'api_response' => 'error', 'status_code' => 400, 'message' => $e->getMessage()
+                                        'api_response' => 'error', 'status_code' => 400, 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
                                     ]);
                                 }
                             }
@@ -73,13 +73,13 @@ class ServiceController extends Controller
                                 $this->deleteZone($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email,  $serverPackage->cloudfare_user->user_api);
                         }
                         catch(Exception $ex){
-                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $ex->getMessage()]);
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
                         }
                         catch(\GuzzleHttp\Exception\ConnectException $e){
-                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => $e->getMessage()]);
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
                         }
                         catch(\GuzzleHttp\Exception\ServerException $e){
-                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => $e->getMessage()]);
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
                         }
                     }
                     $domain ="";
@@ -155,7 +155,7 @@ class ServiceController extends Controller
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 }

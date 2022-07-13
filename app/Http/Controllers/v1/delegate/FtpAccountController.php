@@ -133,6 +133,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -145,6 +146,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -157,6 +159,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -242,6 +245,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -254,6 +258,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -266,6 +271,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -383,6 +389,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -395,6 +402,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -407,6 +415,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
@@ -489,6 +498,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -501,6 +511,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -512,7 +523,8 @@ class FtpAccountController extends Controller
             ];
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
             return response()->json($errorArray);
         }
     }
@@ -594,6 +606,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -606,6 +619,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
@@ -618,6 +632,7 @@ class FtpAccountController extends Controller
             $postData['response'] = serialize($errorArray);
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
     }
