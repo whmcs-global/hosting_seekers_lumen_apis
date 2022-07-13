@@ -57,6 +57,12 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
+            $installPath = '';
+            $publicHtml = $this->getFileCount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), 'public_html/');
+            if(is_array($publicHtml) && array_key_exists("cpanelresult", $publicHtml) && array_key_exists("data", $publicHtml['cpanelresult']) && count($publicHtml['cpanelresult']['data']) > 1 ) {
+                //&& array_search('cgi-bin', array_column($publicHtml['cpanelresult']['data'], 'file')) > -1
+                $installPath = 'wordpress';
+            } 
             if($serverPackage->install_wordpress == 1 || !$serverPackage->cloudfare_user_id){
                 $errorArray = [
                     'api_response' => 'error',
@@ -111,7 +117,7 @@ class WordpressController extends Controller
                     $max = $cpanelStat['_max'];
                 } 
             }
-            if($max != 'unlimited' && $max == $count && $count > 0){
+            if($max != 'unlimited' && $max == $count && $count > 0 && !$serverPackage->wordpress_detail) {
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -248,7 +254,7 @@ class WordpressController extends Controller
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
             
-            UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->update(['wordpress_detail' => serialize(['database' => $dbName])]);
+            UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->update(['wordpress_detail' => serialize(['database' => $dbName, 'installPath' => $installPath])]);
             return response()->json($errorArray);
         }
         catch(Exception $ex){
@@ -362,6 +368,7 @@ class WordpressController extends Controller
             }
             $dbDetail = unserialize($serverPackage->wordpress_detail);
             $dbName = $dbDetail['database'];
+            $installPath = $dbDetail['installPath'];
             $password = $serverPackage->name.'@'.strtolower(Str::random(6));
             $contentText = '<?php
             $mysqli = new mysqli("localhost", "'.$dbName.'", "'.$dbName.'", "'.$dbName.'");
@@ -405,7 +412,7 @@ class WordpressController extends Controller
             curl_setopt($ch1, CURLOPT_SSL_VERIFYPEER, 0); 
             curl_setopt($ch1, CURLOPT_FILE, $zipResource);            
             $page = curl_exec($ch1);   
-            $siteUrl = "https://'.$serverPackage->domain.'/";
+            $siteUrl = "https://'.$serverPackage->domain.'/'.$installPath.'";
             $userEmail = "'.$serverPackage->user->email.'";
             $userName = "admin";
             $userPassword = "'.md5($password).'";
@@ -469,7 +476,7 @@ class WordpressController extends Controller
             $postData['api_response'] = 'success';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
-            UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->update(['wordpress_detail' => serialize(['database' => $dbName, 'password' => $password])]);
+            UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->update(['wordpress_detail' => serialize(['database' => $dbName, 'installPath' => $installPath, 'password' => $password])]);
 
             return response()->json($errorArray);
         }
@@ -701,7 +708,12 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
-            $accCreated = $this->extractFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), '/public_html');
+            
+            $dbDetail = unserialize($serverPackage->wordpress_detail);
+            $dbName = $dbDetail['database'];
+            $installPath = $dbDetail['installPath'] != '' ? '/public_html/'.$dbDetail['installPath'] : '/public_html';
+            
+            $accCreated = $this->extractFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $installPath);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
                 $errorArray = [
                     'api_response' => 'error',
@@ -857,6 +869,7 @@ class WordpressController extends Controller
             }
             $dbDetail = unserialize($serverPackage->wordpress_detail);
             $dbName = $dbDetail['database'];
+            $installPath = $dbDetail['installPath'] != '' ? '/public_html/'.$dbDetail['installPath'] : '/public_html';
 
             $contentText = '<?php
             /**
@@ -954,7 +967,7 @@ class WordpressController extends Controller
             
             /** Sets up WordPress vars and included files. */
             require_once ABSPATH . "wp-settings.php";';
-            $accCreated =  $this->uploadFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), '/public_html', $contentText, 'wp-config.php');
+            $accCreated =  $this->uploadFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $installPath, $contentText, 'wp-config.php');
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
                 $errorArray = [
                     'api_response' => 'error',

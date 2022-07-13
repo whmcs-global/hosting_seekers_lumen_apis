@@ -30,7 +30,7 @@ trait CpanelTrait {
                         'headers' => $headers,
                         'verify' => false,
                         'query' => $arguments,
-                        'timeout' => 60,
+                        'timeout' => 120,
                         'connect_timeout' => 2
                     ]);
                 }
@@ -39,7 +39,7 @@ trait CpanelTrait {
                     'headers' => $headers,
                     'verify' => false,
                     'query' => $arguments,
-                    'timeout' => 60,
+                    'timeout' => 120,
                     'connect_timeout' => 2
                 ]);
                 if (($decodedBody = json_decode($response->getBody(), true)) === false) {
@@ -86,6 +86,27 @@ trait CpanelTrait {
         }
     }
     /* End Method addDevice */ 
+    
+    /*
+    API Method Name:    getFileCount
+    Developer:          Shine Dezign
+    Created Date:       2021-11-24 (yyyy-mm-dd)
+    Purpose:            To get list of subdomains
+    */
+    public function getFileCount($id, $username, $dir)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'listfiles',
+            'cpanel_jsonapi_user' => $username,
+            'dir' => 'public_html',         
+            'types' => 'dir|file'
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method getFileCount */ 
     
     /*
     API Method Name:    analogStats
