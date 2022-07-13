@@ -946,9 +946,11 @@ class CpanelController extends Controller
             if($serverPackage->install_wordpress){
                 
                 $dbDetail = unserialize($serverPackage->wordpress_detail);
-                $installPath = $dbDetail['installPath'];
+                $installPath = null;
+                if($dbDetail['installPath'])
+                $installPath = '/'.$dbDetail['installPath'];
                 $isInstalled = 1;
-                $visit = 'https://'.$serverPackage->domain.'/'.$installPath;
+                $visit = 'https://'.$serverPackage->domain.$installPath;
             }
             $requestedFor['name'] = 'Cpanel stats for '.$serverPackage->domain;
             $postData['requestedFor'] = serialize($requestedFor);
