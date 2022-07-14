@@ -59,11 +59,24 @@ class WordpressController extends Controller
             }
             $installPath = '';
             $publicHtml = $this->getFileCount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), 'public_html/');
-            if(is_array($publicHtml) && array_key_exists("cpanelresult", $publicHtml) && array_key_exists("data", $publicHtml['cpanelresult']) && count($publicHtml['cpanelresult']['data']) > 1 ) {
-                //&& array_search('cgi-bin', array_column($publicHtml['cpanelresult']['data'], 'file')) > -1
+            if(is_array($publicHtml) && array_key_exists("cpanelresult", $publicHtml) && array_key_exists("data", $publicHtml['cpanelresult']) && count($publicHtml['cpanelresult']['data']) > 1 && !is_numeric(array_search('wp-config.php', array_column($publicHtml['cpanelresult']['data'], 'file'))) ) {
+                //&& array_search('wp-config.php', array_column($publicHtml['cpanelresult']['data'], 'file')) > -1
                 $installPath = 'wordpress';
             } 
-            if($serverPackage->install_wordpress == 1 || !$serverPackage->cloudfare_user_id){
+            if(is_numeric(array_search('wp-config.php', array_column($publicHtml['cpanelresult']['data'], 'file')))){
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Install Wordpress',
+                    'message' => 'WordPress Is Already Installed'
+                ];
+                $postData['response'] = serialize($errorArray);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+
+            }
+            if(!$serverPackage->cloudfare_user_id){
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -340,7 +353,7 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             } 
-            if($serverPackage->install_wordpress == 1 || !$serverPackage->cloudfare_user_id){
+            if(!$serverPackage->cloudfare_user_id){
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -563,7 +576,7 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
-            if($serverPackage->install_wordpress == 1 || !$serverPackage->cloudfare_user_id){
+            if(!$serverPackage->cloudfare_user_id){
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -696,7 +709,7 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
-            if($serverPackage->install_wordpress == 1 || !$serverPackage->cloudfare_user_id){
+            if(!$serverPackage->cloudfare_user_id){
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -842,7 +855,7 @@ class WordpressController extends Controller
                 return response()->json($errorArray);
             }
             
-            if($serverPackage->install_wordpress == 1 || !$serverPackage->cloudfare_user_id){
+            if(!$serverPackage->cloudfare_user_id){
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
