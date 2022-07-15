@@ -68,7 +68,7 @@ class WordpressController extends Controller
                     'api_response' => 'error',
                     'status_code' => 400,
                     'data' => 'Install Wordpress',
-                    'message' => 'WordPress Is Already Installed'
+                    'message' => 'WordPress is already installed'
                 ];
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
@@ -84,8 +84,10 @@ class WordpressController extends Controller
                     'message' => 'Update your domain zone records'
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
@@ -102,12 +104,17 @@ class WordpressController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
                 $error = $cpanelStats["result"]['errors'];
+                if(is_array($cpanelStats['result']['errors'])){
+                    $error = $cpanelStats['result']['errors'][0];
+                }
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -115,8 +122,10 @@ class WordpressController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $count = $max = [];
@@ -138,23 +147,30 @@ class WordpressController extends Controller
                     'message' => 'You have exceeded the limit for adding database'
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
                 return response()->json($errorArray);
             }
             
             $userCreated = $this->getMySqlUserRestrictions($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             
             if(is_array($userCreated) && array_key_exists("result", $userCreated) && $userCreated['result']['status'] == 0) {
+                $error = $userCreated["result"]['errors'];
+                if(is_array($userCreated['result']['errors'])){
+                    $error = $userCreated['result']['errors'][0];
+                }
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
                     'data' => 'MySql User Restrictions',
-                    'message' => $userCreated['result']['errors']
+                    'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
 
             }
@@ -187,7 +203,10 @@ class WordpressController extends Controller
                 return response()->json($errorArray);
             }
             if ($accCreated["result"]['status'] == "0" && !str_contains($accCreated['result']["errors"][0], 'already exists')) {
-                $error = $accCreated['result']["errors"][0];
+                $error = $accCreated["result"]['errors'];
+                if(is_array($accCreated['result']['errors'])){
+                    $error = $accCreated['result']['errors'][0];
+                }
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -195,8 +214,10 @@ class WordpressController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -212,6 +233,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -224,8 +246,10 @@ class WordpressController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -252,8 +276,10 @@ class WordpressController extends Controller
                     'message' => $userCreated['result']['errors']
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -278,8 +304,9 @@ class WordpressController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -291,8 +318,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -304,8 +332,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -375,8 +404,10 @@ class WordpressController extends Controller
                     'message' => 'Database not Found'
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $dbDetail = unserialize($serverPackage->wordpress_detail);
@@ -460,6 +491,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -474,8 +506,10 @@ class WordpressController extends Controller
                 $requestedFor['name'] = "Upload curl.php file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -501,8 +535,9 @@ class WordpressController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -514,8 +549,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -527,8 +563,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -584,8 +621,10 @@ class WordpressController extends Controller
                     'message' => 'Update your domain zone records'
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             // Hit this url to download latest wordpress zip
@@ -610,8 +649,10 @@ class WordpressController extends Controller
                     'message' => $responseData
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -634,8 +675,9 @@ class WordpressController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -647,8 +689,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -660,8 +703,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -707,6 +751,7 @@ class WordpressController extends Controller
             if(!$serverPackage){
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if(!$serverPackage->cloudfare_user_id){
@@ -719,6 +764,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -737,8 +783,10 @@ class WordpressController extends Controller
                 $requestedFor['name'] = "Extract wordpress.zip file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
@@ -752,8 +800,10 @@ class WordpressController extends Controller
                 $requestedFor['name'] = "Extract wordpress.zip file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }            
             $this->deleteCpanelFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
@@ -779,8 +829,9 @@ class WordpressController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -792,8 +843,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -805,8 +857,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -852,6 +905,7 @@ class WordpressController extends Controller
             if(!$serverPackage){
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -865,6 +919,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if(!$serverPackage->wordpress_detail){
@@ -878,6 +933,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $dbDetail = unserialize($serverPackage->wordpress_detail);
@@ -991,8 +1047,10 @@ class WordpressController extends Controller
                 $requestedFor['name'] = "Upload wp-settings.php file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -1007,8 +1065,10 @@ class WordpressController extends Controller
                 $requestedFor['name'] = "Upload wp-settings.php file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             UserServer::where('id', $serverPackage->id)->update(['install_wordpress' => 1]);
@@ -1037,8 +1097,9 @@ class WordpressController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -1050,8 +1111,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -1063,8 +1125,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -1110,6 +1173,7 @@ class WordpressController extends Controller
             if(!$serverPackage){
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }             
             if(!$serverPackage->wordpress_detail){
@@ -1123,6 +1187,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $dbDetail = unserialize($serverPackage->wordpress_detail);
@@ -1169,8 +1234,9 @@ class WordpressController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -1182,8 +1248,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -1195,8 +1262,9 @@ class WordpressController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -1252,11 +1320,13 @@ class WordpressController extends Controller
             if(!$serverPackage){
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $cpanelStats = $this->getCpanelStats($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($cpanelStats) ){
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if ((array_key_exists("data", $cpanelStats) && $cpanelStats["data"]['result'] == "0")) {
@@ -1270,6 +1340,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
@@ -1283,6 +1354,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $count = $max = [];
@@ -1306,6 +1378,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -1321,6 +1394,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
 
             }
@@ -1344,6 +1418,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if ($accCreated["result"]['status'] == "0" && !str_contains($accCreated['result']["errors"][0], 'already exists')) {
@@ -1359,6 +1434,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -1377,6 +1453,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -1394,6 +1471,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -1411,6 +1489,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -1428,6 +1507,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -1507,6 +1587,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -1523,6 +1604,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -1552,6 +1634,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $accCreated = $this->extractFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), '/public_html');
@@ -1567,6 +1650,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
@@ -1582,6 +1666,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }            
             $this->deleteCpanelFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
@@ -1696,6 +1781,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -1712,6 +1798,7 @@ class WordpressController extends Controller
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             UserServer::where('id', $serverPackage->id)->update(['install_wordpress' => 1]);

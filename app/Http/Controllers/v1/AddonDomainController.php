@@ -52,8 +52,10 @@ class AddonDomainController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);              
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');           
                 return response()->json();
             }   
             return response()->json(
@@ -72,6 +74,7 @@ class AddonDomainController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -85,6 +88,7 @@ class AddonDomainController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -98,6 +102,7 @@ class AddonDomainController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -173,8 +178,10 @@ class AddonDomainController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
@@ -198,6 +205,7 @@ class AddonDomainController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -211,6 +219,7 @@ class AddonDomainController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -224,6 +233,7 @@ class AddonDomainController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -273,7 +283,8 @@ class AddonDomainController extends Controller
             $accCreated = $this->delAddonsDomain($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->domain, $request->subdomain);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                return response()->json($errorArray);
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['result']) {
                 $error = $accCreated['cpanelresult']['data'][0]["reason"];
@@ -284,8 +295,10 @@ class AddonDomainController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -308,6 +321,7 @@ class AddonDomainController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -321,6 +335,7 @@ class AddonDomainController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
@@ -334,6 +349,7 @@ class AddonDomainController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');

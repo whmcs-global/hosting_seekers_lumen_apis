@@ -206,8 +206,10 @@ class CpanelController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -230,6 +232,7 @@ class CpanelController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -243,6 +246,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -256,6 +260,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -317,8 +322,10 @@ class CpanelController extends Controller
                         'message' => $error
                     ];
                     $postData['response'] = serialize($errorArray);
+                    $postData['errorType'] = 'System Error';
                     //Hit node api to save logs
-                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                    $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                     return response()->json($errorArray);
                 }
             }
@@ -337,8 +344,10 @@ class CpanelController extends Controller
                         'message' => $e->getMessage()
                     ];
                     $postData['response'] = serialize($errorArray);
+                    $postData['errorType'] = 'System Error';
                     //Hit node api to save logs
-                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                    $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                     return response()->json($errorArray);
                 }
             }
@@ -367,6 +376,7 @@ class CpanelController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -380,6 +390,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -393,6 +404,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -450,8 +462,10 @@ class CpanelController extends Controller
                     'message' => $e->getMessage()
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $requestedFor['name'] = 'Add Domain To Server';
@@ -490,8 +504,9 @@ class CpanelController extends Controller
                     'message' => config('constants.ERROR.FORBIDDEN_ERROR')
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
                 return response()->json($errorArray);
             }
             $controlPanel = $linkserver['controlPanel'];
@@ -522,8 +537,10 @@ class CpanelController extends Controller
                         'message' => $error
                     ];
                     $postData['response'] = serialize($errorArray);
+                    $postData['errorType'] = 'System Error';
                     //Hit node api to save logs
-                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                    $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                     return response()->json($errorArray);
                 }
             }
@@ -561,8 +578,10 @@ class CpanelController extends Controller
                         'message' => $e->getMessage()
                     ];
                     $postData['response'] = serialize($errorArray);
+                    $postData['errorType'] = 'System Error';
                     //Hit node api to save logs
-                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                    hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                    $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                     return response()->json($errorArray);
                 }
             }
@@ -591,8 +610,10 @@ class CpanelController extends Controller
                     'message' => $ex->getMessage()
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             try{
@@ -602,14 +623,14 @@ class CpanelController extends Controller
 
                     $createError = $createZone->errors[0]->message;
                     $errorArray12 = [
-                        'api_response' => 'success',
-                        'status_code' => 200,
+                        'api_response' => 'error',
+                        'status_code' => 400,
                         'data' => 'Create Zone Set',
                         'message' => $createZone->errors[0]->message
                     ];
                     $postData12 = [
                         'userId' => jsencode_userdata($request->userid),
-                        'api_response' => 'success',
+                        'api_response' => 'error',
                         'logType' => 'cPanel',
                         'module' => 'Create zone set for '.$domainName,
                         'requestedFor' => serialize(['name' => 'Create zone set', 'domain' => $domainName]),
@@ -720,8 +741,10 @@ class CpanelController extends Controller
                     'message' => $ex->getMessage()
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -749,6 +772,7 @@ class CpanelController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -762,6 +786,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -775,6 +800,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -969,8 +995,10 @@ class CpanelController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
@@ -982,8 +1010,10 @@ class CpanelController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $cpanelStatArray = [];
@@ -1037,6 +1067,7 @@ class CpanelController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1050,6 +1081,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1063,6 +1095,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1115,8 +1148,10 @@ class CpanelController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             if ((array_key_exists("metadata", $nameCreated) && $nameCreated["metadata"]['result'] == "0")) {
@@ -1128,8 +1163,10 @@ class CpanelController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $domainInfo = [
@@ -1151,6 +1188,7 @@ class CpanelController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1164,6 +1202,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1177,6 +1216,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1229,8 +1269,10 @@ class CpanelController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
                 return response()->json($errorArray);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'Domian information has been fetched']);
@@ -1243,6 +1285,7 @@ class CpanelController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1256,6 +1299,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -1269,6 +1313,7 @@ class CpanelController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');

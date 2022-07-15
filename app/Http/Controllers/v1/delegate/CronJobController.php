@@ -66,8 +66,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Cron jobs has been successfully fetched']);
@@ -80,9 +82,10 @@ class CronJobController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -93,8 +96,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -106,8 +110,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -196,8 +201,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("status", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['status']) {
@@ -209,8 +216,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             
@@ -242,8 +251,10 @@ class CronJobController extends Controller
                 ];
                 $postData['response'] = serialize($errorArray);
                 $postData['api_response'] = 'error';
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
@@ -255,8 +266,10 @@ class CronJobController extends Controller
                 ];
                 $postData['response'] = serialize($errorArray);
                 $postData['api_response'] = 'error';
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Cron job has been successfully added']);
         }
@@ -268,8 +281,9 @@ class CronJobController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -281,8 +295,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -294,8 +309,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -379,8 +395,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("status", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['status']) {
@@ -392,8 +410,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             $errorArray = [
@@ -416,8 +436,9 @@ class CronJobController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -429,8 +450,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -442,8 +464,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -510,8 +533,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("status", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['status']) {
@@ -523,8 +548,10 @@ class CronJobController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }   
             $errorArray = [
@@ -547,8 +574,9 @@ class CronJobController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -560,8 +588,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -573,8 +602,9 @@ class CronJobController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }

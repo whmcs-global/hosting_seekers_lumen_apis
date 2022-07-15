@@ -54,8 +54,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -77,8 +79,9 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -90,8 +93,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -103,8 +107,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -156,8 +161,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $dbList = $this->getMySqlDb($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
@@ -179,8 +186,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             
@@ -203,8 +212,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['users' => $userList['result']['data'], 'databases' => $dbList['result']['data'], 'restrictions' => $restrictions], 'message' => 'MySql User and databases has been successfully fetched']);
@@ -217,8 +228,9 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -230,8 +242,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -243,8 +256,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -338,8 +352,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'MySql Name Restrictions has been successfully fetched']);
@@ -352,8 +368,9 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -365,8 +382,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -378,8 +396,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -431,8 +450,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'MySql Users has been successfully fetched']);
@@ -445,8 +466,9 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -458,8 +480,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -471,8 +494,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -535,17 +559,33 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
 
             $emails = $this->getUsers($request, $request->cpanel_server)->getOriginalContent();
             if(!is_array($emails)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                return response()->json($errorArray);
             }          
             if ($emails['api_response'] == 'error') {
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $emails['message']]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Account fetching error',
+                    'message' => $emails['message']
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             
             $errorArray = [
@@ -568,9 +608,10 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -581,8 +622,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -594,8 +636,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -659,8 +702,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -683,8 +728,9 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -696,8 +742,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -709,8 +756,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -773,8 +821,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -797,9 +847,10 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR'); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
@@ -810,8 +861,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -823,8 +875,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -884,8 +937,10 @@ class MySqlController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
                 return response()->json($errorArray);
             }
             $errorArray = [
@@ -908,8 +963,9 @@ class MySqlController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -921,8 +977,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -934,8 +991,9 @@ class MySqlController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }

@@ -63,9 +63,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'FTP Server Information error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             $ftpServer = $this->getFtpConfiguration($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             
@@ -83,9 +85,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'FTP Server Information error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
 
             $ftpPort = $this->getFtpPort($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
@@ -104,9 +108,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'FTP Server Information error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             $email = explode('@', $request->user);
             if(count($email) == 2){
@@ -131,6 +137,7 @@ class FtpAccountController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -144,6 +151,7 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -157,6 +165,7 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
@@ -207,9 +216,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             
             $domainList = $this->domainList($serverPackage->company_server_package->company_server_id,  strtolower($serverPackage->name));
@@ -229,9 +240,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => ['ftp' => $accCreated['result']["data"], 'domains' => $domainList['result']["data"]], 'message' => 'Account has been successfully fetched']);
         }
@@ -243,8 +256,9 @@ class FtpAccountController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -256,8 +270,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -269,8 +284,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -344,9 +360,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
 
             $emails = $this->getFtpAccount($request, $request->cpanel_server)->getOriginalContent();
@@ -363,9 +381,11 @@ class FtpAccountController extends Controller
                     'message' => $emails['message']
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account creation error', 'message' => $emails['message']]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             $errorArray = [
                 'api_response' => 'success',
@@ -387,8 +407,9 @@ class FtpAccountController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -400,8 +421,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -413,8 +435,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -472,9 +495,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'FTP Account password update error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             $errorArray = [
                 'api_response' => 'success',
@@ -496,8 +521,9 @@ class FtpAccountController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -509,8 +535,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -522,8 +549,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -580,9 +608,11 @@ class FtpAccountController extends Controller
                     'message' => $error
                 ];
                 $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
                 //Hit node api to save logs
-                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account deleting error', 'message' => $error]);
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
             $errorArray = [
                 'api_response' => 'success',
@@ -604,8 +634,9 @@ class FtpAccountController extends Controller
                 'message' => $ex->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -617,8 +648,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
@@ -630,8 +662,9 @@ class FtpAccountController extends Controller
                 'message' => $e->getMessage()
             ];
             $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
             //Hit node api to save logs
-            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
             $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
             return response()->json($errorArray);
         }
