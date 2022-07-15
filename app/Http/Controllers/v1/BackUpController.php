@@ -24,7 +24,7 @@ class BackUpController extends Controller
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup files fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup files fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Backup files has been successfully fetched']);
         }  catch(\Exception $e){
@@ -51,7 +51,7 @@ class BackUpController extends Controller
             }
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
             $emails = $this->getBackupFiles($request, $request->cpanel_server)->getOriginalContent();
@@ -59,7 +59,7 @@ class BackUpController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }            
             if ($emails['api_response'] == 'error') {
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup creating error', 'message' => $emails['message']]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup creating error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'Backup has been successfully created']);
             return $this->apiResponse('success', '200', 'Backup file listing');
@@ -88,7 +88,7 @@ class BackUpController extends Controller
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }   
             $accCreated = $this->filePermission($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->filename);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
@@ -96,7 +96,7 @@ class BackUpController extends Controller
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }   
             return $this->apiResponse('success', '200', 'Download Backup file', 'https://'.$serverPackage->domain.'/'.$request->filename);
         }  catch(\Exception $e){
@@ -124,7 +124,7 @@ class BackUpController extends Controller
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file deleting error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Backup file deleting error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }   
             return $this->apiResponse('success', '200', 'Backup file has been deleted successfully');
         }  catch(\Exception $e){
@@ -152,7 +152,7 @@ class BackUpController extends Controller
             }
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Block ip error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Block ip error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             BlockedIp::updateOrCreate(['user_id' => $request->userid, 'ip_address' => $request->ip_address]);
             $records = BlockedIp::where('user_id', $request->userid)->get();
@@ -201,7 +201,7 @@ class BackUpController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Unblock ip error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Unblock ip error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             BlockedIp::where(['user_id' => $request->userid, 'ip_address' => $request->ip_address])->delete();
             $records = BlockedIp::where('user_id', $request->userid)->get();

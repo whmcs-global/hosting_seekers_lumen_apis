@@ -829,7 +829,7 @@ class CpanelController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'SSL updation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'SSL updation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'SSL has been successfully installed', 'message' => 'SSL has been successfully installed']);
         }
@@ -886,7 +886,7 @@ class CpanelController extends Controller
                         }
                         if ((array_key_exists("result", $cpanelStats) && $cpanelStats["result"]['status'] == "0")) {
                             $error = $cpanelStats["result"]['errors'];
-                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
                         }
                         $cpanelStatArray = [];
                         foreach( $cpanelStats['result']['data'] as $cpanelStat){

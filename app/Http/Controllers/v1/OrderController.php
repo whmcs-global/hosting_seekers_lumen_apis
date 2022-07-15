@@ -73,7 +73,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
     public function ordersHistory(Request $request){
@@ -141,7 +141,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
     public function ordersTransactions(Request $request){
@@ -203,7 +203,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
     public function walletTransactions(Request $request){
@@ -301,7 +301,7 @@ class OrderController extends Controller
             return $this->apiResponse('success', '200', 'Data fetched', $orderArray);
             
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 }

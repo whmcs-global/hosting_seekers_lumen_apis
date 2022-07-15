@@ -38,7 +38,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -112,7 +112,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -164,7 +164,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -195,7 +195,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -224,7 +224,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -279,7 +279,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -505,7 +505,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
         exit;
@@ -540,7 +540,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
         exit;
@@ -569,7 +569,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -597,7 +597,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
 
@@ -635,7 +635,7 @@ class DomainController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }

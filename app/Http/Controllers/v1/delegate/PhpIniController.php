@@ -31,7 +31,7 @@ class PhpIniController extends Controller
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'PHP Ini file content error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'PHP Ini file content error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["data"]["content"], 'message' => 'PHP INI file content has been successfully fetched']);
         }
@@ -67,7 +67,7 @@ class PhpIniController extends Controller
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'PHP Ini file content error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'PHP Ini file content error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["data"], 'message' => 'PHP INI file content has been successfully updated']);
         }
@@ -97,12 +97,12 @@ class PhpIniController extends Controller
             
             if ($phpVersions["metadata"]['result'] == "0") {
                 $error = $phpVersions["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             
             if ($phpCurrentVersion["metadata"]['result'] == "0") {
                 $error = $phpCurrentVersion["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             $domainInfo = [
                 'versions' => $phpVersions['data']['versions'],
@@ -142,7 +142,7 @@ class PhpIniController extends Controller
             
             if ($phpGetDirectives["metadata"]['result'] == "0") {
                 $error = $phpGetDirectives["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $phpGetDirectives['data']['directives'], 'message' => 'PHP versions has been fetched']);
         }
@@ -179,7 +179,7 @@ class PhpIniController extends Controller
             
             if ($phpGetDirectives["metadata"]['result'] == "0") {
                 $error = $phpGetDirectives["metadata"]['reason'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'PHP Directive update', 'message' => 'PHP Directive has been successfully updated']);
         }
@@ -214,7 +214,7 @@ class PhpIniController extends Controller
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'PHP version updation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'PHP version updation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'PHP version update', 'message' => 'PHP version has been successfully update']);
         }

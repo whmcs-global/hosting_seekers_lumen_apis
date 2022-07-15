@@ -65,7 +65,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated["result"]["data"], 'message' => 'MySql Databases has been successfully fetched']);
         }
@@ -103,7 +103,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
 
             $emails = $this->getDatabases($request, $request->cpanel_server)->getOriginalContent();
@@ -111,7 +111,7 @@ class MySqlDbController extends Controller
                 return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => Config::get('constants.ERROR.FORBIDDEN_ERROR')]);
             }          
             if ($emails['api_response'] == 'error') {
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => $emails['message']]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account fetching error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $emails['data'], 'message' => 'MySql Database has been successfully created']);
         }
@@ -150,7 +150,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database has been successfully updated']);
         }
@@ -191,7 +191,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['result']['data'], 'message' => 'MySql Database privileges has been successfully fetched']);
         }
@@ -232,7 +232,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database privileges has been successfully revoked']);
         }
@@ -274,7 +274,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql Database updated', 'message' => 'MySql Database has been successfully updated']);
         }
@@ -310,7 +310,7 @@ class MySqlDbController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'MySql user creation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'MySql user delete', 'message' => 'MySql user has been successfully deleted']);
         }

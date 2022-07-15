@@ -33,7 +33,7 @@ class PhpVersionController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -64,7 +64,7 @@ class PhpVersionController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -95,7 +95,7 @@ class PhpVersionController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -114,7 +114,7 @@ class PhpVersionController extends Controller
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -154,7 +154,7 @@ class PhpVersionController extends Controller
         }catch(\Exception $e){
             //$this->delete($client,$request);
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }

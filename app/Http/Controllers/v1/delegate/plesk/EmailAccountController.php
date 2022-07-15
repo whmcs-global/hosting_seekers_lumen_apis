@@ -76,7 +76,7 @@ class EmailAccountController extends Controller{
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [ ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -120,7 +120,7 @@ class EmailAccountController extends Controller{
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -173,7 +173,7 @@ class EmailAccountController extends Controller{
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }
@@ -204,7 +204,7 @@ class EmailAccountController extends Controller{
             ]);
         }catch(\Exception $e){
             return response()->json([
-                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => $e->getMessage()
+                'api_response' => 'error', 'status_code' => 400, 'data' => [  ], 'message' => config('constants.ERROR.FORBIDDEN_ERROR')
             ]);
         }
     }

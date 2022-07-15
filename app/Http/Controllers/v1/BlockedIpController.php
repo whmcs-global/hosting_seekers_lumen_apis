@@ -24,7 +24,7 @@ class BlockedIpController extends Controller
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['data'], 'message' => 'Ip address has been successfully blocked']);
         }
@@ -59,7 +59,7 @@ class BlockedIpController extends Controller
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Ip address has been successfully blocked']);
         }
@@ -95,7 +95,7 @@ class BlockedIpController extends Controller
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Ip address has been successfully unblocked']);
         }

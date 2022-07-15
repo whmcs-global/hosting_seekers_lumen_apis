@@ -54,7 +54,7 @@ class BlockedIpController extends Controller
             }
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated["result"]['errors'];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Block ip error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Block ip error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             BlockedIp::updateOrCreate(['user_id' => $request->userid, 'ip_address' => $request->ip_address]);
             $records = BlockedIp::where('user_id', $request->userid)->get();
@@ -102,7 +102,7 @@ class BlockedIpController extends Controller
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Unblock ip error', 'message' => $error]);
+                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Unblock ip error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
             }
             BlockedIp::where(['user_id' => $request->userid, 'ip_address' => $request->ip_address])->delete();
             $records = BlockedIp::where('user_id', $request->userid)->get();

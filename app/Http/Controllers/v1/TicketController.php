@@ -56,7 +56,7 @@ class TicketController extends Controller
             try{
             $companies = Order::whereIn('id', $userIdArray)->first();
             } catch ( \Exception $e ) {
-                return $this->apiResponse('error', '400', $e->getMessage());
+                return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
             }
             $userDetails = null;
             if($companies){
@@ -82,7 +82,7 @@ class TicketController extends Controller
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) {
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 
@@ -113,7 +113,7 @@ class TicketController extends Controller
             }
             return $this->apiResponse('error', '400', config('constants.ERROR.TRY_AGAIN_ERROR'));
         } catch ( \Exception $e ) { 
-            return $this->apiResponse('error', '400', $e->getMessage());
+            return $this->apiResponse('error', '400', config('constants.ERROR.FORBIDDEN_ERROR'));
         }
     }
 }
