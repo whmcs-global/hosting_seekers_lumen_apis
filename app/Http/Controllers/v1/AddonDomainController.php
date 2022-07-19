@@ -56,7 +56,7 @@ class AddonDomainController extends Controller
                 //Hit node api to save logs
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
                 $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');           
-                return response()->json();
+                return response()->json($errorArray);
             }   
             return response()->json(
                 [

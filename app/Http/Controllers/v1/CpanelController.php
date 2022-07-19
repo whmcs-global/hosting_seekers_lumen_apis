@@ -811,36 +811,112 @@ class CpanelController extends Controller
 		$validator = Validator::make($request->all(),[
             'cpanel_server' => 'required',
             'cert' => 'required',
-            'key' => 'required'
+            'key' => 'required',
         ]);
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Install SSL',
+            'requestedFor' => serialize(['name' => 'Install SSL']),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){       
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
+            }
             $accCreated = $this->installCertificate($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $serverPackage->domain,  $request->cert,  $request->key,  $request->cabundle);
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
             }
             
             if ($accCreated["result"]['status'] == "0") {
                 $error = $accCreated['result']["errors"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'SSL updation error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                if(is_array($accCreated['result']['errors'])){
+                    $error = $accCreated['result']['errors'][0];
+                }
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Install SSL',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Install SSL',
+                'message' => 'SSL has been successfully installed'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => 'SSL has been successfully installed', 'message' => 'SSL has been successfully installed']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
     }
 

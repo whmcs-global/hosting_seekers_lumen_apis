@@ -12,30 +12,93 @@ class SubDomainController extends Controller
 {
     use CpanelTrait, CommonTrait, SendResponseTrait, CloudfareTrait;
     public function getSubDomain(Request $request, $id) {
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Subdomain',
+            'requestedFor' => serialize(['name' => 'Subdomain Listing']),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($id);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){       
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
+            }
             $accCreated = $this->getSubDomains($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name));
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data']) && 0 == $accCreated['cpanelresult']["data"]['result']) {
                 $error = $accCreated['cpanelresult']['data']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Subdomain listing error',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }   
             return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => $accCreated['cpanelresult']['data'], 'message' => 'Subdomains has been successfully fetched']);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
     }
     
@@ -49,20 +112,50 @@ class SubDomainController extends Controller
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Subdomain',
+            'requestedFor' => serialize(['name' => 'Create Subdomain', 'subdomain' => $request->subdomain.'.'.$request->domain]),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){       
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
+            }
             $domain = $request->subdomain.'.'.$request->domain;
             $accCreated = $this->createSubDomain($serverPackage->company_server_package->company_server_id, $domain, $request->homedir);
             if(!is_array($accCreated) || !array_key_exists("metadata", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
             }
             if (array_key_exists("result", $accCreated['metadata']) && 0 == $accCreated['metadata']["result"]) {
                 $error = $accCreated['metadata']["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Create subdomain error',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }   
             $accountCreate = [];
             $accountCreate['subdomain'] = $request->subdomain;
@@ -76,8 +169,8 @@ class SubDomainController extends Controller
 
                     $createError = $createZone->errors[0]->message;
                     $errorArray12 = [
-                        'api_response' => 'success',
-                        'status_code' => 200,
+                        'api_response' => 'error',
+                        'status_code' => 400,
                         'data' => 'Create Zone Set',
                         'message' => $createZone->errors[0]->message
                     ];
@@ -227,16 +320,59 @@ class SubDomainController extends Controller
                     $createDns = $this->createDNSRecord($dnsVal, $zoneId, $serverPackage->cloudfare_user->email, $serverPackage->cloudfare_user->user_api);
                 }
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully created']);
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Create Subdomin',
+                'message' => 'Subdomain has been successfully created'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+            return response()->json($errorArray);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
     }
     
@@ -250,30 +386,103 @@ class SubDomainController extends Controller
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Subdomain',
+            'requestedFor' => serialize(['name' => 'Update Subdomain', 'subdomain' => $request->subdomain]),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){       
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
+            }
             $accCreated = $this->changeRootDir($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $domain, $request->subdomain, $request->homedir);
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['result']) {
                 $error = $accCreated['cpanelresult']['data'][0]["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => $error]);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Update subdomain error',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             } 
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully updated']);
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Update Subdomin',
+                'message' => 'Subdomain has been successfully updated'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+            return response()->json($errorArray);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
     }
     
@@ -285,32 +494,105 @@ class SubDomainController extends Controller
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Subdomain',
+            'requestedFor' => serialize(['name' => 'Delete Subdomain', 'subdomain' => $request->subdomain]),
+            'response' => serialize($errorArray)
+        ];
         try
         {
             $serverId = jsdecode_userdata($request->cpanel_server);
             $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
-            if(!$serverPackage)
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            if(!$serverPackage){       
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
+            }
 
             $accCreated = $this->delSubDomain($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), $request->subdomain);
 
             if(!is_array($accCreated) || !array_key_exists("cpanelresult", $accCreated)){
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+                return response()->json($errorArray);
             }
             if (array_key_exists("data", $accCreated['cpanelresult']) && array_key_exists("result", $accCreated['cpanelresult']['data'][0]) && 0 == $accCreated['cpanelresult']["data"][0]['result']) {
                 $error = $accCreated['cpanelresult']['data'][0]["reason"];
-                return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Account login error', 'message' => 'Failed to find the domain(s): "'.$request->subdomain.'"']);
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Delete subdomain error',
+                    'message' => $error
+                ];
+                $postData['response'] = serialize($errorArray);
+                $postData['errorType'] = 'System Error';
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+                $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+                return response()->json($errorArray);
             }
-            return response()->json(['api_response' => 'success', 'status_code' => 200, 'data' => [], 'message' => 'Subdomain has been successfully deleted']);
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Delete Subdomin',
+                'message' => 'Subdomain has been successfully deleted'
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['api_response'] = 'success';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);
+            return response()->json($errorArray);
         }
         catch(Exception $ex){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ConnectException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Connection error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
         catch(\GuzzleHttp\Exception\ServerException $e){
-            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Server error', 'message' => config('constants.ERROR.FORBIDDEN_ERROR')]);
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
         }
     }
 }
