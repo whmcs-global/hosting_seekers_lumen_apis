@@ -353,7 +353,7 @@ class CpanelController extends Controller
             }
             UserTerminatedAccount::create(['user_id' => $serverPackage->user_id, 'name' => $serverPackage->name, 'domain' => $serverPackage->domain ]);
             $serverPackage->delete();
-            if($serverPackage->cloudfare_user_id && $serverPackage->domain != 'hostingseekers.in'){
+            if($serverPackage->cloudfare_user_id){
                 $this->deleteZone($serverPackage->cloudfare_id, $serverPackage->cloudfare_user->email,  $serverPackage->cloudfare_user->user_api);
             }
             $errorArray = [
