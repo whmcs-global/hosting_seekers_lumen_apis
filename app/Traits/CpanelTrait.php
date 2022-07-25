@@ -481,6 +481,48 @@ trait CpanelTrait {
     /* End Method uploadFile */
     
     /*
+    API Method Name:    removeDir
+    Developer:          Shine Dezign
+    Created Date:       2022-06-15 (yyyy-mm-dd)
+    Purpose:            To delete folder on cpanel
+    */
+    public function removeDir($id, $username, $fileName)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'fileop',
+            'cpanel_jsonapi_user' => $username,
+            'op' => 'unlink',
+            'sourcefiles' => $fileName,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method removeDir */
+    
+    /*
+    API Method Name:    makeDir
+    Developer:          Shine Dezign
+    Created Date:       2022-06-15 (yyyy-mm-dd)
+    Purpose:            To create folder on cpanel
+    */
+    public function makeDir($id, $username, $fileName)
+    {
+        $action = 'cpanel';
+        $params = [
+            'cpanel_jsonapi_apiversion' => 2,
+            'cpanel_jsonapi_module' => 'Fileman',
+            'cpanel_jsonapi_func' => 'mkdir',
+            'cpanel_jsonapi_user' => $username,
+            'path' => '',
+            'name' => $fileName,
+        ];
+        return $this->runQuery($id, $action, $params);
+    }
+    /* End Method makeDir */
+    
+    /*
     API Method Name:    removeFile
     Developer:          Shine Dezign
     Created Date:       2022-06-15 (yyyy-mm-dd)

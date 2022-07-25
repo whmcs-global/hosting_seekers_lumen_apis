@@ -64,6 +64,9 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             //Install Wordpress
             $router->post('install-wordpress-files', 'WordpressController@uploadFiles');
             $router->group(['prefix' => 'wordpress'], function () use ($router) {
+                $router->get('check/{id}', 'ReInstallController@reinstallCheck');
+                $router->get('reinstall/{id}', 'ReInstallController@reinstallWordpress');
+                $router->get('check-files/{id}', 'WordpressController@checkFiles');
                 $router->get('create-database/{id}', 'WordpressController@createDatabase');
                 $router->get('assign-permission/{id}', 'WordpressController@assignPermission');
                 $router->get('download-files/{id}', 'WordpressController@downloadFiles');
@@ -264,6 +267,9 @@ $router->group(['prefix' => 'v1', 'namespace' => 'v1', ], function () use ($rout
             });
             //Install Wordpress
             $router->group(['prefix' => 'wordpress'], function () use ($router) {
+                $router->get('check/{id}', 'ReInstallController@reinstallCheck');
+                $router->get('reinstall/{id}', 'ReInstallController@reinstallWordpress');
+                $router->get('check-files/{id}', 'WordpressController@checkFiles');
                 $router->get('create-database/{id}', 'WordpressController@createDatabase');
                 $router->get('assign-permission/{id}', 'WordpressController@assignPermission');
                 $router->get('download-files/{id}', 'WordpressController@downloadFiles');

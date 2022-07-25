@@ -14,7 +14,7 @@ use Carbon\Carbon;
 
 class WordpressController extends Controller
 {
-    use CpanelTrait;
+    use CpanelTrait, AutoResponderTrait;
     
     /*
     API Method Name:    createDatabase
@@ -33,13 +33,7 @@ class WordpressController extends Controller
             'message' => config('constants.ERROR.FORBIDDEN_ERROR')
         ];
         $requestedFor = [
-            'name' => 'Creating Database',
-            // 'database' => $request->database,
-            // 'db_user' => $request->db_user,
-            // 'db_password' => $request->db_password,
-            // 'username' => $request->username,
-            // 'sitename' => $request->sitename,
-            // 'email' => $request->email,
+            'name' => 'Creating Database'
         ];
         $postData = [
             'userId' => jsencode_userdata($request->userid),
@@ -58,13 +52,20 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
             }
-            $installPath = '';
+            $installPath = NULL;
+            
+            if($serverPackage->wordpress_detail){
+                $dbDetail = unserialize($serverPackage->wordpress_detail);
+                if($dbDetail['installPath']){
+                    $installPath = $dbDetail['installPath'];
+                }
+            }
             $publicHtml = $this->getFileCount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), 'public_html/');
-            if(is_array($publicHtml) && array_key_exists("cpanelresult", $publicHtml) && array_key_exists("data", $publicHtml['cpanelresult']) && count($publicHtml['cpanelresult']['data']) > 1 && !is_numeric(array_search('wp-config.php', array_column($publicHtml['cpanelresult']['data'], 'file'))) ) {
+            if($request->has('rejected') || $installPath) {
                 //&& array_search('wp-config.php', array_column($publicHtml['cpanelresult']['data'], 'file')) > -1
                 $installPath = 'wordpress';
             } 
-            if(is_numeric(array_search('wp-config.php', array_column($publicHtml['cpanelresult']['data'], 'file')))){
+            if($request->has('rejected') && is_numeric(array_search('wordpress', array_column($publicHtml['cpanelresult']['data'], 'file')))){
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
@@ -76,6 +77,9 @@ class WordpressController extends Controller
                 hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
                 return response()->json($errorArray);
 
+            } else{                
+                $this->removeDir($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), 'public_html');
+                $this->makeDir($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), 'public_html');
             }
             if(!$serverPackage->cloudfare_user_id){
                 $errorArray = [
@@ -182,7 +186,9 @@ class WordpressController extends Controller
             }
             if($serverPackage->wordpress_detail){
                 $dbDetail = unserialize($serverPackage->wordpress_detail);
-                $dbName = $dbDetail['database'];
+                if($dbDetail['database']){
+                    $dbName = $dbDetail['database'];
+                }
             }
 
             $requestedFor['database'] = $dbName;
@@ -632,7 +638,7 @@ class WordpressController extends Controller
             $url = 'https://'.$serverPackage->domain.'/curl.php';
 
             $ch = curl_init();
-            $timeout = 5;
+            $timeout = 120;
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1225,6 +1231,104 @@ class WordpressController extends Controller
             $postData['api_response'] = 'success';
             //Hit node api to save logs
             hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+            return response()->json($errorArray);
+        }
+        catch(Exception $ex){
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $ex->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
+        }
+        catch(\GuzzleHttp\Exception\ConnectException $e){
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Connection error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
+        }
+        catch(\GuzzleHttp\Exception\ServerException $e){
+            $errorArray = [
+                'api_response' => 'error',
+                'status_code' => 400,
+                'data' => 'Server error',
+                'message' => $e->getMessage()
+            ];
+            $postData['response'] = serialize($errorArray);
+            $postData['errorType'] = 'System Error';
+            //Hit node api to save logs
+            hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData);  
+            $errorArray['message'] = config('constants.ERROR.FORBIDDEN_ERROR');
+            return response()->json($errorArray);
+        }
+    }
+
+    /*
+    API Method Name:    checkFiles
+    Developer:          Shine Dezign
+    Created Date:       2022-07-12 (yyyy-mm-dd)
+    Purpose:            Send Mail to user for admin credentials
+    */
+    public function checkFiles(Request $request, $id = null) {
+        if(!$id){
+            return response()->json(['api_response' => 'error', 'status_code' => 400, 'data' => 'Requesting error', 'message' => 'Server ID is required']);
+        }
+        $errorArray = [
+            'api_response' => 'error',
+            'status_code' => 400,
+            'data' => 'Connection error',
+            'message' => config('constants.ERROR.FORBIDDEN_ERROR')
+        ];
+        $requestedFor = [
+            'name' => 'Checking files to install Wordpress'
+        ];
+        $postData = [
+            'userId' => jsencode_userdata($request->userid),
+            'api_response' => 'error',
+            'logType' => 'cPanel',
+            'module' => 'Install Wordpress',
+            'requestedFor' => serialize($requestedFor),
+            'response' => serialize($errorArray)
+        ];
+        try
+        {
+            $serverId = jsdecode_userdata($id);
+            $serverPackage = UserServer::where(['user_id' => $request->userid, 'id' => $serverId])->first();
+            if(!$serverPackage){
+                //Hit node api to save logs
+                hitCurl(config('constants.NODE_URL').'/apiLogs/createApiLog', 'POST', $postData); 
+                return response()->json($errorArray);
+            }               
+            $publicHtml = $this->getFileCount($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), 'public_html');
+            if(is_array($publicHtml) && array_key_exists("cpanelresult", $publicHtml) && array_key_exists("data", $publicHtml['cpanelresult']) && count($publicHtml['cpanelresult']['data']) >= 1 ) {
+                $errorArray = [
+                    'api_response' => 'error',
+                    'status_code' => 400,
+                    'data' => 'Install Wordpress',
+                    'message' => count($publicHtml['cpanelresult']['data']).' files and folder exist in root directory'
+                ];
+                return response()->json($errorArray);
+            }
+            $errorArray = [
+                'api_response' => 'success',
+                'status_code' => 200,
+                'data' => 'Install Wordpress',
+                'message' => 'WordPress is not installed'
+            ];
             return response()->json($errorArray);
         }
         catch(Exception $ex){
