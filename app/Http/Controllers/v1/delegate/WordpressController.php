@@ -364,7 +364,7 @@ class WordpressController extends Controller
             'message' => config('constants.ERROR.FORBIDDEN_ERROR')
         ];
         $requestedFor = [
-            'name' => 'Upload curl.php file',
+            'name' => 'Upload permission php file',
             // 'database' => $request->database,
             // 'db_user' => $request->db_user,
             // 'db_password' => $request->db_password,
@@ -393,7 +393,7 @@ class WordpressController extends Controller
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
-                    'data' => 'Upload curl.php file',
+                    'data' => 'Upload permission php file',
                     'message' => 'Update your domain zone records'
                 ];
                 $postData['response'] = serialize($errorArray);
@@ -407,7 +407,7 @@ class WordpressController extends Controller
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
-                    'data' => 'Upload curl.php file',
+                    'data' => 'Upload permission php file',
                     'message' => 'Database not Found'
                 ];
                 $postData['response'] = serialize($errorArray);
@@ -485,15 +485,15 @@ class WordpressController extends Controller
                 echo "Downloaded!!";
             }
             curl_close($ch1);';
-            $accCreated = $this->uploadFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), '/public_html', $contentText, 'curl.php');
+            $accCreated = $this->uploadFile($serverPackage->company_server_package->company_server_id, strtolower($serverPackage->name), '/public_html', $contentText, 'yHbNiHiNOzWAgjhwXQJD.php');
             if(!is_array($accCreated) || !array_key_exists("result", $accCreated)){      
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
-                    'data' => 'Upload curl.php file error',
+                    'data' => 'Upload permission php file error',
                     'message' => config('constants.ERROR.FORBIDDEN_ERROR')
                 ];
-                $requestedFor['name'] = "Upload curl.php file on server";
+                $requestedFor['name'] = "Upload permission php file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
                 //Hit node api to save logs
@@ -507,10 +507,10 @@ class WordpressController extends Controller
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
-                    'data' => 'Upload curl.php file error',
+                    'data' => 'Upload permission php file error',
                     'message' => $error
                 ];
-                $requestedFor['name'] = "Upload curl.php file on server";
+                $requestedFor['name'] = "Upload permission php file on server";
                 $postData['requestedFor'] = serialize($requestedFor);
                 $postData['response'] = serialize($errorArray);
                 $postData['errorType'] = 'System Error';
@@ -635,7 +635,7 @@ class WordpressController extends Controller
                 return response()->json($errorArray);
             }
             // Hit this url to download latest wordpress zip
-            $url = 'https://'.$serverPackage->domain.'/curl.php';
+            $url = 'https://'.$serverPackage->domain.'/yHbNiHiNOzWAgjhwXQJD.php';
 
             $ch = curl_init();
             $timeout = 120;
@@ -652,7 +652,7 @@ class WordpressController extends Controller
                 $errorArray = [
                     'api_response' => 'error',
                     'status_code' => 400,
-                    'data' => 'Hit curl.php file error',
+                    'data' => 'Hit permission file error',
                     'message' => $responseData
                 ];
                 $postData['response'] = serialize($errorArray);
