@@ -730,6 +730,7 @@ class CpanelController extends Controller
                     }
                     
                     $this->changeSecurityLevelSetting('essentially_off', $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
+                    $this->changeSslSetting('full', $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                 }
                 $userAccount = UserServer::updateOrCreate(['user_id' => $request->userid, 'order_id' => $orderId ], $accountCreate);
             } catch(\Exception $ex){

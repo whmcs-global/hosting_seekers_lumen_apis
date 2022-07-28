@@ -246,6 +246,16 @@ trait CloudfareTrait {
         $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
         return $result;
     }
+    
+    public function changeSslSetting($value, $zoneidentifier, $ApiEmail, $ApiKey)
+    {
+        $url = $this->ApiUrl . "zones/" . $zoneidentifier . "/settings/ssl";
+        $action = "patch";
+        $extra = array("cfusername" => $ApiEmail, "cfapikey" => $ApiKey);
+        $post = array("value" => $value);
+        $result = $this->sendCloudRequest($url, $action, $extra, json_encode($post));
+        return $result;
+    }
 
     public function getModeSetting($value, $zoneidentifier, $ApiEmail, $ApiKey)
     {

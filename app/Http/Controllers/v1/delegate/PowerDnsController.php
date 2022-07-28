@@ -158,6 +158,7 @@ class PowerDnsController extends Controller
                         $createDns = $this->createDNSRecord($dnsVal, $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                     }
                     $this->changeSecurityLevelSetting('essentially_off', $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
+                    $this->changeSslSetting('full', $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                 }
                 UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
                 $serverPackage = UserServer::where(['id' => $serverPackage->id])->first();
@@ -400,6 +401,7 @@ class PowerDnsController extends Controller
                         $createDns = $this->createDNSRecord($dnsVal, $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                     }
                     $this->changeSecurityLevelSetting('essentially_off', $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
+                    $this->changeSslSetting('full', $zoneId, $cloudfareUser->email, $cloudfareUser->user_api);
                 }
                 UserServer::where(['id' => $serverPackage->id])->update($accountCreate);
                 $serverPackage = UserServer::where(['id' => $serverPackage->id])->first();
