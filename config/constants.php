@@ -49,7 +49,7 @@ return [
     'NODE_URL' => "https://www.hostingseekers.com/c-review",
     'TICKET_URL' => "https://support.hostingseekers.com",
     'SES_URL' => "https://www.hostingseekers.com/c-review/send/emails-ses",
-    'SMTP_URL' => "https://www.hostingseekers.com/c-review/send/emails-smtp",
+    'SMTP_URL' => "https://www.hostingseekers.com/c-review/send/email-smtp",
     'SENT_THROUGH_SMTP' => TRUE
     
 
