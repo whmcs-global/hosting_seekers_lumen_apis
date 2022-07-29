@@ -76,7 +76,7 @@ class TicketController extends Controller
             $userId = jsdecode_userdata($request->user_id);
             $userData = User::where('id',$userId)->first(); 
             if($userData){
-                $userArray['name'] = $userData->company_detail ? $userData->company_detail->company_name :  $userData->first_name.' '.$user->last_name;
+                $userArray['name'] = $userData->company_detail ? $userData->company_detail->company_name :  $userData->first_name.' '.$userData->last_name;
                 $userArray['email'] = $userData->email;
                 return $this->apiResponse('success', '200', 'Data fetched', $userArray);
             }
