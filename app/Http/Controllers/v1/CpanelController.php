@@ -421,6 +421,10 @@ class CpanelController extends Controller
         if($validator->fails()){
             return response()->json(["success"=>false, "errors"=>$validator->getMessageBag()->toArray()],400);
         }
+        $domainNameArray = explode('.', $request->domain_name);
+        if(in_array($domainNameArray[array_key_last($domainNameArray)], ['gq', 'cf', 'ga', 'ml', 'tk'])){
+            return response()->json(["success"=>false, "errors"=> ['domain_name' => 'We do not provide the free hosting for .tk,.ml,.ga,.cf,.gq']],400);
+        }
         $errorArray = [
             'api_response' => 'error',
             'status_code' => 400,
